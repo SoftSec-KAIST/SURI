@@ -8,7 +8,6 @@ WORKDIR=/script/
 
 MYDIR="$(dirname "$0")"
 OPTS=("-Os" "-Ofast" "-O3" "-O2" "-O1" "-O0")
-OPTS=("-O0")
 PIEOPTS=("-pie")
 TARGETOPTS=("x64" )
 LINKEROPTS=("-fuse-ld=gold" "-fuse-ld=bfd")
