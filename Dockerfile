@@ -51,5 +51,6 @@ COPY ./script/binutils-2.40_list.txt /binutils-2.40/binutils-2.40_list.txt
 
 RUN wget --no-check-certificate -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/focal/   llvm-toolchain-focal-13  main' && \
-    apt update
-    apt install -y clang-13 libomp-dev libomp5 libomp-13-dev
+    apt update && \
+    apt install -y clang-13 libomp-dev && \
+    apt install -y libomp-13-dev
