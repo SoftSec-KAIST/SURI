@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AddrRange.Tests.fs" />
+    <Compile Include="LRUCache.Tests.fs" />
+    <Compile Include="IntervalTree.Tests.fs" />
+    <Compile Include="BitVector.Tests.fs" />
+    <Compile Include="ByteArray.Tests.fs" />
+    <Compile Include="LEB128.Tests.fs" />
+    <Compile Include="SortedList.Tests.fs" />
+    <Compile Include="BinReader.Tests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\B2R2.Core.fsproj" />
+  </ItemGroup>
+
+</Project>

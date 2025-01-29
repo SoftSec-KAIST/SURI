@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <RootNamespace>SupersetCFG</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="MetaGen.fs" />
+        <Compile Include="ASanGen.fs" />
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core\B2R2.Core.fsproj" />
+      <ProjectReference Include="..\FrontEnd\BinInterface\B2R2.FrontEnd.BinInterface.fsproj" />
+      <ProjectReference Include="..\MiddleEnd\BinEssence\B2R2.MiddleEnd.BinEssence.fsproj" />
+      <ProjectReference Include="..\MiddleEnd\BinGraph\B2R2.MiddleEnd.BinGraph.fsproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    </ItemGroup>
+
+</Project>
