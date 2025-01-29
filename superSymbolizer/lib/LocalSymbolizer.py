@@ -977,7 +977,7 @@ class LocalSymbolizer:
                 reassem = reassem.replace(' %%ST%d'%(fpReg), ' %%ST(%d)'%(fpReg))
 
         if is_unsupported_instruction(reassem, self.syntax):
-            print('[-] Unsupprted instruction %s'%(reassem))
+            # print('[-] Unsupported instruction %s'%(reassem))
             reassem = '# ' + reassem
             comment = 'Unsupported instruction'
         else:
