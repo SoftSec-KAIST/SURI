@@ -1,11 +1,12 @@
 from collections import namedtuple
 import glob, os, sys
 import multiprocessing
+from suri_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'output_path', 'arch', 'pie', 'package', 'bin'])
 
 
-def gen_option(input_root, reassem_root, output_root, package, blacklist, whitelist):
+def gen_option(input_root, reassem_root, dataset, output_root, package, blacklist, whitelist):
     ret = []
     cnt = 0
     for arch in ['x64']:
@@ -21,29 +22,15 @@ def gen_option(input_root, reassem_root, output_root, package, blacklist, whitel
                             filename = os.path.basename(target)
                             binpath = '%s/bin/%s'%(input_dir, filename)
 
-                            if package in ['coreutils-9.1']:
-                                # 1 (opt) * 2 (comp) * 2 (linker) = 4
-                                if comp_set in ['gcc-11', 'gcc-13']:
-                                    if opt in ['ofast']:
-                                        if filename in ['seq']:
-                                            continue
-
-                            # 5 (opt) * 4 (comp) * 2 (linker) =  40
-                            if filename in ['416.gamess'] and opt not in ['o0']:
-                                continue
-                            # 1 (opt) * 1 (comp) * 2 (linker) = 2
-                            if filename in ['453.povray'] and opt in ['ofast'] and comp in ['gcc-13']:
-                                continue
-                            # 1 (opt) * 1 (comp) * 2 (linker) = 2
-                            if filename in ['511.povray_r'] and opt in ['ofast'] and comp in ['gcc-13']:
-                                continue
-
                             reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
                             out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
 
                             if blacklist and filename in blacklist:
                                 continue
                             if whitelist and filename not in whitelist:
+                                continue
+
+                            if check_exclude_files(dataset, package, comp, opt, filename):
                                 continue
 
                             ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, output_root, arch, popt, package, binpath))
@@ -73,9 +60,9 @@ def run(input_root, reassem_root, dataset, package, core=1, blacklist=None, whit
     if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
         return False
 
-    output_root = './objdump_result/%s'%(dataset)
+    output_root = './stat/size/%s'%(dataset)
 
-    config_list = gen_option(input_root, reassem_root, output_root, package, blacklist, whitelist)
+    config_list = gen_option(input_root, reassem_root, dataset, output_root, package, blacklist, whitelist)
 
     if core and core > 1:
         p = multiprocessing.Pool(core)
@@ -101,7 +88,7 @@ if __name__ == '__main__':
     assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
 
     input_dir = '%s/%s'%(args.input_dir, args.dataset)
-    output_dir = '%s/%s'%(args.input_dir, args.dataset)
+    output_dir = '%s/%s'%(args.output_dir, args.dataset)
 
     if args.package:
         run(iinput_dir, output_dir, args.dataset, args.package, args.core, args.blacklist, args.whitelist)

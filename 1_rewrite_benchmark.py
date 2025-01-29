@@ -235,7 +235,7 @@ if __name__ == '__main__':
     assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
     input_dir = '%s/%s'%(args.input_dir, args.dataset)
-    output_dir = '%s/%s'%(args.input_dir, args.dataset)
+    output_dir = '%s/%s'%(args.output_dir, args.dataset)
 
     if args.package:
         run(input_dir, output_dir, args.dataset, args.package, args.core, args.blacklist, args.whitelist, args.dataset)
