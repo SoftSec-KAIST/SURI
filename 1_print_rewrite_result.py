@@ -96,15 +96,10 @@ def job(conf, verbose):
 
 
 
-def run(dataset, package, verbose):
+def run(input_root, output_root, dataset, package, verbose):
+
     if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006' ]:
         return False
-
-    if dataset == 'setA':
-        input_root = './benchmark/%s'%(dataset)
-        output_root = './output/%s'%(dataset)
-    else:
-        assert False, 'Invalid dataset'
 
     config_list = gen_option(input_root, output_root, package, dataset)
 
@@ -178,9 +173,16 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='manager')
     parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('--input_dir', type=str, default='benchmark')
+    parser.add_argument('--output_dir', type=str, default='output')
     parser.add_argument('--verbose', action='store_true')
 
     args = parser.parse_args()
+
+    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+
+    input_root = './benchmark/%s'%(args.input_dir, args.dataset)
+    output_root = './output/%s'%(args.output_dir, args.dataset)
 
     if args.dataset == ['setA']:
         print('%32s    %22s   %22s'%('', 'suri', 'ddisasm'))
@@ -193,7 +195,7 @@ if __name__ == '__main__':
 
     file_cnt, suri_cnt, other_cnt, suri_sum, other_sum = 0, 0, 0, 0, 0
     for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
-        cnt1, cnt2, cnt3, cnt4, cnt5 = run(args.dataset, package, args.verbose)
+        cnt1, cnt2, cnt3, cnt4, cnt5 = run(input_root, output_root, args.dataset, package, args.verbose)
         file_cnt += cnt1
         suri_cnt += cnt2
         other_cnt += cnt3
