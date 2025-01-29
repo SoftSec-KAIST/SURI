@@ -8,7 +8,7 @@ from suri_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'comp', 'pie', 'package', 'bin'])
 
-def gen_option(input_root, reassem_root, package, blacklist, whitelist):
+def gen_option(input_root, reassem_root, dataset, package, blacklist, whitelist):
     ret = []
     cnt = 0
     comp_set =  ['clang-10', 'clang-13', 'gcc-11', 'gcc-13']
@@ -76,7 +76,7 @@ def create_set(dataset, conf, filename):
 
 def run(input_root, reassem_root, dataset, package, core=1, blacklist=None, whitelist=None):
 
-    config_list = gen_option(input_root, reassem_root, package, blacklist, whitelist)
+    config_list = gen_option(input_root, reassem_root, dataset, package, blacklist, whitelist)
 
     for conf in config_list:
         filename = os.path.basename(conf.bin)
@@ -98,8 +98,8 @@ if __name__ == '__main__':
 
     assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
-    input_root = './benchmark/%s'%(args.input_dir, args.dataset)
-    output_root = './output/%s'%(args.output_dir, args.dataset)
+    input_root = './%s/%s'%(args.input_dir, args.dataset)
+    output_root = './%s/%s'%(args.output_dir, args.dataset)
 
     for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
         run(input_root, output_root, args.dataset, package, args.core, args.blacklist, args.whitelist)
