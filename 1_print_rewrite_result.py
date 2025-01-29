@@ -5,7 +5,7 @@ from suri_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'pie', 'package', 'bin'])
 
-def gen_option(input_root, output_root, package):
+def gen_option(input_root, output_root, package, dataset):
     ret = []
     cnt = 0
     for arch in ['x64']:
@@ -51,7 +51,6 @@ def read_time(filename):
         return (minute*60+sec)
 
 def check_super(root, filename, verbose):
-    root = root.replace('./output', '/data3/3_supersetCFG/output')
     target = '%s/%s'%(root, filename)
 
     if os.path.exists(target):
@@ -66,9 +65,8 @@ def check_super(root, filename, verbose):
     return 0.0
 
 def check_ddisasm(root, filename, verbose):
-    root = root.replace('./output', '/data5/2024/output')
-
     target = '%s/%s'%(root, filename)
+
     if os.path.exists(target):
         t1 = read_time('%s/tlog.txt'%(root))
         t2 = read_time('%s/tlog2.txt'%(root))
@@ -76,6 +74,15 @@ def check_ddisasm(root, filename, verbose):
     if verbose:
         print(' [-] Ddisasm fails to reassemble %s'%(target))
     return 0.0
+
+def check_egalito(root, filename, verbose):
+    target = '%s/%s'%(root, filename)
+    if os.path.exists(target):
+        t1 = read_time('%s/tlogx.txt'%(root))
+        return t1, True
+    if verbose:
+        print(' [-] Egalito fails to reassemble %s'%(target))
+    return 0.0, False
 
 def job(conf, verbose):
     filename = os.path.basename(conf.bin)
@@ -89,19 +96,17 @@ def job(conf, verbose):
 
 
 
-
-
 def run(dataset, package, verbose):
     if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006' ]:
         return False
 
     if dataset == 'setA':
         input_root = './benchmark/%s'%(dataset)
-        output_root = './output/%s'(dataset)
+        output_root = './output/%s'%(dataset)
     else:
         assert False, 'Invalid dataset'
 
-    config_list = gen_option(input_root, output_root, package)
+    config_list = gen_option(input_root, output_root, package, dataset)
 
     time_dict = dict()
     file_dict = dict()
@@ -134,15 +139,16 @@ def run(dataset, package, verbose):
         suri_sum_cnt = 0
         other_sum_cnt = 0
         file_sum_cnt = 0
+
+        success = 0
+
+        tot1 = 0
+        tot2 = 0
         for comp in sorted(time_dict):
             if comp_base not in comp:
                 continue
 
             filedict = time_dict[comp]
-            success = 0
-
-            tot1 = 0
-            tot2 = 0
             for filename in filedict.keys():
                 for (t1, t2) in time_dict[comp][filename]:
                     tot1 += t1
@@ -155,13 +161,13 @@ def run(dataset, package, verbose):
         if success == 0:
             continue
 
-        print('%15s %10s  : %10f%% %10f : %10f%% %10f'%(package, comp_base,
+        print('%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'%(package, comp_base, file_sum_cnt,
             suri_sum_cnt / file_sum_cnt * 100, tot1/success,
             other_sum_cnt / file_sum_cnt * 100, tot2/success ))
 
-        file_cnt += file_dict[comp]
-        suri_cnt += suri_dict[comp]
-        other_cnt += other_dict[comp]
+        file_cnt += file_sum_cnt
+        suri_cnt += suri_sum_cnt
+        other_cnt += other_sum_cnt
         suri_sum += tot1
         other_sum += tot2
 
@@ -177,11 +183,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.dataset == ['setA']:
-        print('%26s    %22s   %22s'%('', 'suri', 'ddisasm'))
+        print('%32s    %22s   %22s'%('', 'suri', 'ddisasm'))
     elif args.dataset == ['setB']:
-        print('%26s    %22s   %22s'%('', 'suri', 'egalito'))
+        print('%32s    %22s   %22s'%('', 'suri', 'egalito'))
     elif args.dataset == ['setC']:
-        print('%26s    %22s   %22s'%('', 'suri', 'suri(no_ehframe)'))
+        print('%32s    %22s   %22s'%('', 'suri', 'suri(no_ehframe)'))
 
     print('-----------------------------------------------------------------------------')
 
@@ -194,7 +200,8 @@ if __name__ == '__main__':
         suri_sum += cnt4
         other_sum += cnt5
 
-    print('-----------------------------------------------------------------------------')
-    print('%26s  : %10f%% %10f : %10f%% %10f'%('all',
-        suri_cnt / file_cnt * 100, suri_sum / file_cnt ,
-        other_cnt / file_cnt * 100, other_sum / file_cnt ))
+    if file_cnt:
+        print('-----------------------------------------------------------------------------')
+        print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', file_cnt,
+            suri_cnt / file_cnt * 100, suri_sum / file_cnt ,
+            other_cnt / file_cnt * 100, other_sum / file_cnt ))

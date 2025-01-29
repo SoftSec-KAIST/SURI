@@ -41,7 +41,7 @@ def check_exclude_files(dataset, package, comp, opt, filename):
         if filename in ['453.povray'] and opt in ['ofast'] and comp in ['gcc-13']:
             return True
 
-    if package in ['spec_cpu2006']:
+    if package in ['spec_cpu2017']:
         # 1 (opt) * 1 (comp) * 2 (linker) = 2
         if filename in ['511.povray_r'] and opt in ['ofast'] and comp in ['gcc-13']:
             return True
