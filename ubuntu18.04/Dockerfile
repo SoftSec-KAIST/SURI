@@ -45,4 +45,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt install texinfo bison dejagnu -y  && \
 COPY ./build_script/script/binutils_copy.sh /binutils-2.40/copy.sh
 COPY ./build_script/script/binutils-2.40_list.txt /binutils-2.40/binutils-2.40_list.txt
 
-
+RUN git clone https://github.com/witbring/retrowrite_ef4e541.git /project/retrowrite && \
+    cd /project/retrowrite && \
+    pip3 install -r requirements.txt
