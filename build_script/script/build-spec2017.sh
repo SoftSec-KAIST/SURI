@@ -8,7 +8,6 @@ WORKDIR=/script/
 
 MYDIR="$(dirname "$0")"
 OPTS=("-Os" "-Ofast" "-O3" "-O2" "-O1" "-O0")
-OPTS=("-O0")
 PIEOPTS=("-pie")
 TARGETOPTS=("x64" )
 LINKEROPTS=("-fuse-ld=gold" "-fuse-ld=bfd")
@@ -84,53 +83,34 @@ build_bin(){
     /bin/bash ./copy.sh spec_cpu2017 case1 $COMPILER $OPTSTR $LINKEROPTSTR
 }
 
-build_all(){
-    for TARGETOPT in ${TARGETOPTS[@]}
-    do
-        for OPT in ${OPTS[@]}
-        do
-            for PIEOPT in ${PIEOPTS[@]}
-            do
-                for LINKEROPT in ${LINKEROPTS[@]}
-                do
-                    echo build_bin $TARGETOPT $OPT $PIEOPT $LINKEROPT
-                    build_bin $PACKAGE $TARGETOPT $OPT $PIEOPT $LINKEROPT
-                done
-            done
-        done
-    done
-}
+arg_opt=$1
+arg_lopt=$2
 
 GCC=/usr/bin/gcc-11
 GPP=/usr/bin/g++-11
 GFORTRAN=/usr/bin/gfortran-11
 COMMON="-ggdb -save-temps=obj -fverbose-asm -fcf-protection=full -mno-avx512f -mno-avx2"
 
-build_all
-#build_bin spec_cpu2017 x64 -O3 -pie -fuse-ld=bfd
+build_bin spec_cpu2017 x64 $arg_opt -pie -fuse-ld=$arg_lopt
 
 GCC=/usr/bin/gcc-13
 GPP=/usr/bin/g++-13
 GFORTRAN=/usr/bin/gfortran-13
 COMMON="-ggdb -save-temps=obj -fverbose-asm -fcf-protection=full -mno-avx512f -mno-avx2"
 
-build_all
-#build_bin spec_cpu2017 x64 -O3 -pie -fuse-ld=bfd
+build_bin spec_cpu2017 x64 $arg_opt -pie -fuse-ld=$arg_lopt
 
 GCC=/usr/bin/clang-10
 GPP=/usr/bin/clang++-10
 GFORTRAN=/usr/bin/gfortran-11
 COMMON="-ggdb -save-temps=obj -fverbose-asm -fcf-protection=full -mno-avx512f -mno-avx2"
 
-build_all
-#build_bin spec_cpu2017 x64 -O3 -pie -fuse-ld=bfd
+build_bin spec_cpu2017 x64 $arg_opt -pie -fuse-ld=$arg_lopt
 
 GCC=/usr/bin/clang-13
 GPP=/usr/bin/clang++-13
 GFORTRAN=/usr/bin/gfortran-11
 COMMON="-ggdb -save-temps=obj -fverbose-asm -fcf-protection=full -mno-avx512f -mno-avx2"
 
-build_all
-#build_bin spec_cpu2017 x64 -O3 -pie -fuse-ld=bfd
-
+build_bin spec_cpu2017 x64 $arg_opt -pie -fuse-ld=$arg_lopt
 
