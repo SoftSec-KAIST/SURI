@@ -1,10 +1,11 @@
 from collections import namedtuple
 import glob, os, sys
 import multiprocessing
+from suri_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'output_path', 'arch', 'pie', 'package', 'bin'])
 
-def gen_option(input_root, reassem_root, output_root, package, blacklist, whitelist):
+def gen_option(input_root, reassem_root, output_root, dataset, package, blacklist, whitelist):
     ret = []
     cnt = 0
     for arch in ['x64']:
@@ -19,15 +20,15 @@ def gen_option(input_root, reassem_root, output_root, package, blacklist, whitel
                             filename = os.path.basename(target)
                             binpath = '%s/bin/%s'%(input_dir, filename)
 
-                            if filename in ['416.gamess'] and opt not in ['o0']:
-                                continue
-
                             reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
                             out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
 
                             if blacklist and filename in blacklist:
                                 continue
                             if whitelist and filename not in whitelist:
+                                continue
+
+                            if check_exclude_files(dataset, package, comp, opt, filename):
                                 continue
 
                             ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, output_root, arch, popt, package, binpath))
@@ -57,7 +58,7 @@ def run(input_root, reassem_root, dataset, package, core=1, blacklist=None, whit
         return False
     output_root = 'stat/bbl/%s'%(dataset)
 
-    config_list = gen_option(input_root, reassem_root, output_root, package, blacklist, whitelist)
+    config_list = gen_option(input_root, reassem_root, dataset, output_root, package, blacklist, whitelist)
 
     if core and core > 1:
         p = multiprocessing.Pool(core)
