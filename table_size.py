@@ -5,7 +5,7 @@ import os, sys
 import re
 from json import JSONDecodeError
 
-sys.path.append("../../..")
+sys.path.append("superSymbolizer")
 
 from lib.CFGSerializer import construct_CFG
 from lib.Misc import is_unsupported_instruction
