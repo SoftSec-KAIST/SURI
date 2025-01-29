@@ -49,7 +49,6 @@ def job(conf, reset=False):
     if os.path.exists(output_file):
         return
 
-    print('python3 bbl_stat.py %s %s %s'%(conf.bin, b2r2_func_path, output_file))
     os.system('python3 bbl_stat.py %s %s %s'%(conf.bin, b2r2_func_path, output_file))
 
 
@@ -58,7 +57,7 @@ def run(input_root, reassem_root, dataset, package, core=1, blacklist=None, whit
         return False
     output_root = 'stat/bbl/%s'%(dataset)
 
-    config_list = gen_option(input_root, reassem_root, dataset, output_root, package, blacklist, whitelist)
+    config_list = gen_option(input_root, reassem_root, output_root, dataset, package, blacklist, whitelist)
 
     if core and core > 1:
         p = multiprocessing.Pool(core)
