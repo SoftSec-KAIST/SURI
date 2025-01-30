@@ -1,0 +1,4 @@
+capstone
+pyelftools>=0.29
+bitstring
+numpy
