@@ -73,7 +73,7 @@ def compile_suri(conf, filename, input_dir, output_dir):
     sub3 = 'cd /project/superSymbolizer/'
     sub4 = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlog3.txt python3 /project/superSymbolizer/CustomCompiler.py /input/%s /output/%s.s /output/%s'%(filename, filename, filename)
 
-    if conf.datset in ['setA', 'setC']:
+    if conf.dataset in ['setA', 'setC']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri:v1.0 sh -c " %s; %s"'%( input_dir, output_dir, sub3, sub4)
     elif conf.dataset in ['setB']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_ubuntu18.04:v1.0 sh -c " %s; %s"'%( input_dir, output_dir, sub3, sub4)
@@ -234,11 +234,11 @@ if __name__ == '__main__':
 
     assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
-    input_dir = '%s/%s'%(args.input_dir, args.dataset)
-    output_dir = '%s/%s'%(args.output_dir, args.dataset)
+    input_dir = './%s/%s'%(args.input_dir, args.dataset)
+    output_dir = './%s/%s'%(args.output_dir, args.dataset)
 
     if args.package:
         run(input_dir, output_dir, args.dataset, args.package, args.core, args.blacklist, args.whitelist, args.dataset)
     else:
         for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
-            run(input_dir, output_dir, args.dataset, args.core, args.blacklist, args.whitelist, args.dataset)
+            run(input_dir, output_dir, package, args.core, args.blacklist, args.whitelist, args.dataset)
