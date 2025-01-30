@@ -150,8 +150,8 @@ $ python3 setup.py install --user
 After Reassessor is installed, you can generate ground truth from our dataset
 using these commands (see below Section if you want to know what setA and setC are):
 ```
-$ python3 5_make_gt.py setA
-$ python3 5_make_gt.py setC
+$ python3 make_gt.py setA
+$ python3 make_gt.py setC
 ```
 
 Note that you don't need to run the above command if you downloaded our dataset from
@@ -248,12 +248,12 @@ $ python3 1_print_rewrite_result.py setB
 #### 2.1.2 Reliability of SURI (Section 4.2.3)
 
 After completion of the previous experiment, collect the binaries for the
-reliability testing using the `2_make_set.py` script. This will create setA,
+reliability testing using the `make_set.py` script. This will create setA,
 setB, and setC folders in the project directory.
 ```
-$ python3 2_make_set.py setA
-$ python3 2_make_set.py setB
-$ python3 2_make_set.py setC
+$ python3 make_set.py setA
+$ python3 make_set.py setB
+$ python3 make_set.py setC
 ```
 
 ##### 2.1.2.1 Coreutils and Binutils Tests
@@ -266,7 +266,7 @@ about 15 hours.
 
 Run the test suite for setA (SURI vs. Ddisasm):
 ```
-$ python3 3_run_testsuite.py setA
+$ python3 1_run_testsuite.py setA
 ...
                                           suri                Ddiasm
 coreutils-9.1   (clang):       Succ(  24/  24)       Succ(  24/  24)
@@ -277,7 +277,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)       Fail(   7/  24)
 
 Run the test suite for setB (SURI vs. Egalito):
 ```
-$ python3 3_run_testsuite.py setB
+$ python3 1_run_testsuite.py setB
 ...
                                           suri               Egalito
 coreutils-9.1   (gcc  ):       Succ(  12/  12)       Fail(   0/  12)
@@ -290,12 +290,12 @@ If Egalito produces invalid binaries that cause the test suite to hang, use the
 provided script to terminate the Docker process:
 
 ```
-$ /bin/bash 3_terminate_suri_docker.sh
+$ /bin/bash terminate_suri_docker.sh
 ```
 
 Finally, test setC:
 ```
-$ python3 3_run_testsuite.py setC
+$ python3 1_run_testsuite.py setC
 ...
                               suri(no_ehframe)
 coreutils-9.1   (clang):       Succ(  24/  24)
@@ -309,7 +309,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 
 If you have your own SPEC benchmarks and you have built updated Docker images
 (See 1.1.4), then you can run the SPEC benchmark test suites. Execute the test
-suite using the `3_run_testsuite_spec.py' script. After running the script, the
+suite using the `1_run_testsuite_spec.py' script. After running the script, the
 results will be displayed. Completing all test suites for each set typically
 takes 7 to 10 days.
 
@@ -317,7 +317,7 @@ If you restart the script, it will skip previously completed tests and continue
 from the next test suite.
 
 ```
-$ python3 3_run_testsuite_spec.py setA
+$ python3 1_run_testsuite_spec.py setA
                         :                    suri :                 ddiasm
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 724/ 724) :  86.878453% ( 629/ 724)
@@ -329,7 +329,7 @@ spec_cpu2017    (clang) : 100.000000% (1078/1078) :  86.270872% ( 930/1078)
 spec_cpu2017    (gcc  ) : 100.000000% (1116/1116) :  82.885305% ( 925/1116)
 			[+] SURI passes all test suites (1126/1126)
 
-$ python3 3_run_testsuite_spec.py setB
+$ python3 1_run_testsuite_spec.py setB
                         :                    suri :                egalito
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 275/ 275) :  93.454545% ( 257/ 275)
@@ -341,7 +341,7 @@ spec_cpu2017    (clang) : 100.000000% ( 374/ 374) :  87.967914% ( 329/ 374)
 spec_cpu2017    (gcc  ) : 100.000000% ( 360/ 360) :  80.555556% ( 290/ 360)
 			[+] SURI passes all test suites (396/396)
 
-$ python3 3_run_testsuite_spec.py setC
+$ python3 1_run_testsuite_spec.py setC
                         :       suri (no ehframe)
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 724/ 724)
@@ -355,7 +355,7 @@ spec_cpu2017    (gcc  ) : 100.000000% (1126/1126)
 ```
 If your PC has enough memory, we can ran it with multithreading by enabling --core options.
 ```
-$ python3 3_run_testsuite_spec.py setA --core 4
+$ python3 1_run_testsuite_spec.py setA --core 4
 ```
 
 
@@ -368,8 +368,8 @@ rewritten by SURI, as explained in Section 4.3.1 of the paper.
 
 To measure code size overhead, execute the following scripts:
 ```
-$ python3 5_get_code_size.py setA
-$ python3 5_print_code_size_overhead.py setA
+$ python3 2_get_code_size.py setA
+$ python3 2_print_code_size_overhead.py setA
 
   coreutils-9.1       5180   2.691429
   binutils-2.40        720   0.598323
@@ -382,8 +382,8 @@ $ python3 5_print_code_size_overhead.py setA
 
 To analyze the overhead of if-then-else statements, run:
 ```
-$ python3 5_get_br_stat.py ./benchmark ./output
-$ python3 5_print_br_overhead.py setA
+$ python3 2_get_br_stat.py ./benchmark ./output
+$ python3 2_print_br_overhead.py setA
 
 Multi Br-------------
   coreutils-9.1       5136   0.020213
@@ -395,8 +395,8 @@ Multi Br-------------
 
 Finally, to measure jump table entries overhead, run:
 ```
-$ python3 5_get_table_size.py ./benchmark ./output
-$ python3 5_print_table_overhead.py
+$ python3 2_get_table_size.py ./benchmark ./output
+$ python3 2_print_table_overhead.py
 
 Table-------------
   coreutils-9.1       5136   0.097256
@@ -419,24 +419,24 @@ We estimate that each set takes approximately 2.5 days to complete.
 To measure runtime overhead, execute the following commands:
 
 ```
-$ python3 4_get_runtime_overhead.py setA | tee 4_runtime_overheadA.sh
-$ /bin/bash 4_runtime_overheadA.sh
+$ python3 2_get_runtime_overhead.py setA | tee 2_runtime_overheadA.sh
+$ /bin/bash 2_runtime_overheadA.sh
 
-$ python3 4_get_runtime_overhead.py setB | tee 4_runtime_overheadB.sh
-$ /bin/bash 4_runtime_overheadB.sh
+$ python3 2_get_runtime_overhead.py setB | tee 2_runtime_overheadB.sh
+$ /bin/bash 2_runtime_overheadB.sh
 
 ```
 
 After running the above commands, you can analyze the results using
-`4_print_runtime_overhead.py`:
+`2_print_runtime_overhead.py`:
 
 ```
-$ python3 4_print_runtime_overhead.py setA
+$ python3 2_print_runtime_overhead.py setA
                      |      suri   ddisasm
 spec_cpu2006      24 | 0.329513% 0.321086%
 spec_cpu2017      21 | 0.188620% 0.319419%
 
-$ python3 4_print_runtime_overhead.py setB
+$ python3 2_print_runtime_overhead.py setB
                      |     suri    egalito
 spec_cpu2006      24 | 0.457050% 0.694204%
 spec_cpu2017      21 | 0.167273% 0.037466%
