@@ -3,7 +3,7 @@ import glob, os, sys
 import multiprocessing
 from suri_utils import check_exclude_files
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'pie', 'package', 'bin'])
+BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'pie', 'package', 'bin', 'dataset'])
 
 def gen_option(input_root, output_root, package, dataset):
     ret = []
@@ -25,7 +25,7 @@ def gen_option(input_root, output_root, package, dataset):
                             if check_exclude_files(dataset, package, comp, opt, filename):
                                 continue
 
-                            ret.append(BuildConf(target, input_root, sub_dir, out_dir, comp, popt, package, binpath))
+                            ret.append(BuildConf(target, input_root, sub_dir, out_dir, comp, popt, package, binpath, dataset))
 
                             cnt += 1
     return ret
@@ -88,11 +88,19 @@ def job(conf, verbose):
     filename = os.path.basename(conf.bin)
     super_dir = '%s/super'%(conf.output_path)
     ddisasm_dir = '%s/ddisasm'%(conf.output_path)
+    egalito_dir = '%s/egalito'%(conf.output_path)
 
     t1 = check_super(super_dir, 'my_'+filename, verbose)
-    t2 = check_ddisasm(ddisasm_dir, filename, verbose)
+    if conf.dataset == 'setA':
+        t2 = check_ddisasm(ddisasm_dir, filename, verbose)
+        egalito_succ = False
+    elif conf.dataset == 'setB':
+        t2, egalito_succ = check_egalito(egalito_dir, filename, verbose)
+    elif conf.dataset == 'setC':
+        t2 = check_super(super_dir.replace('setC','setA'), 'my_'+filename, verbose)
+        egalito_succ = False
 
-    return (filename, t1, t2)
+    return (filename, t1, t2, egalito_succ)
 
 
 
@@ -114,7 +122,7 @@ def run(input_root, output_root, dataset, package, verbose):
             suri_dict[conf.comp] = 0
             other_dict[conf.comp] = 0
 
-        filename, t1, t2 = job(conf, verbose)
+        filename, t1, t2, egalito_succ = job(conf, verbose)
         if t1 > 0 and t2 > 0:
             if filename not in time_dict[conf.comp]:
                 time_dict[conf.comp][filename] = []
@@ -123,6 +131,8 @@ def run(input_root, output_root, dataset, package, verbose):
         if t1 > 0:
             suri_dict[conf.comp] += 1
         if t2 > 0:
+            other_dict[conf.comp] += 1
+        elif egalito_succ:
             other_dict[conf.comp] += 1
         file_dict[conf.comp] += 1
 
@@ -181,21 +191,22 @@ if __name__ == '__main__':
 
     assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
-    input_root = './benchmark/%s'%(args.input_dir, args.dataset)
-    output_root = './output/%s'%(args.output_dir, args.dataset)
+    dataset = args.dataset
+    input_root = './%s/%s'%(args.input_dir, args.dataset)
+    output_root = './%s/%s'%(args.output_dir, args.dataset)
 
-    if args.dataset == ['setA']:
+    if dataset == 'setA':
         print('%32s    %22s   %22s'%('', 'suri', 'ddisasm'))
-    elif args.dataset == ['setB']:
+    elif dataset == 'setB':
         print('%32s    %22s   %22s'%('', 'suri', 'egalito'))
-    elif args.dataset == ['setC']:
-        print('%32s    %22s   %22s'%('', 'suri', 'suri(no_ehframe)'))
+    elif dataset == 'setC':
+        print('%32s    %22s   %22s'%('', 'suri(no_ehframe)', 'suri'))
 
-    print('-----------------------------------------------------------------------------')
+    print('-----------------------------------------------------------------------------------')
 
     file_cnt, suri_cnt, other_cnt, suri_sum, other_sum = 0, 0, 0, 0, 0
     for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
-        cnt1, cnt2, cnt3, cnt4, cnt5 = run(input_root, output_root, args.dataset, package, args.verbose)
+        cnt1, cnt2, cnt3, cnt4, cnt5 = run(input_root, output_root, dataset, package, args.verbose)
         file_cnt += cnt1
         suri_cnt += cnt2
         other_cnt += cnt3
@@ -203,7 +214,7 @@ if __name__ == '__main__':
         other_sum += cnt5
 
     if file_cnt:
-        print('-----------------------------------------------------------------------------')
+        print('----------------------------------------------------------------------------------')
         print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', file_cnt,
             suri_cnt / file_cnt * 100, suri_sum / file_cnt ,
             other_cnt / file_cnt * 100, other_sum / file_cnt ))
