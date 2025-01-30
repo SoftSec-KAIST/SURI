@@ -25,35 +25,39 @@ $ unzip /path/to/dataset.zip
 ```
 
 
-### 1.1 Create Docker Images
+### 1.1 Build Docker Images
 
-Binary rewriting and test suite execution are configured to run within Docker
-images. Before running the experiments, you need to build the necessary Docker
-images. Since our experiments were conducted on both Ubuntu 20.04 and Ubuntu
-18.04, you should build separate Docker images for each environment.
+We provide three Docker images for our binary rewriter, SURI, and our comparison
+targets, Ddisasm and Egalito.
 
-First, use the `Dockerfile` in the project folder to set up the Ubuntu 20.04
-execution environment:
+#### 1.1.1 Docker Image for SURI
 
+This image sets up the execution environment based on Ubuntu 20.04 for running
+SURI. To build this image, run this command at the top-level directory:
 ```
 $ docker build --tag suri:v1.0 .
 ```
 
-Next, to conduct experiments on Ubuntu 18.04, build the Docker image located in
-the ./ubuntu18.04 folder. This image includes both the Egalito and RetroWrite
-tools.
+#### 1.1.2 Docker Image for Ddisasm
 
+For Ddisasm, we used the official Docker image provided by GrammaTech. This
+image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
+the exact version used in our experiments to Docker Hub. You can download it
+using this command:
+```
+$ docker push reassessor/ddisasm:1.7.0_time
+```
+
+#### 1.1.3 Docker Image for Egalito
+
+Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
+Thus, we provide additional environment based on Ubuntu 18.04 for fair
+comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
+for this image is located in the `./ubuntu18.04` directory. To build this
+image, run these commands at the top-level directory:
 ```
 $ cd ./ubuntu18.04
 $ docker build --tag suri_ubuntu18.04:v1.0 .
-```
-
-For Ddisasm, we used the official Docker image provided by GrammaTech. To
-ensure reproducibility, we have uploaded the exact version used in our
-experiments to Docker Hub. You can download it as follows:
-
-```
-$ docker push reassessor/ddisasm:1.7.0_time
 ```
 
 ### 1.2 Install Additional Package
