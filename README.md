@@ -7,7 +7,7 @@ experiments, and (3) datasets we used (including build scripts for our
 benchmark).
 
 N.B. We exclude SPEC benchmark binaries from our dataset because they are
-proprietary. See Section 1.3 for more details.
+proprietary. See Section 1.1.4 and 1.3 for more details.
 
 ## 1. Preperation
 
@@ -45,13 +45,13 @@ image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
 the exact version used in our experiments to Docker Hub. You can download it
 using this command:
 ```
-$ docker push reassessor/ddisasm:1.7.0_time
+$ docker pull reassessor/ddisasm:1.7.0_time
 ```
 
 #### 1.1.3 Docker Image for Egalito
 
 Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
-Thus, we provide additional environment based on Ubuntu 18.04 for fair
+Thus, we provide additional environment based on Ubuntu 18.04 for a fair
 comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
 for this image is located in the `./ubuntu18.04` directory. To build this
 image, run these commands at the top-level directory:
@@ -60,20 +60,36 @@ $ cd ./ubuntu18.04
 $ docker build --tag suri_ubuntu18.04:v1.0 .
 ```
 
-### 1.2 Install Additional Package
+#### 1.1.4 Docker Images with SPEC CPU
 
-To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
-used Reassessor [1] to extract the ground truth of target binaries.  You need
-to install Reassessor before proceeding. You can install it using the provided
-Reassessor project included in this artifact:
+If you have your own SPEC CPU benchmark ISO, then you can update our Docker images
+to include SPEC benchmark test suites for our reliability test experiment (see XXX).
 
+We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
+SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
+If the locations of SPEC benchmarks differ, then you need to manually update the paths
+in line 3 and line 15 of the Dockerfiles at `./build_script/test_suite_script/Dockerfile` and
+`./build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
+
+Then, update the suri_spec:v1.0 image using the following command:
 ```
-$ cd ./Reassessor
-$ pip3 install -r requirements.txt
-$ python3 setup.py install --user
+$ cd ./build_script/test_suite_script/
+$ docker build -tag suri_spec:v1.0 .
 ```
 
-### 1.3 Build Benchmark binaries.
+To update the ubuntu 18.04 image, run:
+```
+$ cd ./build_script/test_suite_script_ubuntu18.04/
+$ docker build -tag suri_ubuntu18.04_spec:v1.0 .
+```
+
+### 1.2 Build Benchmark Binaries
+
+#### 1.2.1 Build Coreutils and Binutils Binaries
+
+FIXME
+
+#### 1.2.2 Build SPEC Binaries
 
 In our paper, we evaluated the reliability and overhead of rewritten binaries
 using SPEC CPU2006 v1.2 and SPEC CPU2017 v1.1.5. However, due to licensing
@@ -118,36 +134,63 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
 
-## 2. Rewrite Benchmark
+### 1.3 Generate Ground Truth
 
-In our experiments, we compared SURI with Ddisasm and Egalito. However, since
-Egalito could not correctly process binaries compiled on Ubuntu 20.04, we
-conducted a separate experiment on Ubuntu 18.04.
+To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
+used Reassessor [1] to extract the ground truth of target binaries.  You need
+to install Reassessor before proceeding. You can install it using the provided
+Reassessor project included in this artifact:
+
+```
+$ cd ./Reassessor
+$ pip3 install -r requirements.txt
+$ python3 setup.py install --user
+```
+
+After Reassessor is installed, you can generate ground truth from our dataset
+using these commands (see below Section if you want to know what setA and setC are):
+```
+$ python3 5_make_gt.py setA
+$ python3 5_make_gt.py setC
+```
+
+Note that you don't need to run the above command if you downloaded our dataset from
+Zenodo and you don't have your own SPEC benchmark, because our dataset already include
+ground truth for Coreutils and Binutils binaries.
+
+## 2. Run Experiments
+
+We have three different sets of benchmark binaries because the running
+environments of our comparison targets, Ddisasm and Egalito, differ (see 1.1).
 
 To easily distinguish between different benchmark binary sets, we define the
 following categories:
 
-- setA: Binaries compiled on Ubuntu 20.04.
-- setB: Binaries compiled on Ubuntu 18.04, excluding C++ binaries for a fair comparison with Egalito.
-- setC: Binaries compiled on Ubuntu 20.04 with call frame information manually disabled (see Section 4.3.3 of the paper).
+- setA: Binaries compiled on Ubuntu 20.04 (SURI vs. Ddisasm).
+- setB: Binaries compiled on Ubuntu 18.04 (SURI vs. Egalito).
+- setC: Binaries compiled on Ubuntu 20.04 without call frame information (see Section 4.3.3 of the paper).
 
-### 2.1 Rewrite binaries
+Note that setB excludes C++ binaries because Egalito cannot handle binaries
+written in C++ language.
 
-For the rewriting experiments, we used a machine with an Intel Core i9-11900K
-processor and 128GB of RAM.
+We also note that we used a machine with an Intel Core i9-11900K processor and
+128GB of RAM when we ran experiments. Thus, it will take more or less time
+depending on your computing machine.
+
+### 2.1 Reliability Comparison (Section 4.2)
+
+#### 2.1.1 Comparison agains Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
 To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
 script provided in the artifact.
 
 For setA, rewrite the binaries using SURI and Ddisasm:
-
 ```
 $ python3 1_get_reassembled_code.py setA
 ```
 
 If you want to process multiple binaries in parallel, you can use the `--core`
-option. However, note that this may affect the rewriting time measurements.
-
+option. Note that this may affect the rewriting time.
 ```
 $ python3 1_get_reassembled_code.py setA --core 4
 ```
@@ -162,14 +205,18 @@ And for setC:
 $ python3 1_get_reassembled_code.py setC
 ```
 
-Rewriting the provided Coreutils and Binutils binaries takes approximately 28
-hours. If you include all 9,600 binaries from the SPEC benchmark set, the
-process takes about 10 days.
+If your dataset does not have SPEC binaries, then run instead:
+```
+FIXME
+```
+
+The time taken for rewriting Coreutils and Binutils binaries will be
+approximatelky 28 hours. If you have full benchmark binaries with SPEC, it will
+take about 10 days.
 
 Once rewriting is complete, you can check the success rate and execution time
-using the following script. The results are used for Table 2 and Table 3 in the
-paper.
-
+using the following script. Then the results for Table 2 and 3 of our paper are shown
+on the screen.
 ```
 $ python3 1_print_rewrite_result.py setA
                                                       suri                  ddisasm
@@ -198,27 +245,23 @@ $ python3 1_print_rewrite_result.py setB
    spec_cpu2017        gcc ( 396) : 100.000000% 131.231783 :  90.909091%   8.151433
 ----------------------------------------------------------------------------------
                        all (4286) : 100.000000%  27.821629 :  94.680355%   1.458404
-
 ```
 
-### 2.2 Reliability Test
+#### 2.1.2 Reliability of SURI (Section 4.2.3)
 
-After rewriting, collect the binaries for testing using the `2_make_set.py`
-script. This will create setA, setB, and setC folders in the project directory.
-
+After completion of the previous experiment, collect the binaries for the
+reliability testing using the `2_make_set.py` script. This will create setA,
+setB, and setC folders in the project directory.
 ```
 $ python3 2_make_set.py setA
 $ python3 2_make_set.py setB
 $ python3 2_make_set.py setC
 ```
 
-
-### 2.2.1 Coreutils and Binutils Tests
+##### 2.1.2.1 Coreutils and Binutils Tests
 
 To verify the reliability of the rewritten binaries, run the test suites for
-Coreutils and Binutils. Use the `suri:v1.0` and `suri_ubuntu:v1.0` Docker images
-created in Section 1.1.
-
+Coreutils and Binutils.
 
 Each test suite takes approximately 3–5 minutes, and the full test set takes
 about 15 hours.
@@ -264,53 +307,11 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 
 ```
 
-### 2.2.2 SPEC Benchmark
+##### 2.1.2.2 SPEC Benchmark
 
-To run the SPEC benchmark tests, additional Docker images are required.
-
-First, modify the `Dockerfile` in `./build_script/test_suite_script/` to include
-the correct paths for the SPEC CPU2006 and SPEC CPU2017 installation files:
-
-Specifically, `Dockerfile` assumes that the SPEC CPU2006 and SPEC CPU2017 installation
-files are located in the `./build_script/test_suite_script/spec2006_image` and
-`./build_script/test_suite_script/spec2017_image` folders.
-
-If the folder names are different, update the paths in line 3 and line 15 of
-the Dockerfile accordingly.
-
-```
-$ cat ./build_script/test_suite_script/Dockerfile -n
-     1	FROM suri:v1.0
-     2
-     3	COPY ./spec2006_image /spec_cpu2006
-    ...
-    15	COPY ./spec2017_image /spec_cpu2017
-    ...
-```
-
-Then, build the suri_spec:v1.0 image using the following command:
-```
-$ cd ./build_script/test_suite_script/
-$ docker build -tag suri_spec:v1.0 .
-```
-
-For setB, modify the `Dockerfile` in ./build_script/test_suite_script_ubuntu18.04/ and build the image:
-
-```
-$ cat ./build_script/test_suite_script_ubuntu18.04/Dockerfile -n
-     1	FROM suri_ubuntu18.04:v1.0
-     2
-     3	COPY ./spec2006_image /spec_cpu2006
-    ...
-    15	COPY ./spec2017_image /spec_cpu2017
-    ...
-
-$ cd ./build_script/test_suite_script_ubuntu18.04/
-$ docker build -tag suri_ubuntu18.04_spec:v1.0 .
-```
-
-Now, you are ready to run the SPEC benchmark test suite.  Execute the test
-suite using the `3_run_testsuite_spec.py' script After running the script, the
+If you have your own SPEC benchmarks and you have built updated Docker images
+(See 1.1.4), then you can run the SPEC benchmark test suites. Execute the test
+suite using the `3_run_testsuite_spec.py' script. After running the script, the
 results will be displayed. Completing all test suites for each set typically
 takes 7 to 10 days.
 
@@ -360,58 +361,12 @@ $ python3 3_run_testsuite_spec.py setA --core 4
 ```
 
 
-### 2.3 Runtime Overhead
+### 2.2 Overhead of Rewritten Binaries (Section 4.3)
 
-To accurately measure runtime overhead, we run one test suite instance at a
-time. Running multiple test suites simultaneously may interfere with time
-measurements, as the SPEC benchmark test suite is highly sensitive.
-
-We estimate that each set takes approximately 2.5 days to complete.
-
-To measure runtime overhead, execute the following commands:
-
-```
-$ python3 4_get_runtime_overhead.py setA | tee 4_runtime_overheadA.sh
-$ /bin/bash 4_runtime_overheadA.sh
-
-$ python3 4_get_runtime_overhead.py setB | tee 4_runtime_overheadB.sh
-$ /bin/bash 4_runtime_overheadB.sh
-
-```
-
-After running the above commands, you can analyze the results using
-`4_print_runtime_overhead.py`:
-
-```
-$ python3 4_print_runtime_overhead.py setA
-                     |      suri   ddisasm
-spec_cpu2006      24 | 0.329513% 0.321086%
-spec_cpu2017      21 | 0.188620% 0.319419%
-
-$ python3 4_print_runtime_overhead.py setB
-                     |     suri    egalito
-spec_cpu2006      24 | 0.457050% 0.694204%
-spec_cpu2017      21 | 0.167273% 0.037466%
-
-```
-
-These results correspond to Table 4 in the paper.
-
-
-### 2.4 SURI Overhead
+#### 2.2.1 Overhead Incurred by SURI (Section 4.3.1)
 
 In this experiment, we measured the instrumentation overhead of the binaries
-rewritten by SURI, as introduced in Section 4.3.1 of the paper.
-
-
-If you generate additional SPEC benchmark binaries, use the following script to
-update the ground truth:
-
-```
-$ python3 5_make_gt.py setA
-$ python3 5_make_gt.py setC
-```
-
+rewritten by SURI, as explained in Section 4.3.1 of the paper.
 
 To measure code size overhead, execute the following scripts:
 ```
@@ -454,6 +409,43 @@ Table-------------
 
 ```
 
+
+#### 2.2.2 Comparison against SOTA Reassemblers (Section 4.3.2)
+
+To accurately measure runtime overhead, we run one test suite instance at a
+time. Running multiple test suites simultaneously may interfere with time
+measurements, as the SPEC benchmark test suite is highly sensitive.
+
+We estimate that each set takes approximately 2.5 days to complete.
+
+To measure runtime overhead, execute the following commands:
+
+```
+$ python3 4_get_runtime_overhead.py setA | tee 4_runtime_overheadA.sh
+$ /bin/bash 4_runtime_overheadA.sh
+
+$ python3 4_get_runtime_overhead.py setB | tee 4_runtime_overheadB.sh
+$ /bin/bash 4_runtime_overheadB.sh
+
+```
+
+After running the above commands, you can analyze the results using
+`4_print_runtime_overhead.py`:
+
+```
+$ python3 4_print_runtime_overhead.py setA
+                     |      suri   ddisasm
+spec_cpu2006      24 | 0.329513% 0.321086%
+spec_cpu2017      21 | 0.188620% 0.319419%
+
+$ python3 4_print_runtime_overhead.py setB
+                     |     suri    egalito
+spec_cpu2006      24 | 0.457050% 0.694204%
+spec_cpu2017      21 | 0.167273% 0.037466%
+
+```
+
+These results correspond to Table 4 in the paper.
 
 ### References
 
