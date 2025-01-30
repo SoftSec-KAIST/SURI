@@ -1,8 +1,53 @@
 import glob
 import os
 
-white_list = [
+
+white_list=[
+'400.perlbench',
+'401.bzip2',
 '403.gcc',
+'410.bwaves',
+'429.mcf',
+'433.milc',
+'434.zeusmp',
+'435.gromacs',
+'436.cactusADM',
+'437.leslie3d',
+'444.namd',
+'445.gobmk',
+'447.dealII',
+'454.calculix',
+'456.hmmer',
+'458.sjeng',
+'459.GemsFDTD',
+'462.libquantum',
+'464.h264ref',
+'465.tonto',
+'470.lbm',
+'473.astar',
+'481.wrf',
+'482.sphinx3',
+'503.bwaves_r',
+'505.mcf_r',
+'507.cactuBSSN_r',  #
+'508.namd_r',       #
+'519.lbm_r',
+'531.deepsjeng_r',
+'538.imagick_r',    #
+'544.nab_r',
+'548.exchange2_r',
+'549.fotonik3d_r',
+'557.xz_r',
+'603.bwaves_s',
+'605.mcf_s',
+'607.cactuBSSN_s',  #
+'619.lbm_s',
+'628.pop2_s',
+'631.deepsjeng_s',
+'638.imagick_s',    #
+'644.nab_s',
+'648.exchange2_s',
+'657.xz_s'
 ]
 
 
@@ -74,14 +119,15 @@ def run(dataset, package):
 
 
 def run_docker(cur, folder, script_folder, log_folder, run_script, image):
-    print('docker run --rm ',
+    cmd = ' '.join(['docker run --rm ',
       '--memory 16g --cpus 1 ',
       '--cpuset-cpus="%d" '%(0),
       '-v "%s/%s:/dataset/" '%(cur, folder),
       '-v "%s/%s:/script/" '%(cur, script_folder),
       '-v "%s/%s:/log/" '%(cur, log_folder),
       '%s '%(image),
-      'sh -c "/bin/bash /script/%s" > %s/%s/log.txt 2>&1 '%(run_script, cur, log_folder))
+      'sh -c "/bin/bash /script/%s" > %s/%s/log.txt 2>&1 '%(run_script, cur, log_folder)])
+    print(cmd)
 
 def make_script(dataset, image, package, basename, cur):
 
@@ -90,7 +136,7 @@ def make_script(dataset, image, package, basename, cur):
         sub_folder = '/'.join(folder.split('/')[1:])
 
         script_folder = 'stat/runtime/script/%s/%s'%(dataset, sub_folder)
-        log_folder = 'stat/runtime/overhead/%s/%s'%(dataset, sub_folder)
+        log_folder = 'stat/runtime/%s/%s'%(dataset, sub_folder)
         os.system('mkdir -p %s'%(script_folder))
         os.system('mkdir -p %s'%(log_folder))
 
@@ -101,6 +147,10 @@ def make_script(dataset, image, package, basename, cur):
                 log_file = '%s/%s.txt'%(log_folder, filename)
 
                 if filename not in white_list:
+                    continue
+
+                if os.path.exists(log_file):
+                    print('# [*] The log file %s already exists. If you want rerun it, please remove the file.'%(log_file))
                     continue
 
                 if filename in bin_dict:
@@ -135,4 +185,5 @@ if __name__ == '__main__':
     assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
     for package in ['spec_cpu2017', 'spec_cpu2006']:
-        run(args.dataset, package)
+        cmd_list = run(args.dataset, package)
+

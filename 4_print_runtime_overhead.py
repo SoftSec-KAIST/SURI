@@ -72,7 +72,7 @@ def run(dataset, base_folder, package):
                 key = os.path.basename(logfile)
 
                 bin_name = key[:-4]
-                if bin_name not in white_list:
+                if dataset in ['setA', 'setB'] and bin_name not in white_list:
                     continue
 
                 val = line.split(';')[1].split()[0]
@@ -115,6 +115,6 @@ if __name__ == '__main__':
     if args.dataset in ['setA']:
         print('%20s |  %8s  %8s'%('', 'suri', 'ddisasm'))
     if args.dataset in ['setB']:
-        print('%20s | %8s %8s'%('', 'suri', 'egalito'))
+        print('%20s |  %8s  %8s'%('', 'suri', 'egalito'))
     for package in ['spec_cpu2006', 'spec_cpu2017']:
         run(args.dataset, base_folder, package)
