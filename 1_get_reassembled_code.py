@@ -241,4 +241,4 @@ if __name__ == '__main__':
         run(input_dir, output_dir, args.dataset, args.package, args.core, args.blacklist, args.whitelist, args.dataset)
     else:
         for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
-            run(input_dir, output_dir, args.dataset, package, args.core, args.blacklist, args.whitelist, args.dataset)
+            run(input_dir, output_dir, args.dataset, args.core, args.blacklist, args.whitelist, args.dataset)
