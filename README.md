@@ -170,12 +170,15 @@ following categories:
 - setB: Binaries compiled on Ubuntu 18.04 (SURI vs. Egalito).
 - setC: Binaries compiled on Ubuntu 20.04 without call frame information (see Section 4.3.3 of the paper).
 
-Note that setB excludes C++ binaries because Egalito cannot handle binaries
+Note 1: setB excludes C++ binaries because Egalito cannot handle binaries
 written in C++ language.
 
-We also note that we used a machine with an Intel Core i9-11900K processor and
+Note 2: We used a machine with an Intel Core i9-11900K processor and
 128GB of RAM when we ran experiments. Thus, it will take more or less time
 depending on your computing machine.
+
+Note 3: Our scripts automatically detect whether SPEC binaries are included in the dataset or not,
+and show the results accordingly unless commands are separated between SPEC binaries and others.
 
 ### 2.1 Reliability Comparison (Section 4.2)
 
@@ -203,11 +206,6 @@ $ python3 1_get_reassembled_code.py setB
 And for setC:
 ```
 $ python3 1_get_reassembled_code.py setC
-```
-
-If your dataset does not have SPEC binaries, then run instead:
-```
-FIXME
 ```
 
 The time taken for rewriting Coreutils and Binutils binaries will be
