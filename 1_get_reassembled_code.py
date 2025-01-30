@@ -19,7 +19,8 @@ def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
                     for lopt in ['bfd', 'gold']:
                         sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
                         input_dir = '%s/%s'%(input_root, sub_dir)
-                        for target in glob.glob('%s/bin/*'%(input_dir)):
+                        print(input_dir)
+                        for target in glob.glob('%s/stripbin/*'%(input_dir)):
 
                             filename = os.path.basename(target)
                             binpath = '%s/stripbin/%s'%(input_dir, filename)
