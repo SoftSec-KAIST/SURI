@@ -88,8 +88,8 @@ def summary(config_list, dataset):
 
             stat[key][tool] = value
 
-    report(dataset, stat, 'gcc')
     report(dataset, stat, 'clang')
+    report(dataset, stat, 'gcc')
 
 def report(dataset, stat, comp):
 
@@ -102,6 +102,7 @@ def report(dataset, stat, comp):
     for key in sorted(stat.keys()):
 
         if stat[key]['original'] != stat[key]['suri']:
+            print('[-] FAIL %s/surie'%(key))
             pass
         else:
             suri += 1
@@ -123,17 +124,18 @@ def report(dataset, stat, comp):
     res1 = 'Fail'
     res2 = 'Fail'
 
-    if dataset in ['setA', 'setB']:
-        if suri == len(stat):
-            res1 = 'Succ'
-        if dataset == 'setA' and ddisasm == len(stat):
-                ret2 = 'Succ'
-        if dataset == 'setB' and egalito == len(stat):
-                ret2 = 'Succ'
+    if suri == len(stat):
+        res1 = 'Succ'
+
+    if dataset == 'setA':
+        if ddisasm == len(stat):
+            res2 = 'Succ'
         print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat), res2, ddisasm, len(stat)))
+    elif dataset == 'setB':
+        if egalito == len(stat):
+            res2 = 'Succ'
+        print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat), res2, egalito, len(stat)))
     else:
-        if suri == len(stat):
-            res1 = 'Succ'
         print('%-15s (%-5s): %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat)))
 
 
