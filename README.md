@@ -1,10 +1,13 @@
 # suri_artifact
 
-This artifact is designed to reproduce the results presented in our paper,
-"Towards Sound Reassembly of Modern x86-64 Binaries." We provide all benchmark
-binaries, except for the SPEC binaries, which are proprietary software.
-Instead, we include build scripts to allow users to generate the binaries
-themselves. Please refer to Section 1.3 for details.
+This artifact is intended to reproduce the experimental results presented in
+our paper, "Towards Sound Reassembly of Modern x86-64 Binaries", published at
+ASPLOS '25. It provides (1) the source code of SURI, (2) scripts for running
+experiments, and (3) datasets we used (including build scripts for our
+benchmark).
+
+N.B. We exclude SPEC benchmark binaries from our dataset because they are
+proprietary. See Section 1.3 for more details.
 
 ## 1. Preperation
 
