@@ -64,14 +64,14 @@ def create_set(dataset, conf, filename):
     copy(org_bin, org_to, filename)
     copy(super_bin, super_to, filename)
 
-    if args.dataset == ['setA']:
+    if args.dataset in ['setA']:
         ddisasm_bin = '%s/ddisasm/%s'%(conf.reassem_path, filename)
         ddisasm_to = '%s/%s/ddisasm'%(output, conf.sub_dir)
         copy(ddisasm_bin, ddisasm_to, filename)
 
-    if args.dataset == ['setB']:
-        ddisasm_bin = '%s/egalito/%s'%(conf.reassem_path, filename)
-        ddisasm_to = '%s/%s/egalito'%(output, conf.sub_dir)
+    if args.dataset in ['setB']:
+        egalito_bin = '%s/egalito/%s'%(conf.reassem_path, filename)
+        egalito_to = '%s/%s/egalito'%(output, conf.sub_dir)
         copy(egalito_bin, egalito_to, filename)
 
 def run(input_root, reassem_root, dataset, package, core=1, blacklist=None, whitelist=None):

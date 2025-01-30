@@ -68,7 +68,7 @@ def run(input_root, image, package, core=1):
 
     return config_list
 
-def summary(config_list):
+def summary(config_list, dataset):
     stat = dict()
 
     for conf in config_list:
@@ -88,10 +88,10 @@ def summary(config_list):
 
             stat[key][tool] = value
 
-    report(conf, stat, 'gcc')
-    report(conf, stat, 'clang')
+    report(dataset, stat, 'gcc')
+    report(dataset, stat, 'clang')
 
-def report(conf, stat, comp):
+def report(dataset, stat, comp):
 
     suri = 0
     ddisasm = 0
@@ -106,14 +106,14 @@ def report(conf, stat, comp):
         else:
             suri += 1
 
-        if conf.dataset == 'setA':
+        if dataset == 'setA':
             if 'ddisasm' not in stat[key] or stat[key]['original'] != stat[key]['ddisasm']:
                 #'print('[-] FAIL %s/ddisasm'%(key))
                 pass
             else:
                 ddisasm += 1
 
-        if conf.dataset == 'setB':
+        if dataset == 'setB':
             if 'egalito' not in stat[key] or stat[key]['original'] != stat[key]['egalito']:
                 #print('[-] FAIL %s/egalito'%(key))
                 pass
@@ -123,12 +123,18 @@ def report(conf, stat, comp):
     res1 = 'Fail'
     res2 = 'Fail'
 
-    if conf.dataset == 'setA':
+    if dataset in ['setA', 'setB']:
         if suri == len(stat):
             res1 = 'Succ'
-        if ddisasm == len(stat):
-            ret2 = 'Succ'
+        if dataset == 'setA' and ddisasm == len(stat):
+                ret2 = 'Succ'
+        if dataset == 'setB' and egalito == len(stat):
+                ret2 = 'Succ'
         print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat), res2, ddisasm, len(stat)))
+    else:
+        if suri == len(stat):
+            res1 = 'Succ'
+        print('%-15s (%-5s): %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat)))
 
 
 
@@ -139,7 +145,10 @@ if __name__ == '__main__':
     parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
 
     args = parser.parse_args()
-    if args.dataset in ['setA', 'setD']:
+
+    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+
+    if args.dataset in ['setA', 'setC']:
         image = 'suri:v1.0'
     elif args.dataset in ['setB']:
         image =  'suri_ubuntu18.04:v1.0'
@@ -149,7 +158,11 @@ if __name__ == '__main__':
         config_list[package] = run(args.dataset, image, package, args.core)
 
     if args.dataset == 'setA':
-        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'ddiasm'))
-        for package in ['coreutils-9.1', 'binutils-2.40']:
-            summary(config_list[package])
+        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Ddiasm'))
+    if args.dataset == 'setB':
+        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Egalito'))
+    if args.dataset == 'setC':
+        print('%-15s %7s  %21s'%('', '', 'suri(no_ehframe)'))
+    for package in ['coreutils-9.1', 'binutils-2.40']:
+        summary(config_list[package], args.dataset)
 
