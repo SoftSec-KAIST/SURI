@@ -27,7 +27,7 @@ def construct_CFG(root, BBLs, syntax, visit_log):
         if cur not in visit_log:
             for inst in BBLs[cur]['Code']:
                 if is_unsupported_instruction(inst['Disassem'], syntax):
-                    print('[-] Unsupprted instruction %s %s' % (inst['Disassem'], inst['Addr']))
+                    #print('[-] Unsupprted instruction %s %s' % (inst['Disassem'], inst['Addr']))
                     bValid = False
             if bValid:
                 visit_log[cur] = True
