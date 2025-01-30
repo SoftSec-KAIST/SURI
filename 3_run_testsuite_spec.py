@@ -189,7 +189,7 @@ def job(cmd):
     pass
 
 
-def summary(config_list):
+def summary(dataset, config_list):
     stat = dict()
 
     for conf in config_list:
@@ -213,10 +213,10 @@ def summary(config_list):
 
             stat[key][tool] = value
 
-    report(conf, stat, 'clang')
-    report(conf, stat, 'gcc')
+    report(dataset, stat, 'clang')
+    report(dataset, stat, 'gcc')
 
-def report(conf, stat, comp):
+def report(dataset, stat, comp):
 
     ck_cnt = 0
     suri = 0
@@ -239,16 +239,20 @@ def report(conf, stat, comp):
         if stat[key]['suri']:
             suri += 1
 
-        if conf.dataset == 'setA':
+        if dataset == 'setA':
             if stat[key]['ddisasm']:
                 ddisasm += 1
 
-        if conf.dataset == 'setB':
+        if dataset == 'setB':
             if stat[key]['egalito']:
                 egalito += 1
 
-    if conf.dataset == 'setA':
+    if dataset in ['setA']:
         print('%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)'%(package, comp, suri/ck_cnt*100, suri, ck_cnt, ddisasm/ck_cnt*100, ddisasm, ck_cnt))
+    if dataset in ['setB']:
+        print('%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)'%(package, comp, suri/ck_cnt*100, suri, ck_cnt, egalito/ck_cnt*100, egalito, ck_cnt))
+    if dataset in ['setC']:
+        print('%-15s (%-5s) : %10f%% (%4d/%4d)'%(package, comp, suri/ck_cnt*100, suri, ck_cnt))
 
 
     if suri_all == len(stat.keys()):
@@ -278,8 +282,12 @@ if __name__ == '__main__':
 
     if args.dataset == 'setA':
         print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'ddiasm'))
-        print('-----------------------------------------------------------------------------')
-        for package in ['spec_cpu2006', 'spec_cpu2017']:
-            summary(config_list[package])
+    if args.dataset == 'setB':
+        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'egalito'))
+    if args.dataset == 'setC':
+        print('%-15s %7s :   %21s'%('', '', 'suri (no ehframe)'))
+    print('-----------------------------------------------------------------------------')
+    for package in ['spec_cpu2006', 'spec_cpu2017']:
+        summary(args.dataset, config_list[package])
 
 
