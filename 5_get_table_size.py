@@ -55,7 +55,8 @@ def job(conf, reset=False):
 
         output = '%s/'%(conf.output_path) + conf.sub_dir.replace('/','_') + '_' + filename
         if not os.path.exists(output):
-            print("python3 table_size.py %s %s > %s"%(gt_func_path, b2r2_func_path, output))
+            print(output)
+            #print("python3 table_size.py %s %s > %s"%(gt_func_path, b2r2_func_path, output))
             sys.stdout.flush()
             os.system("python3 table_size.py %s %s > %s"%(gt_func_path, b2r2_func_path, output))
 

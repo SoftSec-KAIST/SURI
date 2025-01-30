@@ -49,6 +49,7 @@ def job(conf, reset=False):
     if os.path.exists(output_file):
         return
 
+    print(output_file)
     os.system('python3 bbl_stat.py %s %s %s'%(conf.bin, b2r2_func_path, output_file))
 
 
