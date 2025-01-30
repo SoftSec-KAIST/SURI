@@ -102,12 +102,7 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
     cpu_id = 0
     cmd_dict = dict()
 
-    if dataset == 'setA':
-        log_root = 'logA'
-    elif dataset == 'setB':
-        log_root = 'logB'
-    elif dataset == 'setC':
-        log_root = 'logC'
+    log_root = './log/%s'%(dataset)
 
     for folder in glob.glob('%s/%s/%s/%s_%s/*'%(dataset, package, comp, opt, linker)):
 
