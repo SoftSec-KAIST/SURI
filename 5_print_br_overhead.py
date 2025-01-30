@@ -28,22 +28,6 @@ def run(base_folder):
             if int(br1) != 0:
                 res2[package][compiler].append(overhead2)
 
-    print('BBL-------------')
-    tot_tot_cnt = 0
-    tot_tot_sum = 0
-    for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
-        tot_cnt = 0
-        tot_sum = 0
-        for compiler in sorted(res[package].keys()):
-            cnt = len(res[package][compiler])
-            avg = sum(res[package][compiler]) / cnt
-            print('%10s %10s %10d %10f'%(package, compiler, cnt, avg*100))
-            tot_cnt += cnt
-            tot_sum += sum(res[package][compiler])
-        tot_tot_cnt += tot_cnt
-        tot_tot_sum += tot_sum
-        print()
-    print('%10s %10s %10d %10f'%('[+]All', 'All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt*100))
     print('Multi Br-------------')
 
     tot_tot_cnt = 0
@@ -54,13 +38,13 @@ def run(base_folder):
         for compiler in sorted(res2[package].keys()):
             cnt = len(res2[package][compiler])
             avg = sum(res2[package][compiler]) / cnt
-            print('%10s %10s %10d %10f'%(package, compiler, cnt, avg*100))
+            #print('%10s %10s %10d %10f'%(package, compiler, cnt, avg*100))
             tot_cnt += cnt
             tot_sum += sum(res2[package][compiler])
         tot_tot_cnt += tot_cnt
         tot_tot_sum += tot_sum
-        print()
-    print('%10s %10s %10d %10f'%('[+]All', 'All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt*100))
+        print('%15s %10d %10f'%(package, tot_cnt, tot_sum/tot_cnt))
+    print('%15s %10d %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt*100))
 
 import argparse
 if __name__ == '__main__':

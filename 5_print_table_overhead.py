@@ -53,14 +53,13 @@ def run(base_folder):
         for compiler in sorted(res[package].keys()):
             cnt = len(res[package][compiler])
             avg = sum(res[package][compiler]) / cnt
-            print('%10s %10s %10d %10f'%(package, compiler, cnt, avg))
+            #print('%10s %10s %10d %10f'%(package, compiler, cnt, avg))
             tot_cnt += cnt
             tot_sum += sum(res[package][compiler])
         tot_tot_cnt += tot_cnt
         tot_tot_sum += tot_sum
-        print('%10s %10s %10d %10f'%(package, 'All', tot_cnt, tot_sum/tot_cnt))
-        print()
-    print('%10s %10s %10d %10f'%('[+]All', 'All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt))
+        print('%15s %10d %10f'%(package, tot_cnt, tot_sum/tot_cnt))
+    print('%15s %10d %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt))
 
 import argparse
 if __name__ == '__main__':
