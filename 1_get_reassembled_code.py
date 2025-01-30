@@ -19,7 +19,6 @@ def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
                     for lopt in ['bfd', 'gold']:
                         sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
                         input_dir = '%s/%s'%(input_root, sub_dir)
-                        print(input_dir)
                         for target in glob.glob('%s/stripbin/*'%(input_dir)):
 
                             filename = os.path.basename(target)
@@ -177,7 +176,7 @@ def reassem_egalito(conf, filename, input_dir, output_dir):
     current = multiprocessing.current_process()
 
     sub_cmd = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlogx.txt /project/egalito/app/etelf -m /input/%s /output/%s > /output/log.txt 2>&1'%(filename, filename)
-    cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output supercfg:v1.2_ubuntu18.04 sh -c " %s"'%( input_dir, output_dir, sub_cmd)
+    cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_ubuntu18.04:v1.0 sh -c " %s"'%( input_dir, output_dir, sub_cmd)
     print(cmd)
     sys.stdout.flush()
     os.system(cmd)

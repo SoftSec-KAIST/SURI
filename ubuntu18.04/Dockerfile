@@ -48,3 +48,5 @@ COPY ./build_script/script/binutils-2.40_list.txt /binutils-2.40/binutils-2.40_l
 RUN git clone https://github.com/witbring/retrowrite_ef4e541.git /project/retrowrite && \
     cd /project/retrowrite && \
     pip3 install -r requirements.txt
+
+RUN apt install -y libcap-dev 
