@@ -211,7 +211,7 @@ def summary(dataset, config_list):
     report(dataset, stat, 'clang')
     report(dataset, stat, 'gcc')
 
-def report(dataset, stat, comp):
+def report(dataset, old_stat, comp):
 
     ck_cnt = 0
     suri = 0
@@ -219,7 +219,7 @@ def report(dataset, stat, comp):
     egalito = 0
 
     suri_all = 0
-    stat = { k:v for (k,v) in stat.items() if comp in k.split('/')[3] }
+    stat = { k:v for (k,v) in old_stat.items() if comp in k.split('/')[3] }
 
     for key in sorted(stat.keys()):
 
@@ -241,6 +241,9 @@ def report(dataset, stat, comp):
         if dataset == 'setB':
             if stat[key]['egalito']:
                 egalito += 1
+
+    if ck_cnt == 0:
+        return 
 
     if dataset in ['setA']:
         print('%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)'%(package, comp, suri/ck_cnt*100, suri, ck_cnt, ddisasm/ck_cnt*100, ddisasm, ck_cnt))
