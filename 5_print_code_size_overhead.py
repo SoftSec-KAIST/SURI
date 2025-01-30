@@ -43,8 +43,11 @@ def run(base_folder):
 import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='counter')
-
+    parser.add_argument('dataset', type=str, help='dataset')
     args = parser.parse_args()
 
-    for base_folder in [ './objdump_result/setA']:
-        run(base_folder)
+    assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
+
+    input_dir = './stat/size/%s'%(args.dataset)
+
+    run(input_dir)
