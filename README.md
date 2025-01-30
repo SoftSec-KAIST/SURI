@@ -315,13 +315,13 @@ $ python3 3_run_testsuite_spec.py setA
                         :                    suri :                 ddiasm
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 724/ 724) :  86.878453% ( 629/ 724)
-                        [+] SURI passes all test suites (724/724)
+			[+] SURI passes all test suites (724/724)
 spec_cpu2006    (gcc  ) : 100.000000% ( 722/ 722) :  85.872576% ( 620/ 722)
-			            [+] SURI passes all test suites (722/722)
+			[+] SURI passes all test suites (722/722)
 spec_cpu2017    (clang) : 100.000000% (1078/1078) :  86.270872% ( 930/1078)
-			            [+] SURI passes all test suites (1128/1128)
+			[+] SURI passes all test suites (1128/1128)
 spec_cpu2017    (gcc  ) : 100.000000% (1116/1116) :  82.885305% ( 925/1116)
-			            [+] SURI passes all test suites (1126/1126)
+			[+] SURI passes all test suites (1126/1126)
 
 $ python3 3_run_testsuite_spec.py setB
                         :                    suri :                egalito
