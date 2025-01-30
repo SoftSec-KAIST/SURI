@@ -9,7 +9,7 @@ def gen_option(input_root, reassem_root, output_root, dataset, package, blacklis
     ret = []
     cnt = 0
     for arch in ['x64']:
-        for comp in ['clang-13', 'gcc-11']:
+        for comp in ['clang-10', 'clang-13', 'gcc-11', 'gcc-13']:
             for popt in ['pie']:
                 for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
                     for lopt in ['bfd', 'gold']:

@@ -102,7 +102,7 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
     cpu_id = 0
     cmd_dict = dict()
 
-    log_root = './log/%s'%(dataset)
+    log_root = 'log/%s'%(dataset)
 
     for folder in glob.glob('%s/%s/%s/%s_%s/*'%(dataset, package, comp, opt, linker)):
 
@@ -207,7 +207,7 @@ def summary(dataset, config_list):
                 stat[key] = dict()
 
             stat[key][tool] = value
-
+    
     report(dataset, stat, 'clang')
     report(dataset, stat, 'gcc')
 
@@ -219,14 +219,14 @@ def report(dataset, stat, comp):
     egalito = 0
 
     suri_all = 0
-    stat = { k:v for (k,v) in stat.items() if comp in k.split('/')[2] }
+    stat = { k:v for (k,v) in stat.items() if comp in k.split('/')[3] }
 
     for key in sorted(stat.keys()):
 
         if stat[key]['suri']:
             suri_all += 1
 
-        if len(stat[key]) != 2:
+        if dataset in ['setA', 'setB'] and len(stat[key]) != 2:
             continue
 
         ck_cnt += 1
@@ -273,7 +273,6 @@ if __name__ == '__main__':
     else:
         for package in ['spec_cpu2006', 'spec_cpu2017']:
             config_list[package] = run(args.dataset, package, args.core)
-
 
     if args.dataset == 'setA':
         print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'ddiasm'))

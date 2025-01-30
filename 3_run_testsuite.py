@@ -102,7 +102,7 @@ def report(dataset, stat, comp):
     for key in sorted(stat.keys()):
 
         if stat[key]['original'] != stat[key]['suri']:
-            print('[-] FAIL %s/surie'%(key))
+            print('[-] FAIL %s/suri'%(key))
             pass
         else:
             suri += 1
