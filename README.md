@@ -20,9 +20,9 @@ for more details.
 
 (1) From Zenodo:
 ```
-wget FIXME/src.zip // FIX the filename
+wget https://zenodo.org/records/14779330/files/suri_artifact.zip
 wget https://zenodo.org/records/14770657/files/dataset.zip
-unzip src.zip // FIX the filename
+unzip suri_artifact.zip
 unzip dataset.zip
 cd src/
 mv ../dataset/ .
@@ -35,7 +35,6 @@ $ cd SURI
 $ wget https://zenodo.org/records/14770657/files/dataset.zip
 $ unzip dataset.zip
 ```
-FIXME above with the right command to download dataset
 
 ### 2 Build Docker Images
 
@@ -145,7 +144,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 This process takes approximately 30–50 minutes per set of benchmark binaries.
 Thus, generating all combinations will take about 1.5 days.
 
-If all build processes are done, the benchmark binaries are built under `dataset/...` (FIXME).
+If all build processes are done, the benchmark binaries are built under `benchmark/...`
 
 ### 3.2 Generate Ground Truth
 
@@ -171,7 +170,7 @@ To rewrite a binary using SURI, you can give the path of a target binary as an a
 python3 suri.py [target binary]
 ```
 
-For example, if you want to rewrite a `vim` binary at `realworld/client/vim`, run SURI like below: 
+For example, if you want to rewrite a `vim` binary at `realworld/client/vim`, run SURI like below:
 ```
 python3 suri.py realworld/client/vim
 [*] All done in 27.285196 sec.
