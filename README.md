@@ -512,7 +512,41 @@ $ python3 ../../suri.py vim
 ```
 
 
+You can also rewrite Phoronix binaries using the following steps:
 
+```
+$ cd realworld/phoronix
+$ python3 ../../suri.py 7zip
+$ python3 ../../suri.py apache
+$ python3 ../../suri.py mariadb
+$ python3 ../../suri.py nginx
+$ python3 ../../suri.py sqlite3
+```
+
+
+After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
+
+```
+$ /bin/bash run_docker.sh
+
+root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
+
+```
+
+Now, you can run the Phoronix Test Suite using the following commands:
+
+```
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark 7zip
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark apache
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark mysqlslap
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
+
+```
 
 
 
