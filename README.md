@@ -12,7 +12,9 @@ It contains both all codes and data necessary for the artifact evaluation.
 You can also access our source code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
 
 :warning: We exclude SPEC benchmark binaries from our dataset because they are
-proprietary. See Section 1.4 and 1.3 for more details.
+proprietary. See [2.4 Docker Images with SPEC CPU](#2.4-Docker-Images-with-SPEC-CPU)
+and [3.1 Build SPEC CPU Benchmark Binaries](#3.1-Build-SPEC-CPU-Benchmark-Binaries)
+for more details.
 
 ### 1 Download the Artifact
 
@@ -34,8 +36,9 @@ FIXME above with the right command to download dataset
 
 ### 2 Build Docker Images
 
-We provide three Docker images for our binary rewriter, SURI, and our comparison
-targets, Ddisasm and Egalito.
+We provide Docker images for easy reproduction of our experimental results. Here,
+we explain how to build Docker images for running SURI, Ddisasm, and Egalito, and
+additional Docker image for running SPEC CPU benchmark testsuites.
 
 ### 2.1 Docker Image for SURI
 
@@ -69,8 +72,8 @@ $ docker build --tag suri_ubuntu18.04:v1.0 .
 
 ### 2.4 Docker Images with SPEC CPU
 
-If you have your own SPEC CPU benchmark ISO, then you can update our Docker images
-to include SPEC benchmark test suites for our reliability test experiment (see XXX).
+If you have your own SPEC CPU benchmark, then you need to build additional
+Docker images for our reliability test experiment on SPEC CPU benchmark (see [here](#1.2.2-SPEC-Benchmark)).
 
 We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
 SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
@@ -78,13 +81,13 @@ If the locations of SPEC benchmarks differ, then you need to manually update the
 in line 3 and line 15 of the Dockerfiles at `./build_script/test_suite_script/Dockerfile` and
 `./build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
 
-Then, update the suri_spec:v1.0 image using the following command:
+Then, build the suri_spec:v1.0 image using the following command at the top-level directory:
 ```
 $ cd ./build_script/test_suite_script/
 $ docker build -tag suri_spec:v1.0 .
 ```
 
-To update the ubuntu 18.04 image, run:
+To update the ubuntu 18.04 image, run the following command at the top-level directory:
 ```
 $ cd ./build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
