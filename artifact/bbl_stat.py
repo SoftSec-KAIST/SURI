@@ -1,6 +1,6 @@
 import struct
 import sys
-sys.path.append("superSymbolizer")
+sys.path.append("../superSymbolizer")
 from ElfBricks import ElfBricks
 from lib.CFIInfo import CFIInfo
 from lib.LocalSymbolizer import LocalSymbolizer
