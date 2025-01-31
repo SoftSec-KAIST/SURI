@@ -424,8 +424,6 @@ To accurately measure runtime overhead, we run one test suite instance at a
 time. Running multiple test suites simultaneously may interfere with time
 measurements, as the SPEC benchmark test suite is highly sensitive.
 
-We estimate that each set takes approximately 2.5 days to complete.
-
 To measure runtime overhead, execute the following commands:
 
 ```
