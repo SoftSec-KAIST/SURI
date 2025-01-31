@@ -191,7 +191,7 @@ and show the results accordingly unless commands are separated between SPEC bina
 
 This experiment answers the RQ1: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
 
-### 1.1 Comparison agains Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
+### 1.1 Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
 :alarm_clock: 28 hrs on Coreutils and Binutils, 10 days on full dataset
 
