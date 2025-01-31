@@ -50,6 +50,8 @@ def run(base_folder):
     for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
         tot_cnt = 0
         tot_sum = 0
+        if package not in res:
+            continue
         for compiler in sorted(res[package].keys()):
             cnt = len(res[package][compiler])
             avg = sum(res[package][compiler]) / cnt
