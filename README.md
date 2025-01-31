@@ -96,11 +96,11 @@ $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ### 3 Prepare Dataset
 
 Our dataset used for our evaluation consists of Coreutils v9.1, Binutils v2.40,
-SPEC CPU 2006 (v1.1) and SPEC CPU 2017 (v1.1). We provide dataset for Coreutils
-and Binutils through Zenodo (see [above](#1-download-the-artifact)). However, due
-to licensing restrictions, we are not able to distribute SPEC CPU benchmark
-binaries. Instead, we provide scripts to allow users to build those binaries
-themselves.
+SPEC CPU 2006 (v1.1) and SPEC CPU 2017 (v1.1). We provide dataset (including
+binaries and ground truths) for Coreutils and Binutils through Zenodo (see
+[1. Download the Artifact](#1-download-the-artifact)). However, due to licensing
+restrictions, we are not able to distribute SPEC CPU benchmark binaries. Instead,
+we provide scripts to allow users to build those binaries themselves.
 
 Note that you can still run our artifact **without** SPEC CPU benchmark binaries.
 Our experiment scripts will show the results on Coreutils and Binutils benchmarks
@@ -148,26 +148,20 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 
 ### 3.2 Generate Ground Truth
 
-To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
-used Reassessor [1] to extract the ground truth of target binaries.  You need
-to install Reassessor before proceeding. You can install it using the provided
-an install script included in this artifact:
-
+Once SPEC CPU benchmark binaries are built, you need to generate ground truth for
+measuring the instrumentation code size overhead of SURI (see [# 2.1 Overhead Incurred by SURI (Section 4.3.1)](#21-overhead-incurred-by-suri-section-431)).
+We used Reassessor [1] to generate the ground truth from the binaries. You can
+install Reassessor using the provided an install script included in this artifact:
 ```
 $ /bin/bash ./install.sh
 ```
 
 After Reassessor is installed, you can generate ground truth from our dataset
-using these commands (see below Section if you want to know what setA and setC are):
+using these commands (see [Run Experiments](#run-experiments) if you want to know what setA and setC are):
 ```
 $ python3 make_gt.py setA
 $ python3 make_gt.py setC
 ```
-
-Note that you don't need to run the above command if you downloaded our dataset from
-Zenodo and you don't have your own SPEC benchmark, because our dataset already include
-ground truth for Coreutils and Binutils binaries.
-
 
 ## Usage
 
