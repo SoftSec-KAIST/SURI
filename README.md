@@ -12,8 +12,8 @@ It contains both all codes and data necessary for the artifact evaluation.
 You can also access our source code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
 
 :warning: We exclude SPEC benchmark binaries from our dataset because they are
-proprietary. See [2.4 Docker Images with SPEC CPU](#2.4-docker-images-with-spec-cpu)
-and [3.1 Build SPEC CPU Benchmark Binaries](#3.1-build-spec-cpu-benchmark-binaries)
+proprietary. See [2.4 Docker Images with SPEC CPU](#24-docker-images-with-spec-cpu)
+and [3.1 Build SPEC CPU Benchmark Binaries](#31-build-spec-cpu-benchmark-binaries)
 for more details.
 
 ### 1 Download the Artifact
