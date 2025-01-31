@@ -145,7 +145,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 This process takes approximately 30–50 minutes per set of benchmark binaries.
 Thus, generating all combinations will take about 1.5 day.
 
-If all build processes are done, the benchmark binaries are built on XXX (FIXME).
+If all build processes are done, the benchmark binaries are built under `dataset/...` (FIXME).
 
 ### 3.2 Generate Ground Truth
 
