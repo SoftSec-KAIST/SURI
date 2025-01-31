@@ -461,6 +461,16 @@ These results correspond to Table 4 in our paper.
 
 ### 2.3 Application (Section 4.3.3)
 
+
+Move to `./application' directory.
+
+Unzip juliet test suites.
+```
+unzip  2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
+```
+
+
+
 Build juliet testsuite binaries.
 ```
 $ python3 build_original.py
