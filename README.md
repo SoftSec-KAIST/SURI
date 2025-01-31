@@ -503,8 +503,7 @@ $ python3 summary.py
  Total Binaries      16338      16338      16338
 ```
 
-
-
+These results correspond to Table 5 in our paper.
 
 ## References
 
