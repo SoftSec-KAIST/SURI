@@ -18,6 +18,8 @@ proprietary. See Section 1.4 and 1.3 for more details.
 
 (1) From Zenodo:
 ```
+wget FIXME/src
+wget FIXME/dataset.zip
 FIXME
 ```
 
@@ -25,7 +27,8 @@ FIXME
 ```
 $ git clone https://github.com/SoftSec-KAIST/SURI.git
 $ cd SURI
-$ unzip /path/to/dataset.zip
+$ wget FIXME/dataset.zip
+$ unzip dataset.zip
 ```
 FIXME above with the right command to download dataset
 
