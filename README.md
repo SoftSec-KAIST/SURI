@@ -166,10 +166,12 @@ $ python3 make_gt.py setC
 
 ## Usage
 
+To rewrite a binary using SURI, you can give the path of a target binary as an argument to SURI:
 ```
 python3 suri.py [target binary]
 ```
 
+For example, if you want to rewrite a `vim` binary at `realworld/client/vim`, run SURI like below: 
 ```
 python3 suri.py realworld/client/vim
 [*] All done in 27.285196 sec.
@@ -177,15 +179,13 @@ python3 suri.py realworld/client/vim
 [*] Extract data 0.004162 sec.
 [*] JsonSerializer 1.452532 sec.
 [+] Generate rewritten binary: my_vim
-...
+```
 
-
-SURI generates rewrite binary which starts with 'my_'
+SURI generates rewritten binary with the prefix 'my_'.
 ```
 $ ls -al my_vim
 -rwxrwxr-x 1 test test 7608639 Jan 31 18:46 my_vim
 ```
-
 
 ## Run Experiments
 
