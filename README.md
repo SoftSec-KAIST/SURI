@@ -478,6 +478,44 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 These results correspond to Table 4 in our paper.
 
+
+### 2.3 Realworld Binaries
+
+You can rewrite realworld binaries as follows.
+
+```
+$ cd realworld/client
+$ ls
+epiphany  filezilla  openssh  putty  vim
+```
+
+```
+$ python3 ../../suri.py epiphany
+...
+[+] Generate rewritten binary: my_filezilla
+
+$ python3 ../../suri.py filezilla
+...
+[+] Generate rewritten binary: my_git
+
+$ python3 ../../suri.py openssh
+...
+[+] Generate rewritten binary: my_openssh
+
+$ python3 ../../suri.py putty
+...
+[+] Generate rewritten binary: my_putty
+
+$ python3 ../../suri.py vim
+...
+[+] Generate rewritten binary: my_vim
+```
+
+
+
+
+
+
 ### 3 Application of SURI (Section 4.4)
 
 This experiment answers **RQ3**: Is SURI applicable to real-world scenarios, such as runtime memory sanitization?
