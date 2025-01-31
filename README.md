@@ -190,13 +190,11 @@ and show the results accordingly unless commands are separated between SPEC bina
 ### 1 Reliability Comparison (Section 4.2)
 
 This experiment answers the **RQ1**: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
+We rewrite binaries using SURI and other comparison targets and see if the binary rewriting is successful and the rewritten binaries can pass the testsuites.
 
-### 1.1 Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
+### 1.1 Rewriting Completion Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
 :alarm_clock: 28 hrs on Coreutils and Binutils, 10 days on full dataset
-
-In this experiment, we rewrite binaries using SURI and our comparison
-targets and see if the rewritten binaries can pass the test suites.
 
 To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
 script provided in the artifact.
@@ -255,7 +253,7 @@ $ python3 1_print_rewrite_result.py setB
                        all (4286) : 100.000000%  27.821629 :  94.680355%   1.458404
 ```
 
-### 1.2 Reliability of SURI (Section 4.2.3)
+### 1.2 Testsuite Pass Rate Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
 After completion of the previous experiment, collect the binaries for the
 reliability testing using the `make_set.py` script. This will create setA,
