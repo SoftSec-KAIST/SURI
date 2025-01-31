@@ -195,6 +195,9 @@ This experiment answers the **RQ1**: How well does SURI compare to the state-of-
 
 :alarm_clock: 28 hrs on Coreutils and Binutils, 10 days on full dataset
 
+In this experiment, we rewrite binaries using SURI and our comparison
+targets and see if the rewritten binaries can pass the test suites.
+
 To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
 script provided in the artifact.
 
