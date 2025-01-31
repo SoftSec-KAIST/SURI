@@ -111,13 +111,8 @@ only if you do not have SPEC CPU benchmark.
 If you have a valid license for SPEC CPU, you can generate the benchmark
 binaries by following these steps.
 
-First, if the SPEC CPU2006 image is located in /path/to/spec_cpu2006, you can
-generate the benchmark binaries by running the build_spec2006.sh script from
-the build_script folder. This script compiles the SPEC benchmark binaries with
-48 different options. The process takes approximately 20–40 minutes per set of
-benchmark binaries. Thus, generating all combinations will take about one day.
-
-
+Assuming the SPEC CPU2006 image is unzipped under `/path/to/spec_cpu2006`, you can
+build the benchmark binaries by running the following commands:
 ```
 $ ls /path/to/spec_cpu2006
 Docs         MANIFEST    benchspec  install.bat              result    uninstall.sh
@@ -129,12 +124,11 @@ $ cd build_script
 $ python3 build_spec2006.py /path/to/spec_cpu2006
 [+] ...
 ```
+The `build_spec2006.py` script compiles the SPEC benchmark binaries with
+48 different options. The process takes approximately 20–40 minutes per set of
+benchmark binaries. Thus, generating all combinations will take about one day.
 
-Similarly, you can use the build_spec2017.sh script in the build_script folder
-to generate SPEC CPU2017 benchmark binaries. This process takes approximately
-30–50 minutes per set of benchmark binaries. Thus, generating all combinations
-will take about 1.5 day.
-
+You can do the similar process for the SPEC CPU2017:
 ```
 $ ls /path/to/spec_cpu2017
 Docs         PTDaemon    bin          install.sh               shrc      uninstall.sh
@@ -145,6 +139,10 @@ $ cd build_script
 $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
+This process takes approximately 30–50 minutes per set of benchmark binaries.
+Thus, generating all combinations will take about 1.5 day.
+
+If all build processes are done, the benchmark binaries are built on XXX (FIXME).
 
 ### 3.2 Generate Ground Truth
 
