@@ -69,3 +69,13 @@ RUN mkdir -p /data3/3_supersetCFG/benchmark/ && \
 RUN git clone https://github.com/witbring/retrowrite_ef4e541.git /project/retrowrite && \
     cd /project/retrowrite && \
     pip3 install -r requirements.txt
+
+RUN  apt-get install php-cli php-xml -y; \
+    git clone https://github.com/phoronix-test-suite/phoronix-test-suite.git; \
+    cd phoronix-test-suite; \
+    ./install-sh; \
+    phoronix-test-suite install  sqlite; \
+    phoronix-test-suite intsall  nginx; \
+    phoronix-test-suite install  apache; \
+    phoronix-test-suite install compress-7zip; \
+    phoronix-test-suite install mysqlslap; \
