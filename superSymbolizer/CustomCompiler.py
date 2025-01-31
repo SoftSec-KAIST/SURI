@@ -92,15 +92,21 @@ def run(target, reassem_path, output, page_size, asan, verbose):
     result = subprocess.run(['ldd', target], stdout=subprocess.PIPE)
     lines = result.stdout.decode('utf-8').split('\n')
     lopt_list = []
+    errors = []
     for opt in lines:
         if "=> " in opt:
             lopt_list.append(opt.split()[2])
         elif 'linux-vdso.so' in opt:
            continue
+        elif 'not found' in opt:
+            errors.append(opt.split()[0])
         elif opt.split():
             lopt_list.append(opt.split()[0])
 
-
+    if errors:
+        for err in errors:
+            print('[-] We could not compile the code since %s could not found'%(err))
+        return
 
     filename = os.path.basename(target)
 
