@@ -166,7 +166,24 @@ $ python3 make_gt.py setC
 
 ## Usage
 
-FIXME
+```
+python3 suri.py [target binary]
+```
+
+```
+$ python3 suri.py realworld/client/vim
+[*] All done in 27.485930 sec.
+[*] Construct CFG 4.238515 sec.
+[*] Extract data 0.004254 sec.
+[*] JsonSerializer 1.384673 sec.
+...
+
+
+SURI generates rewrite binary which starts with 'my_'
+```
+$ ls my_vim
+```
+
 
 ## Run Experiments
 

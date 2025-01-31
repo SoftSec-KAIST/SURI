@@ -145,8 +145,9 @@ def run(target, reassem_path, output, page_size, asan):
     os.system("%s %s %s -o %s "%(compiler, reassem_path, lopt, tmp_file))
     sys.stdout.flush()
 
-    print("python3 ElfBricks.py %s %s %s"%(target, tmp_file, my_file))
-    os.system("python3 ElfBricks.py %s %s %s"%(target, tmp_file, my_file))
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    #print("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
+    os.system("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
 
     print('chmod +x %s'%(my_file))
     os.system('chmod +x %s'%(my_file))
