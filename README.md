@@ -189,7 +189,7 @@ and show the results accordingly unless commands are separated between SPEC bina
 
 ### 1 Reliability Comparison (Section 4.2)
 
-This experiment answers the RQ1: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
+This experiment answers the **RQ1**: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
 
 ### 1.1 Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
@@ -367,7 +367,7 @@ $ python3 1_run_testsuite_spec.py setA --core 4
 
 ### 2 Overhead of Rewritten Binaries (Section 4.3)
 
-This experiment answers the RQ2: How big is the performance overhead introduced by SURI for rewritten binaries?
+This experiment answers the **RQ2**: How big is the performance overhead introduced by SURI for rewritten binaries?
 
 ### 2.1 Overhead Incurred by SURI (Section 4.3.1)
 
