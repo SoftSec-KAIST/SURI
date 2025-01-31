@@ -32,13 +32,20 @@ $ unzip dataset.zip
 ```
 FIXME above with the right command to download dataset
 
-### 2 Build Benchmark Binaries
+### 2 Prepare Dataset
 
-### 2.1 Build Coreutils and Binutils Binaries
+Our dataset used for our evaluation consists of Coreutils v9.1, Binutils v2.40,
+SPEC CPU 2006 (v1.1) and SPEC CPU 2017 (v1.1). We provide dataset for Coreutils
+and Binutils through Zenodo (see [above](#1-download-the-artifact)). However, due
+to licensing restrictions, we are not able to distribute SPEC CPU benchmark
+binaries. Instead, we provide scripts to allow users to build those binaries
+themselves.
 
-FIXME
+Note that you can still run our artifact **without** SPEC CPU benchmark binaries.
+Our experiment scripts will show the results on Coreutils and Binutils benchmarks
+only if you do not have SPEC CPU benchmark.
 
-### 2.2 Build SPEC Binaries
+### 2.1 Build SPEC Binaries
 
 In our paper, we evaluated the reliability and overhead of rewritten binaries
 using SPEC CPU2006 v1.2 and SPEC CPU2017 v1.1.5. However, due to licensing
