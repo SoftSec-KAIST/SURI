@@ -20,16 +20,19 @@ for more details.
 
 (1) From Zenodo:
 ```
-wget FIXME/src
-wget FIXME/dataset.zip
-FIXME
+wget FIXME/src.zip // FIX the filename
+wget https://zenodo.org/records/14770657/files/dataset.zip
+unzip src.zip // FIX the filename
+unzip dataset.zip
+cd src/
+mv ../dataset/ .
 ```
 
 (2) From GitHub:
 ```
 $ git clone https://github.com/SoftSec-KAIST/SURI.git
 $ cd SURI
-$ wget FIXME/dataset.zip
+$ wget https://zenodo.org/records/14770657/files/dataset.zip
 $ unzip dataset.zip
 ```
 FIXME above with the right command to download dataset
