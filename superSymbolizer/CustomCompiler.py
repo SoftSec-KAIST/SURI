@@ -105,7 +105,7 @@ def run(target, reassem_path, output, page_size, asan, verbose):
 
     if errors:
         for err in errors:
-            print('[-] We could not compile the code since %s could not found'%(err))
+            print("[-] We could not compile the code since '%s' was not found."%(err))
         return
 
     filename = os.path.basename(target)
