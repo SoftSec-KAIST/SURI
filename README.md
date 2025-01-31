@@ -459,6 +459,43 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 These results correspond to Table 4 in our paper.
 
+### 2.3 Application (Section 4.3.3)
+
+Build juliet testsuite binaries.
+```
+$ python3 build_original.py
+$ python3 build_asan.py
+```
+
+Rewrite original juliet testsuite binaries with SURI and RetroWrite.
+```
+$ python3 build_suri.py
+$ python3 build_retrowrite.py
+```
+
+Run juliet testsuit binaries.
+```
+$ python3 run_juliet.py original
+$ python3 run_juliet.py suri
+$ python3 run_juliet.py asan
+$ python3 run_juliet.py retrowrite
+```
+
+Then, print summary.
+```
+$ python3 summary.py
+                      Ours      BASan       ASan
+  True Positive      10233       9552      13378
+ False Positive          0          8          0
+ False Negative       5528       6209       2383
+  True Negative        577        569        577
+-------------------------------------------------
+ Total Binaries      16338      16338      16338
+```
+
+
+
+
 ## References
 
 [1] Hyungseok Kim, Soomin Kim, Junoh Lee, Kangkook Jee, and Sang Kil Cha,
