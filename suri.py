@@ -9,36 +9,48 @@ class SURI:
         self.filename = os.path.basename(target)
         self.verbose = verbose
 
-
+        self.json = '%s.json'%(self.filename)
+        self.asm = '%s.s'%(self.filename)
+        self.tmp = 'tmp_%s'%(self.filename)
+        self.myfile = 'my_%s'%(self.filename)
 
     def run_docker(self, cmd):
         if self.verbose:
-            print(docker_cmd)
+            print(cmd)
             docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri:v1.0 sh -c " %s; "'%(self.input_dir, self.output_dir, cmd )
         else:
             docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri:v1.0 sh -c " %s 2> /dev/null "'%(self.input_dir, self.output_dir, cmd )
         os.system(docker_cmd)
 
     def cfg_suri(self):
-        cmd = 'dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s.json'%(self.filename, self.filename)
+        cmd = 'dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s'%(self.filename, self.json)
         self.run_docker(cmd)
 
     def symbol_suri(self):
 
-        cmd= 'python3 /project/superSymbolizer/SuperSymbolizer.py /input/%s /output/%s.json /output/%s.s --optimization 3 '%(self.filename, self.filename, self.filename)
+        cmd= 'python3 /project/superSymbolizer/SuperSymbolizer.py /input/%s /output/%s /output/%s --optimization 3 '%(self.filename, self.json , self.asm)
         self.run_docker(cmd)
 
     def compile_suri(self):
-        #cmd1 = 'cd %s/superSymbolizer'%(self.suri_dir)
-        cmd = 'python3 %s/superSymbolizer/CustomCompiler.py %s %s/%s.s %s/%s'%(self.suri_dir, self.target, self.output_dir, self.filename, self.output_dir, self.filename)
-        #cmd3 = 'cd -'
-        #cmd = ';'.join([cmd1, cmd2, cmd3])
+        cmd = 'python3 %s/superSymbolizer/CustomCompiler.py %s %s/%s %s/%s'%(self.suri_dir, self.target, self.output_dir, self.asm, self.output_dir, self.filename)
+
+        if self.verbose:
+            print(cmd)
+
         os.system(cmd)
 
     def run(self):
         self.cfg_suri()
+        if not os.path.exists(self.json):
+            return
+
         self.symbol_suri()
+        if not os.path.exists(self.asm):
+            return
+
         self.compile_suri()
+
+        print('[+] Generate rewritten binary: %s'%(self.myfile))
 
 import argparse
 if __name__ == '__main__':

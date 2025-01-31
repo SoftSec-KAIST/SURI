@@ -171,17 +171,19 @@ python3 suri.py [target binary]
 ```
 
 ```
-$ python3 suri.py realworld/client/vim
-[*] All done in 27.485930 sec.
-[*] Construct CFG 4.238515 sec.
-[*] Extract data 0.004254 sec.
-[*] JsonSerializer 1.384673 sec.
+python3 suri.py realworld/client/vim
+[*] All done in 27.285196 sec.
+[*] Construct CFG 4.193936 sec.
+[*] Extract data 0.004162 sec.
+[*] JsonSerializer 1.452532 sec.
+[+] Generate rewritten binary: my_vim
 ...
 
 
 SURI generates rewrite binary which starts with 'my_'
 ```
-$ ls my_vim
+$ ls -al my_vim
+-rwxrwxr-x 1 test test 7608639 Jan 31 18:46 my_vim
 ```
 
 

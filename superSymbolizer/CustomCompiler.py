@@ -83,7 +83,7 @@ def get_next_vaddr(filename, page_size):
         return get_vaddr_max(program_header_list, page_size)
 
 
-def run(target, reassem_path, output, page_size, asan):
+def run(target, reassem_path, output, page_size, asan, verbose):
 
     #elf = ElfInfo(target)
     #lopt_list2 = elf.get_ld_option()
@@ -124,8 +124,9 @@ def run(target, reassem_path, output, page_size, asan):
 
         lopt += opt + ' '
 
-    print(lopt_list)
-    print(lopt)
+    if verbose:
+        print(lopt_list)
+        print(lopt)
     #lopt += ' -Wl,--section-start=.interp=%s -Wl,--section-start=.note.ABI-tag=0x1000,--section-start=.my_rodata=%s'%\
     #        (hex(get_next_vaddr(target, page_size)), hex(elf._rodata_base_addr))
     lopt += ' -Wl,--section-start=.interp=%s -Wl,--section-start=.note.ABI-tag=0x1000'%\
@@ -141,7 +142,8 @@ def run(target, reassem_path, output, page_size, asan):
     tmp_file = '%s/tmp_%s'%(base, filename)
     my_file = '%s/my_%s'%(base, filename)
 
-    print("%s %s %s -o %s "%(compiler, reassem_path, lopt, tmp_file))
+    if verbose:
+        print("%s %s %s -o %s "%(compiler, reassem_path, lopt, tmp_file))
     os.system("%s %s %s -o %s "%(compiler, reassem_path, lopt, tmp_file))
     sys.stdout.flush()
 
@@ -149,7 +151,8 @@ def run(target, reassem_path, output, page_size, asan):
     #print("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
     os.system("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
 
-    print('chmod +x %s'%(my_file))
+    if verbose:
+        print('chmod +x %s'%(my_file))
     os.system('chmod +x %s'%(my_file))
 
 import argparse
@@ -160,7 +163,8 @@ if __name__ == '__main__':
     parser.add_argument('output', type=str, help='output')
     parser.add_argument('--page-size', type=int, dest='page_size', default=0x200000)
     parser.add_argument('--asan', action='store_true')
+    parser.add_argument('--verbose', action='store_true')
 
     args = parser.parse_args()
 
-    run(args.target, args.code, args.output, args.page_size, args.asan)
+    run(args.target, args.code, args.output, args.page_size, args.asan, args.verbose)
