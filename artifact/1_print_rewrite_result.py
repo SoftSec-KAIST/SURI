@@ -1,7 +1,7 @@
 from collections import namedtuple
 import glob, os, sys
 import multiprocessing
-from suri_utils import check_exclude_files
+from filter_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'pie', 'package', 'bin', 'dataset'])
 

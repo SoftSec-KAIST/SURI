@@ -4,7 +4,7 @@ import multiprocessing
 import enum
 from collections import namedtuple
 from ctypes import *
-from suri_utils import check_exclude_files
+from filter_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'comp', 'pie', 'package', 'bin'])
 

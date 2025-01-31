@@ -20,18 +20,17 @@ for more details.
 
 (1) From Zenodo:
 ```
-wget https://zenodo.org/records/14779330/files/suri_artifact.zip
-wget https://zenodo.org/records/14770657/files/dataset.zip
-unzip suri_artifact.zip
-unzip dataset.zip
-cd src/
-mv ../dataset/ .
+$ cd ./artifact/
+$ wget https://zenodo.org/records/14779330/files/suri_artifact.zip
+$ wget https://zenodo.org/records/14770657/files/dataset.zip
+$ unzip suri_artifact.zip
+$ unzip dataset.zip
 ```
 
 (2) From GitHub:
 ```
 $ git clone https://github.com/SoftSec-KAIST/SURI.git
-$ cd SURI
+$ cd ./SURI/artifact
 $ wget https://zenodo.org/records/14770657/files/dataset.zip
 $ unzip dataset.zip
 ```
@@ -68,7 +67,7 @@ comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
 for this image is located in the `./ubuntu18.04` directory. To build this
 image, run these commands at the top-level directory:
 ```
-$ cd ./ubuntu18.04
+$ cd ./artifact/ubuntu18.04
 $ docker build --tag suri_ubuntu18.04:v1.0 .
 ```
 
@@ -77,21 +76,21 @@ $ docker build --tag suri_ubuntu18.04:v1.0 .
 If you have your own SPEC CPU benchmark, then you need to build additional
 Docker images for our reliability test experiment on SPEC CPU benchmarks (see [here](#122-spec-benchmark)).
 
-We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
-SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
+We assume that the SPEC CPU2006 image is unzipped under `./artifact/build_script/test_suite_script/spec2006_image` and
+SPEC CPU 2017 image is unzipped under `./artifact/build_script/test_suite_script/spec2017_image`.
 If the locations of SPEC benchmarks differ, then you need to manually update the paths
-in line 3 and line 15 of the Dockerfiles at `./build_script/test_suite_script/Dockerfile` and
-`./build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
+in line 3 and line 15 of the Dockerfiles at `./artifact/build_script/test_suite_script/Dockerfile` and
+`./artifact/build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
 
 Then, build the suri_spec:v1.0 image using the following command at the top-level directory:
 ```
-$ cd ./build_script/test_suite_script/
+$ cd ./artifact/build_script/test_suite_script/
 $ docker build -tag suri_spec:v1.0 .
 ```
 
 To build the one for the ubuntu 18.04 image, run the following command at the top-level directory:
 ```
-$ cd ./build_script/test_suite_script_ubuntu18.04/
+$ cd ./artifact/build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ```
 
@@ -122,7 +121,7 @@ Docs.txt     README      bin        install.sh               shrc      version.t
 LICENSE      README.txt  config     install_archives         shrc.bat
 LICENSE.txt  Revisions   cshrc      redistributable_sources  tools
 
-$ cd build_script
+$ cd ./artifact/build_script
 $ python3 build_spec2006.py /path/to/spec_cpu2006
 [+] ...
 ```
@@ -137,7 +136,7 @@ Docs         PTDaemon    bin          install.sh               shrc      uninsta
 LICENSE.txt  README.txt  cshrc        install_archives         shrc.bat  version.txt
 MANIFEST     Revisions   install.bat  redistributable_sources  tools
 
-$ cd build_script
+$ cd ./artifact/build_script
 $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
@@ -159,6 +158,7 @@ $ /bin/bash ./install.sh
 After Reassessor is installed, you can generate ground truth from our dataset
 using these commands (see [Run Experiments](#run-experiments) if you want to know what setA and setC are):
 ```
+$ cd ./artifact
 $ python3 make_gt.py setA
 $ python3 make_gt.py setC
 ```
@@ -172,7 +172,7 @@ python3 suri.py [target binary]
 
 For example, if you want to rewrite a `vim` binary at `realworld/client/vim`, run SURI like below:
 ```
-python3 suri.py realworld/client/vim
+$ python3 suri.py artifact/realworld/client/vim
 [*] All done in 27.285196 sec.
 [*] Construct CFG 4.193936 sec.
 [*] Extract data 0.004162 sec.
@@ -188,7 +188,10 @@ $ ls -al my_vim
 
 ## Run Experiments
 
-We have three different sets of benchmark binaries because we have different running
+All artifact scripts are located in the `./artifact` folder, so we assume that
+all instructions are executed within this directory.
+
+Also, we have three different sets of benchmark binaries because we have different running
 environments for our comparison targets, Ddisasm and Egalito (see [2 Build Docker Images](#2-build-docker-images)).
 
 To easily distinguish between different benchmark binary sets, we define the
@@ -486,11 +489,11 @@ real-world binaries and runs their own test suits.
 You can rewrite five real-world programs having Phoronix test suite as follows:
 ```
 $ cd realworld/phoronix
-$ python3 ../../suri.py 7zip
-$ python3 ../../suri.py apache
-$ python3 ../../suri.py mariadb
-$ python3 ../../suri.py nginx
-$ python3 ../../suri.py sqlite3
+$ python3 ../../../suri.py 7zip
+$ python3 ../../../suri.py apache
+$ python3 ../../../suri.py mariadb
+$ python3 ../../../suri.py nginx
+$ python3 ../../../suri.py sqlite3
 ```
 
 After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
@@ -519,23 +522,23 @@ $ cd realworld/client
 $ ls
 epiphany  filezilla  openssh  putty  vim
 
-$ python3 ../../suri.py epiphany
+$ python3 ../../../suri.py epiphany
 ...
 [+] Generate rewritten binary: my_filezilla
 
-$ python3 ../../suri.py filezilla
+$ python3 ../../../suri.py filezilla
 ...
 [+] Generate rewritten binary: my_git
 
-$ python3 ../../suri.py openssh
+$ python3 ../../../suri.py openssh
 ...
 [+] Generate rewritten binary: my_openssh
 
-$ python3 ../../suri.py putty
+$ python3 ../../../suri.py putty
 ...
 [+] Generate rewritten binary: my_putty
 
-$ python3 ../../suri.py vim
+$ python3 ../../../suri.py vim
 ...
 [+] Generate rewritten binary: my_vim
 ```
