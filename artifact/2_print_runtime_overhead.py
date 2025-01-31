@@ -91,11 +91,9 @@ def run(dataset, base_folder, package):
         elif dataset == 'setB':
             tot2 += s_dict['egalito'][key] / s_dict['original'][key]
 
-        if 2 < s_dict['suri'][key] / s_dict['original'][key]:
-            print(key)
-            import pdb
-            pdb.set_trace()
 
+    if (len(s_dict['original']) == 0):
+        return;
 
     print('%-15s %4d | %8f%% %8f%%'%(package, len(s_dict['original']),
                                     tot / len(s_dict['original'])*100-100 ,
