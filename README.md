@@ -502,7 +502,8 @@ $ /bin/bash run_docker.sh
 root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
 ```
 
-You can run the Phoronix Test Suite using the following commands:
+You can run the Phoronix Test Suite using the following commands. When running
+the test suite, you can select the desired benchmark for each test.
 ```
 root@bc838d2d3cfe:/# phoronix-test-suite benchmark 7zip
 
@@ -514,7 +515,10 @@ root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
 
 root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
 ```
-Each command will report the success of test suites.
+Each command will report the success of test suites.  We compared the execution
+results of the rewritten binaries with those of the original binaries before
+running /data/copy.sh to determine whether the rewritten binaries were
+successfully executed.
 
 Similarly, to rewrite real-world client programs, follow the steps below:
 ```
