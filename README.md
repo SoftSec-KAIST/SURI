@@ -479,17 +479,47 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 These results correspond to Table 4 in our paper.
 
 
-### 2.3 Realworld Binaries
+### 2.3 Reliability of SURI (Section 4.2.3)
 
-You can rewrite realworld binaries as follows.
+To further demonstrate the reliability of SURI, this experiment rewrites
+real-world binaries and runs their own test suits.
 
+You can rewrite five real-world programs having Phoronix test suite as follows:
+```
+$ cd realworld/phoronix
+$ python3 ../../suri.py 7zip
+$ python3 ../../suri.py apache
+$ python3 ../../suri.py mariadb
+$ python3 ../../suri.py nginx
+$ python3 ../../suri.py sqlite3
+```
+
+After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
+```
+$ /bin/bash run_docker.sh
+root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
+```
+
+You can run the Phoronix Test Suite using the following commands:
+```
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark 7zip
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark apache
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark mysqlslap
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
+```
+Each command will report the success of test suites.
+
+Similarly, to rewrite real-world client programs, follow the steps below:
 ```
 $ cd realworld/client
 $ ls
 epiphany  filezilla  openssh  putty  vim
-```
 
-```
 $ python3 ../../suri.py epiphany
 ...
 [+] Generate rewritten binary: my_filezilla
@@ -510,44 +540,7 @@ $ python3 ../../suri.py vim
 ...
 [+] Generate rewritten binary: my_vim
 ```
-
-
-You can also rewrite Phoronix binaries using the following steps:
-
-```
-$ cd realworld/phoronix
-$ python3 ../../suri.py 7zip
-$ python3 ../../suri.py apache
-$ python3 ../../suri.py mariadb
-$ python3 ../../suri.py nginx
-$ python3 ../../suri.py sqlite3
-```
-
-
-After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
-
-```
-$ /bin/bash run_docker.sh
-
-root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
-
-```
-
-Now, you can run the Phoronix Test Suite using the following commands:
-
-```
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark 7zip
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark apache
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark mysqlslap
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
-
-```
-
+Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
 
 
 ### 3 Application of SURI (Section 4.4)
