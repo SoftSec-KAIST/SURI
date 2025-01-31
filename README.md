@@ -369,6 +369,8 @@ If your PC has enough memory, we can ran it with multithreading by enabling --co
 $ python3 1_run_testsuite_spec.py setA --core 4
 ```
 
+These results correspond to Table 2 and 3 in our paper.
+
 ### 2 Overhead of Rewritten Binaries (Section 4.3)
 
 This experiment answers the **RQ2**: How big is the performance overhead introduced by SURI for rewritten binaries?
@@ -455,7 +457,7 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 ```
 
-These results correspond to Table 4 in the paper.
+These results correspond to Table 4 in our paper.
 
 ## References
 
