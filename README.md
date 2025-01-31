@@ -41,7 +41,7 @@ FIXME above with the right command to download dataset
 
 We provide Docker images for easy reproduction of our experimental results. Here,
 we explain how to build Docker images for running SURI, Ddisasm, and Egalito, and
-additional Docker image for running SPEC CPU benchmark testsuites.
+additional Docker images for running SPEC CPU benchmark test suites.
 
 ### 2.1 Docker Image for SURI
 
@@ -64,7 +64,7 @@ $ docker pull reassessor/ddisasm:1.7.0_time
 ### 2.3 Docker Image for Egalito
 
 Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
-Thus, we provide additional environment based on Ubuntu 18.04 for a fair
+Thus, we provide an additional environment based on Ubuntu 18.04 for a fair
 comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
 for this image is located in the `./ubuntu18.04` directory. To build this
 image, run these commands at the top-level directory:
@@ -76,7 +76,7 @@ $ docker build --tag suri_ubuntu18.04:v1.0 .
 ### 2.4 Docker Images with SPEC CPU
 
 If you have your own SPEC CPU benchmark, then you need to build additional
-Docker images for our reliability test experiment on SPEC CPU benchmark (see [here](#122-spec-benchmark)).
+Docker images for our reliability test experiment on SPEC CPU benchmarks (see [here](#122-spec-benchmark)).
 
 We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
 SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
@@ -90,7 +90,7 @@ $ cd ./build_script/test_suite_script/
 $ docker build -tag suri_spec:v1.0 .
 ```
 
-To update the ubuntu 18.04 image, run the following command at the top-level directory:
+To build the one for the ubuntu 18.04 image, run the following command at the top-level directory:
 ```
 $ cd ./build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
@@ -99,7 +99,7 @@ $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ### 3 Prepare Dataset
 
 Our dataset used for our evaluation consists of Coreutils v9.1, Binutils v2.40,
-SPEC CPU 2006 (v1.1) and SPEC CPU 2017 (v1.1). We provide dataset (including
+SPEC CPU 2006 (v1.1) and SPEC CPU 2017 (v1.1). We provide the dataset (including
 binaries and ground truths) for Coreutils and Binutils through Zenodo (see
 [1. Download the Artifact](#1-download-the-artifact)). However, due to licensing
 restrictions, we are not able to distribute SPEC CPU benchmark binaries. Instead,
@@ -143,7 +143,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
 This process takes approximately 30–50 minutes per set of benchmark binaries.
-Thus, generating all combinations will take about 1.5 day.
+Thus, generating all combinations will take about 1.5 days.
 
 If all build processes are done, the benchmark binaries are built under `dataset/...` (FIXME).
 
@@ -170,8 +170,8 @@ FIXME
 
 ## Run Experiments
 
-We have three different sets of benchmark binaries because we have different the running
-environments of our comparison targets, Ddisasm and Egalito (see [2 Build Docker Images](#2-build-docker-images)).
+We have three different sets of benchmark binaries because we have different running
+environments for our comparison targets, Ddisasm and Egalito (see [2 Build Docker Images](#2-build-docker-images)).
 
 To easily distinguish between different benchmark binary sets, we define the
 following categories:
@@ -192,8 +192,8 @@ and show the results accordingly unless commands are separated between SPEC bina
 
 ### 1 Reliability Comparison (Section 4.2)
 
-This experiment answers the **RQ1**: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
-We rewrite binaries using SURI and other comparison targets and see if the binary rewriting is successful and the rewritten binaries can pass the testsuites.
+This experiment answers **RQ1**: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
+We rewrite binaries using SURI and other comparison targets and see if the binary rewriting is successful and the rewritten binaries can pass the test suites.
 
 ### 1.1 Rewriting Completion Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
@@ -373,7 +373,7 @@ These results correspond to Table 2 and 3 in our paper.
 
 ### 2 Overhead of Rewritten Binaries (Section 4.3)
 
-This experiment answers the **RQ2**: How big is the performance overhead introduced by SURI for rewritten binaries?
+This experiment answers **RQ2**: How big is the performance overhead introduced by SURI for rewritten binaries?
 
 ### 2.1 Overhead Incurred by SURI (Section 4.3.1)
 
@@ -461,7 +461,7 @@ These results correspond to Table 4 in our paper.
 
 ### 3 Application of SURI (Section 4.4)
 
-This experiment answers the **RQ3**: Is SURI applicable to real-world scenarios, such as runtime memory sanitization?
+This experiment answers **RQ3**: Is SURI applicable to real-world scenarios, such as runtime memory sanitization?
 In this experiment, we implement our own binary-only address sanitizer on top of SURI and compare to BASan, a binary-only address sanitizer on top of RetroWrite.
 
 To set up Juliet testsuite:
