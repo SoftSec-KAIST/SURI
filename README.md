@@ -149,7 +149,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 ### 3.2 Generate Ground Truth
 
 Once SPEC CPU benchmark binaries are built, you need to generate ground truth for
-measuring the instrumentation code size overhead of SURI (see [# 2.1 Overhead Incurred by SURI (Section 4.3.1)](#21-overhead-incurred-by-suri-section-431)).
+measuring the instrumentation code size overhead of SURI (see [2.1 Overhead Incurred by SURI (Section 4.3.1)](#21-overhead-incurred-by-suri-section-431)).
 We used Reassessor [1] to generate the ground truth from the binaries. You can
 install Reassessor using the provided an install script included in this artifact:
 ```
