@@ -1,4 +1,4 @@
-# suri_artifact
+# SURI: Towards Sound Reassembly of Modern x86-64 Binaries
 
 This artifact is intended to reproduce the experimental results presented in
 our paper, "Towards Sound Reassembly of Modern x86-64 Binaries", published at
@@ -6,10 +6,10 @@ ASPLOS '25. It provides (1) the source code of SURI, (2) scripts for running
 experiments, and (3) datasets we used (including build scripts for our
 benchmark).
 
-N.B. We exclude SPEC benchmark binaries from our dataset because they are
+:warning: We exclude SPEC benchmark binaries from our dataset because they are
 proprietary. See Section 1.1.4 and 1.3 for more details.
 
-## 1. Preperation
+## Preperation
 
 The artifact can be downloaded through the [GitHub](https://github.com/witbring/suri_artifact.git) repository.
 Additionally, the dataset (dataset.zip) used for the artifact can be downloaded
@@ -25,12 +25,12 @@ $ unzip /path/to/dataset.zip
 ```
 
 
-### 1.1 Build Docker Images
+### 1 Build Docker Images
 
 We provide three Docker images for our binary rewriter, SURI, and our comparison
 targets, Ddisasm and Egalito.
 
-#### 1.1.1 Docker Image for SURI
+### 1.1 Docker Image for SURI
 
 This image sets up the execution environment based on Ubuntu 20.04 for running
 SURI. To build this image, run this command at the top-level directory:
@@ -38,7 +38,7 @@ SURI. To build this image, run this command at the top-level directory:
 $ docker build --tag suri:v1.0 .
 ```
 
-#### 1.1.2 Docker Image for Ddisasm
+### 1.2 Docker Image for Ddisasm
 
 For Ddisasm, we used the official Docker image provided by GrammaTech. This
 image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
@@ -48,7 +48,7 @@ using this command:
 $ docker pull reassessor/ddisasm:1.7.0_time
 ```
 
-#### 1.1.3 Docker Image for Egalito
+### 1.3 Docker Image for Egalito
 
 Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
 Thus, we provide additional environment based on Ubuntu 18.04 for a fair
@@ -60,7 +60,7 @@ $ cd ./ubuntu18.04
 $ docker build --tag suri_ubuntu18.04:v1.0 .
 ```
 
-#### 1.1.4 Docker Images with SPEC CPU
+### 1.4 Docker Images with SPEC CPU
 
 If you have your own SPEC CPU benchmark ISO, then you can update our Docker images
 to include SPEC benchmark test suites for our reliability test experiment (see XXX).
@@ -83,13 +83,13 @@ $ cd ./build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ```
 
-### 1.2 Build Benchmark Binaries
+### 2 Build Benchmark Binaries
 
-#### 1.2.1 Build Coreutils and Binutils Binaries
+### 2.1 Build Coreutils and Binutils Binaries
 
 FIXME
 
-#### 1.2.2 Build SPEC Binaries
+### 2.2 Build SPEC Binaries
 
 In our paper, we evaluated the reliability and overhead of rewritten binaries
 using SPEC CPU2006 v1.2 and SPEC CPU2017 v1.1.5. However, due to licensing
@@ -134,7 +134,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
 
-### 1.3 Generate Ground Truth
+## 3 Generate Ground Truth
 
 To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
 used Reassessor [1] to extract the ground truth of target binaries.  You need
@@ -158,7 +158,11 @@ Note that you don't need to run the above command if you downloaded our dataset 
 Zenodo and you don't have your own SPEC benchmark, because our dataset already include
 ground truth for Coreutils and Binutils binaries.
 
-## 2. Run Experiments
+## Usage
+
+FIXME
+
+## Run Experiments
 
 We have three different sets of benchmark binaries because the running
 environments of our comparison targets, Ddisasm and Egalito, differ (see 1.1).
@@ -180,9 +184,9 @@ depending on your computing machine.
 Note 3: Our scripts automatically detect whether SPEC binaries are included in the dataset or not,
 and show the results accordingly unless commands are separated between SPEC binaries and others.
 
-### 2.1 Reliability Comparison (Section 4.2)
+### 1 Reliability Comparison (Section 4.2)
 
-#### 2.1.1 Comparison agains Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
+### 1.1 Comparison agains Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
 To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
 script provided in the artifact.
@@ -245,7 +249,7 @@ $ python3 1_print_rewrite_result.py setB
                        all (4286) : 100.000000%  27.821629 :  94.680355%   1.458404
 ```
 
-#### 2.1.2 Reliability of SURI (Section 4.2.3)
+### 1.2 Reliability of SURI (Section 4.2.3)
 
 After completion of the previous experiment, collect the binaries for the
 reliability testing using the `make_set.py` script. This will create setA,
@@ -256,7 +260,7 @@ $ python3 make_set.py setB
 $ python3 make_set.py setC
 ```
 
-##### 2.1.2.1 Coreutils and Binutils Tests
+#### 1.2.1 Coreutils and Binutils Tests
 
 To verify the reliability of the rewritten binaries, run the test suites for
 Coreutils and Binutils.
@@ -305,7 +309,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 
 ```
 
-##### 2.1.2.2 SPEC Benchmark
+#### 1.2.2 SPEC Benchmark
 
 If you have your own SPEC benchmarks and you have built updated Docker images
 (See 1.1.4), then you can run the SPEC benchmark test suites. Execute the test
@@ -359,9 +363,9 @@ $ python3 1_run_testsuite_spec.py setA --core 4
 ```
 
 
-### 2.2 Overhead of Rewritten Binaries (Section 4.3)
+### 2 Overhead of Rewritten Binaries (Section 4.3)
 
-#### 2.2.1 Overhead Incurred by SURI (Section 4.3.1)
+### 2.1 Overhead Incurred by SURI (Section 4.3.1)
 
 In this experiment, we measured the instrumentation overhead of the binaries
 rewritten by SURI, as explained in Section 4.3.1 of the paper.
@@ -408,7 +412,7 @@ Table-------------
 ```
 
 
-#### 2.2.2 Comparison against SOTA Reassemblers (Section 4.3.2)
+### 2.2 Comparison against SOTA Reassemblers (Section 4.3.2)
 
 To accurately measure runtime overhead, we run one test suite instance at a
 time. Running multiple test suites simultaneously may interfere with time
@@ -445,7 +449,7 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 These results correspond to Table 4 in the paper.
 
-### References
+## References
 
 [1] Hyungseok Kim, Soomin Kim, Junoh Lee, Kangkook Jee, and Sang Kil Cha,
     "Reassembly is Hard: A Reflection on Challenges and Strategies," USENIX
