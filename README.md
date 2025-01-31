@@ -29,71 +29,13 @@ $ unzip /path/to/dataset.zip
 ```
 FIXME above with the right command to download dataset
 
-### 2 Build Docker Images
+### 2 Build Benchmark Binaries
 
-We provide three Docker images for our binary rewriter, SURI, and our comparison
-targets, Ddisasm and Egalito.
-
-### 2.1 Docker Image for SURI
-
-This image sets up the execution environment based on Ubuntu 20.04 for running
-SURI. To build this image, run this command at the top-level directory:
-```
-$ docker build --tag suri:v1.0 .
-```
-
-### 2.2 Docker Image for Ddisasm
-
-For Ddisasm, we used the official Docker image provided by GrammaTech. This
-image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
-the exact version used in our experiments to Docker Hub. You can download it
-using this command:
-```
-$ docker pull reassessor/ddisasm:1.7.0_time
-```
-
-### 2.3 Docker Image for Egalito
-
-Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
-Thus, we provide additional environment based on Ubuntu 18.04 for a fair
-comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
-for this image is located in the `./ubuntu18.04` directory. To build this
-image, run these commands at the top-level directory:
-```
-$ cd ./ubuntu18.04
-$ docker build --tag suri_ubuntu18.04:v1.0 .
-```
-
-### 2.4 Docker Images with SPEC CPU
-
-If you have your own SPEC CPU benchmark ISO, then you can update our Docker images
-to include SPEC benchmark test suites for our reliability test experiment (see XXX).
-
-We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
-SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
-If the locations of SPEC benchmarks differ, then you need to manually update the paths
-in line 3 and line 15 of the Dockerfiles at `./build_script/test_suite_script/Dockerfile` and
-`./build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
-
-Then, update the suri_spec:v1.0 image using the following command:
-```
-$ cd ./build_script/test_suite_script/
-$ docker build -tag suri_spec:v1.0 .
-```
-
-To update the ubuntu 18.04 image, run:
-```
-$ cd ./build_script/test_suite_script_ubuntu18.04/
-$ docker build -tag suri_ubuntu18.04_spec:v1.0 .
-```
-
-### 3 Build Benchmark Binaries
-
-### 3.1 Build Coreutils and Binutils Binaries
+### 2.1 Build Coreutils and Binutils Binaries
 
 FIXME
 
-### 3.2 Build SPEC Binaries
+### 2.2 Build SPEC Binaries
 
 In our paper, we evaluated the reliability and overhead of rewritten binaries
 using SPEC CPU2006 v1.2 and SPEC CPU2017 v1.1.5. However, due to licensing
@@ -138,7 +80,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
 
-## 4 Generate Ground Truth
+### 3 Generate Ground Truth
 
 To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
 used Reassessor [1] to extract the ground truth of target binaries.  You need
@@ -159,6 +101,65 @@ $ python3 make_gt.py setC
 Note that you don't need to run the above command if you downloaded our dataset from
 Zenodo and you don't have your own SPEC benchmark, because our dataset already include
 ground truth for Coreutils and Binutils binaries.
+
+### 4 Build Docker Images
+
+We provide three Docker images for our binary rewriter, SURI, and our comparison
+targets, Ddisasm and Egalito.
+
+### 4.1 Docker Image for SURI
+
+This image sets up the execution environment based on Ubuntu 20.04 for running
+SURI. To build this image, run this command at the top-level directory:
+```
+$ docker build --tag suri:v1.0 .
+```
+
+### 4.2 Docker Image for Ddisasm
+
+For Ddisasm, we used the official Docker image provided by GrammaTech. This
+image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
+the exact version used in our experiments to Docker Hub. You can download it
+using this command:
+```
+$ docker pull reassessor/ddisasm:1.7.0_time
+```
+
+### 4.3 Docker Image for Egalito
+
+Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
+Thus, we provide additional environment based on Ubuntu 18.04 for a fair
+comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
+for this image is located in the `./ubuntu18.04` directory. To build this
+image, run these commands at the top-level directory:
+```
+$ cd ./ubuntu18.04
+$ docker build --tag suri_ubuntu18.04:v1.0 .
+```
+
+### 4.4 Docker Images with SPEC CPU
+
+If you have your own SPEC CPU benchmark ISO, then you can update our Docker images
+to include SPEC benchmark test suites for our reliability test experiment (see XXX).
+
+We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
+SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
+If the locations of SPEC benchmarks differ, then you need to manually update the paths
+in line 3 and line 15 of the Dockerfiles at `./build_script/test_suite_script/Dockerfile` and
+`./build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
+
+Then, update the suri_spec:v1.0 image using the following command:
+```
+$ cd ./build_script/test_suite_script/
+$ docker build -tag suri_spec:v1.0 .
+```
+
+To update the ubuntu 18.04 image, run:
+```
+$ cd ./build_script/test_suite_script_ubuntu18.04/
+$ docker build -tag suri_ubuntu18.04_spec:v1.0 .
+```
+
 
 ## Usage
 
