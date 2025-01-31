@@ -65,3 +65,7 @@ RUN mkdir -p /project && \
 
 RUN mkdir -p /data3/3_supersetCFG/benchmark/ && \
     mkdir -p /data3/3_supersetCFG/benchmark_no_ehframe/
+
+RUN git clone https://github.com/witbring/retrowrite_ef4e541.git /project/retrowrite && \
+    cd /project/retrowrite && \
+    pip3 install -r requirements.txt
