@@ -459,31 +459,31 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 These results correspond to Table 4 in our paper.
 
-### 2.3 Application (Section 4.3.3)
+### 3 Application of SURI (Section 4.4)
 
+This experiment answers the **RQ3**: Is SURI applicable to real-world scenarios, such as runtime memory sanitization?
+In this experiment, we implement our own binary-only address sanitizer on top of SURI and compare to BASan, a binary-only address sanitizer on top of RetroWrite.
 
-Move to `./application' directory.
-
-Unzip juliet test suites.
+To set up Juliet testsuite:
 ```
-unzip  2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
+$ cd ./application
+$ wget https://samate.nist.gov/SARD/downloads/test-suites/2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
+$ unzip  2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
 ```
 
-
-
-Build juliet testsuite binaries.
+To build Juliet testsuite binaries, run the following commands:
 ```
 $ python3 build_original.py
 $ python3 build_asan.py
 ```
 
-Rewrite original juliet testsuite binaries with SURI and RetroWrite.
+Rewrite original Juliet testsuite binaries with SURI and RetroWrite.
 ```
 $ python3 build_suri.py
 $ python3 build_retrowrite.py
 ```
 
-Run juliet testsuit binaries.
+To run juliet testsuit binaries, execute the following commands:
 ```
 $ python3 run_juliet.py original
 $ python3 run_juliet.py suri
@@ -491,7 +491,7 @@ $ python3 run_juliet.py asan
 $ python3 run_juliet.py retrowrite
 ```
 
-Then, print summary.
+The `summary.py` script prints the results from both our binary-only address sanatizer, BASan, and ASan.
 ```
 $ python3 summary.py
                       Ours      BASan       ASan
