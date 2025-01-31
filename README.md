@@ -139,12 +139,10 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
 used Reassessor [1] to extract the ground truth of target binaries.  You need
 to install Reassessor before proceeding. You can install it using the provided
-Reassessor project included in this artifact:
+an install script included in this artifact:
 
 ```
-$ cd ./Reassessor
-$ pip3 install -r requirements.txt
-$ python3 setup.py install --user
+$ /bin/bash ./install.sh
 ```
 
 After Reassessor is installed, you can generate ground truth from our dataset
