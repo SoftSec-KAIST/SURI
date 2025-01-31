@@ -48,9 +48,15 @@ class SURI:
         if not os.path.exists(self.asm):
             return
 
+        print('[+] Generate assembly file: %s'%(self.asm))
+
+        if os.path.exists(self.myfile):
+            os.remove(self.myfile)
+
         self.compile_suri()
 
-        print('[+] Generate rewritten binary: %s'%(self.myfile))
+        if os.path.exists(self.myfile):
+            print('[+] Generate rewritten binary: %s'%(self.myfile))
 
 import argparse
 if __name__ == '__main__':
