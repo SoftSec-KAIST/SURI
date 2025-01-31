@@ -73,7 +73,7 @@ $ docker build --tag suri_ubuntu18.04:v1.0 .
 ### 2.4 Docker Images with SPEC CPU
 
 If you have your own SPEC CPU benchmark, then you need to build additional
-Docker images for our reliability test experiment on SPEC CPU benchmark (see [here](#1.2.2-SPEC-Benchmark)).
+Docker images for our reliability test experiment on SPEC CPU benchmark (see [here](#122-spec-benchmark)).
 
 We assume that the SPEC CPU2006 image is unzipped under `./build_script/test_suite_script/spec2006_image` and
 SPEC CPU 2017 image is unzipped under `./build_script/test_suite_script/spec2017_image`.
