@@ -3,34 +3,38 @@
 This artifact is intended to reproduce the experimental results presented in
 our paper, "Towards Sound Reassembly of Modern x86-64 Binaries", published at
 ASPLOS '25. It provides (1) the source code of SURI, (2) scripts for running
-experiments, and (3) datasets we used (including build scripts for our
-benchmark).
-
-:warning: We exclude SPEC benchmark binaries from our dataset because they are
-proprietary. See Section 1.1.4 and 1.3 for more details.
+experiments, and (3) datasets we used.
 
 ## Preperation
 
-The artifact can be downloaded through the [GitHub](https://github.com/witbring/suri_artifact.git) repository.
-Additionally, the dataset (dataset.zip) used for the artifact can be downloaded
-from [Zenodo](https://zenodo.org/records/14770657).
+This artifact can be downloaded from [Zenodo](https://zenodo.org/records/14770657).
+It contains both all codes and data necessary for the artifact evaluation.
+You can also access our source code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
 
-- Artifact URL: https://github.com/witbring/suri_artifact.git
-- Dataset URL: https://zenodo.org/records/14770657
+:warning: We exclude SPEC benchmark binaries from our dataset because they are
+proprietary. See Section 1.4 and 1.3 for more details.
 
+### 1 Download the Artifact
+
+(1) From Zenodo:
 ```
-$ git clone https://github.com/witbring/suri_artifact.git
-$ cd suri_artifact
+FIXME
+```
+
+(2) From GitHub:
+```
+$ git clone https://github.com/SoftSec-KAIST/SURI.git
+$ cd SURI
 $ unzip /path/to/dataset.zip
 ```
+FIXME above with the right command to download dataset
 
-
-### 1 Build Docker Images
+### 2 Build Docker Images
 
 We provide three Docker images for our binary rewriter, SURI, and our comparison
 targets, Ddisasm and Egalito.
 
-### 1.1 Docker Image for SURI
+### 2.1 Docker Image for SURI
 
 This image sets up the execution environment based on Ubuntu 20.04 for running
 SURI. To build this image, run this command at the top-level directory:
@@ -38,7 +42,7 @@ SURI. To build this image, run this command at the top-level directory:
 $ docker build --tag suri:v1.0 .
 ```
 
-### 1.2 Docker Image for Ddisasm
+### 2.2 Docker Image for Ddisasm
 
 For Ddisasm, we used the official Docker image provided by GrammaTech. This
 image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
@@ -48,7 +52,7 @@ using this command:
 $ docker pull reassessor/ddisasm:1.7.0_time
 ```
 
-### 1.3 Docker Image for Egalito
+### 2.3 Docker Image for Egalito
 
 Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
 Thus, we provide additional environment based on Ubuntu 18.04 for a fair
@@ -60,7 +64,7 @@ $ cd ./ubuntu18.04
 $ docker build --tag suri_ubuntu18.04:v1.0 .
 ```
 
-### 1.4 Docker Images with SPEC CPU
+### 2.4 Docker Images with SPEC CPU
 
 If you have your own SPEC CPU benchmark ISO, then you can update our Docker images
 to include SPEC benchmark test suites for our reliability test experiment (see XXX).
@@ -83,13 +87,13 @@ $ cd ./build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ```
 
-### 2 Build Benchmark Binaries
+### 3 Build Benchmark Binaries
 
-### 2.1 Build Coreutils and Binutils Binaries
+### 3.1 Build Coreutils and Binutils Binaries
 
 FIXME
 
-### 2.2 Build SPEC Binaries
+### 3.2 Build SPEC Binaries
 
 In our paper, we evaluated the reliability and overhead of rewritten binaries
 using SPEC CPU2006 v1.2 and SPEC CPU2017 v1.1.5. However, due to licensing
@@ -134,7 +138,7 @@ $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
 
-## 3 Generate Ground Truth
+## 4 Generate Ground Truth
 
 To measure the overhead of SURI, as described in Section 4.3.1 of our paper, we
 used Reassessor [1] to extract the ground truth of target binaries.  You need
