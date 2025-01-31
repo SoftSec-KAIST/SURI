@@ -169,8 +169,8 @@ FIXME
 
 ## Run Experiments
 
-We have three different sets of benchmark binaries because the running
-environments of our comparison targets, Ddisasm and Egalito, differ (see 1.1).
+We have three different sets of benchmark binaries because we have different the running
+environments of our comparison targets, Ddisasm and Egalito (see [2 Build Docker Images](#2-build-docker-images)).
 
 To easily distinguish between different benchmark binary sets, we define the
 following categories:
