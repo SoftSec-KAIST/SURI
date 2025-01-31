@@ -193,6 +193,8 @@ and show the results accordingly unless commands are separated between SPEC bina
 
 ### 1.1 Comparison agains Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
 
+:alarm_clock: 28 hrs on Coreutils and Binutils, 10 days on full dataset
+
 To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
 script provided in the artifact.
 
@@ -216,10 +218,6 @@ And for setC:
 ```
 $ python3 1_get_reassembled_code.py setC
 ```
-
-The time taken for rewriting Coreutils and Binutils binaries will be
-approximatelky 28 hours. If you have full benchmark binaries with SPEC, it will
-take about 10 days.
 
 Once rewriting is complete, you can check the success rate and execution time
 using the following script. Then the results for Table 2 and 3 of our paper are shown
@@ -267,11 +265,10 @@ $ python3 make_set.py setC
 
 #### 1.2.1 Coreutils and Binutils Tests
 
+:alarm_clock: 15 hrs, 3-5 mins per each test suite
+
 To verify the reliability of the rewritten binaries, run the test suites for
 Coreutils and Binutils.
-
-Each test suite takes approximately 3–5 minutes, and the full test set takes
-about 15 hours.
 
 Run the test suite for setA (SURI vs. Ddisasm):
 ```
@@ -316,11 +313,12 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 
 #### 1.2.2 SPEC Benchmark
 
+:alarm_clock: 7-10 days
+
 If you have your own SPEC benchmarks and you have built updated Docker images
 (See 1.1.4), then you can run the SPEC benchmark test suites. Execute the test
 suite using the `1_run_testsuite_spec.py' script. After running the script, the
-results will be displayed. Completing all test suites for each set typically
-takes 7 to 10 days.
+results will be displayed.
 
 If you restart the script, it will skip previously completed tests and continue
 from the next test suite.
@@ -366,7 +364,6 @@ If your PC has enough memory, we can ran it with multithreading by enabling --co
 ```
 $ python3 1_run_testsuite_spec.py setA --core 4
 ```
-
 
 ### 2 Overhead of Rewritten Binaries (Section 4.3)
 
@@ -418,6 +415,8 @@ Table-------------
 
 
 ### 2.2 Comparison against SOTA Reassemblers (Section 4.3.2)
+
+:alarm_clock: 2.5 days
 
 To accurately measure runtime overhead, we run one test suite instance at a
 time. Running multiple test suites simultaneously may interfere with time
