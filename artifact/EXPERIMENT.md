@@ -14,22 +14,26 @@ To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py` scr
 
 For setA, rewrite the binaries using SURI and Ddisasm:
 ```
+cd $SURI_AE_HOME
 $ python3 1_get_reassembled_code.py setA
 ```
 
 If you want to process multiple binaries in parallel, you can use the `--core`
 option. Note that this may affect the rewriting time.
 ```
+cd $SURI_AE_HOME
 $ python3 1_get_reassembled_code.py setA --core 4
 ```
 
 Repeat the process for setB:
 ```
+cd $SURI_AE_HOME
 $ python3 1_get_reassembled_code.py setB
 ```
 
 And for setC:
 ```
+cd $SURI_AE_HOME
 $ python3 1_get_reassembled_code.py setC
 ```
 
@@ -37,6 +41,7 @@ Once rewriting is complete, you can check the success rate and reassembly time
 using the following script. Then the partial results for Table 2 and 3 of our paper are shown
 on the screen.
 ```
+cd $SURI_AE_HOME
 $ python3 1_print_rewrite_result.py setA
                                                       suri                  ddisasm
 -----------------------------------------------------------------------------------
@@ -73,6 +78,7 @@ In this experiment, we run the test suite of each benchmark to see if the rewrit
 You need to first collect the binaries for the reliability testing using the `2_make_set.py` script.
 This will create setA, setB, and setC directories in the project directory.
 ```
+cd $SURI_AE_HOME
 $ python3 2_make_set.py setA
 $ python3 2_make_set.py setB
 $ python3 2_make_set.py setC
@@ -86,6 +92,7 @@ To verify the reliability of the rewritten binaries, run the test suites for Cor
 
 Run the test suite for setA (SURI vs. Ddisasm):
 ```
+cd $SURI_AE_HOME
 $ python3 2_run_testsuite.py setA
 ...
                                           suri                Ddiasm
@@ -97,6 +104,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)       Fail(   7/  24)
 
 Run the test suite for setB (SURI vs. Egalito):
 ```
+cd $SURI_AE_HOME
 $ python3 2_run_testsuite.py setB
 ...
                                           suri               Egalito
@@ -110,11 +118,13 @@ If Egalito produces invalid binaries that cause the test suite to hang, use the
 provided script to terminate the Docker process:
 
 ```
+cd $SURI_AE_HOME
 $ /bin/bash terminate_suri_docker.sh
 ```
 
 Finally, test setC (ablation study of SURI):
 ```
+cd $SURI_AE_HOME
 $ python3 2_run_testsuite.py setC
 ...
                               suri(no_ehframe)
@@ -137,6 +147,7 @@ results will be displayed.
 If the tests are stopped occasionally, you can continue from the stopped test suite.
 
 ```
+cd $SURI_AE_HOME
 $ python3 2_run_testsuite_spec.py setA
                         :                    suri :                 ddiasm
 -----------------------------------------------------------------------------
@@ -193,7 +204,7 @@ separate build script to ensure that the binaries can be compiled in an Ubuntu
 20.04 environment.
 
 ```
-$ cd realworld/phoronix
+$ cd $SURI_AE_HOME/realworld/phoronix
 $ /bin/bash build.sh
 ```
 
@@ -229,7 +240,7 @@ successfully executed.
 
 Similarly, to rewrite real-world client programs, follow the steps below:
 ```
-$ cd realworld/client
+$ cd $SURI_AE_HOME/realworld/client
 $ ls
 epiphany  filezilla  openssh  putty  vim
 
@@ -265,6 +276,7 @@ rewritten by SURI, as explained in Section 4.3.1 of the paper.
 
 To measure code size overhead, execute the following scripts:
 ```
+cd $SURI_AE_HOMEvvvv
 $ python3 4_get_code_size.py setA
 $ python3 4_print_code_size_overhead.py setA
 
@@ -279,6 +291,7 @@ $ python3 4_print_code_size_overhead.py setA
 
 To analyze the overhead of if-then-else statements, run:
 ```
+cd $SURI_AE_HOME
 $ python3 4_get_br_stat.py ./benchmark ./output
 $ python3 4_print_br_overhead.py setA
 
@@ -292,6 +305,7 @@ Multi Br-------------
 
 Finally, to measure jump table entries overhead, run:
 ```
+cd $SURI_AE_HOME
 $ python3 4_get_table_size.py ./benchmark ./output
 $ python3 4_print_table_overhead.py
 
@@ -316,6 +330,7 @@ measurements, as the SPEC benchmark test suite is highly sensitive.
 To measure runtime overhead, execute the following commands:
 
 ```
+cd $SURI_AE_HOME
 $ python3 4_get_runtime_overhead.py setA | tee 2_runtime_overheadA.sh
 $ /bin/bash 2_runtime_overheadA.sh
 
@@ -328,6 +343,7 @@ After running the above commands, you can analyze the results using
 `2_print_runtime_overhead.py`:
 
 ```
+cd $SURI_AE_HOME
 $ python3 4_print_runtime_overhead.py setA
                      |      suri   ddisasm
 spec_cpu2006      24 | 0.329513% 0.321086%
@@ -350,7 +366,7 @@ In this experiment, we implement our own binary-only address sanitizer on top of
 
 To set up Juliet testsuite:
 ```
-$ cd ./application
+$ cd $SURI_AE_HOME/application
 $ wget https://samate.nist.gov/SARD/downloads/test-suites/2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
 $ unzip  2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
 ```
