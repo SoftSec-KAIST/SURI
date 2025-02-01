@@ -1,4 +1,4 @@
-FROM suri:v1.0
+FROM suri_artifact:v1.0
 
 COPY ./spec2006_image /spec_cpu2006
 

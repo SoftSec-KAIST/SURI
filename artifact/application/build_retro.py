@@ -12,7 +12,7 @@ failures = set()
 def run_docker(cmd):
     print(cmd)
     pwd = os.getcwd()
-    dock_cmd = 'docker run --rm -v %s:/input -v %s:/output suri:v1.0 sh -c " %s"'%(pwd, pwd, cmd)
+    dock_cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s"'%(pwd, pwd, cmd)
     os.system(dock_cmd)
 
 

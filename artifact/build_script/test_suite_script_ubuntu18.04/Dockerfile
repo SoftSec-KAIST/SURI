@@ -1,4 +1,4 @@
-FROM suri_ubuntu18.04:v1.0
+FROM suri_artifact_ubuntu18.04:v1.0
 
 COPY ./spec2006_image /spec_cpu2006
 

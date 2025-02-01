@@ -151,9 +151,9 @@ if __name__ == '__main__':
     assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
     if args.dataset in ['setA', 'setC']:
-        image = 'suri:v1.0'
+        image = 'suri_artifact:v1.0'
     elif args.dataset in ['setB']:
-        image =  'suri_ubuntu18.04:v1.0'
+        image =  'suri_artifact_ubuntu18.04:v1.0'
 
     config_list = dict()
     for package in ['coreutils-9.1', 'binutils-2.40']:

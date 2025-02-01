@@ -8,7 +8,7 @@ def run(input_dir, output_dir):
         os.mkdir(output_dir)
     output_dir = os.path.abspath(output_dir)
 
-    cmd = 'docker run --rm -v %s:/data3/3_supersetCFG/benchmark -v %s:/output  suri:v1.0 sh -c "python3 /project/Reassessor/artifact/run_reassessor.py /data3/3_supersetCFG/benchmark /output"'%(input_dir, output_dir)
+    cmd = 'docker run --rm -v %s:/data3/3_supersetCFG/benchmark -v %s:/output  suri_artifact:v1.0 sh -c "python3 /project/Reassessor/artifact/run_reassessor.py /data3/3_supersetCFG/benchmark /output"'%(input_dir, output_dir)
     print(cmd)
     os.system(cmd)
 
