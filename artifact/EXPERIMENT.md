@@ -184,10 +184,7 @@ These results correspond to the remaining data of Table 2 and 3 in our paper.
 
 :alarm_clock: 1 days
 
-You can rewrite five real-world programs that have a Phoronix test suite as follows:
-
-To further demonstrate the reliability of SURI, this experiment rewrites
-real-world binaries and runs their own test suits.
+In this experiment, we rewrite real-world binaries and runs their own test suites to further demonstrate the reliability of SURI.
 
 First, you can rewrite five real-world programs (7zip, apache, mariadb, nginx,
 sqlite3) in Phoronix test suite. The Phoenix binaries will be executed
