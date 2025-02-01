@@ -28,7 +28,7 @@ def make_retro(args):
 def build_retro(core):
 
     conf_list = []
-    for target in glob.glob('bin_original/CWE*/*/*'):
+    for target in glob.glob('bin_original/CWE*/*/CWE*'):
         dir_name = os.path.dirname(target).replace('bin_original', 'bin_retro')
         base_name = os.path.basename(target)
         if not base_name.endswith('.bin'):
@@ -70,18 +70,18 @@ def make_suri(args):
 
     cmd_list = []
     pwd = os.getcwd()
-    cmd_list.append('cd ../superSymbolizer')
+    cmd_list.append('cd ../../superSymbolizer')
     cmd_list.append('python3 CustomCompiler.py %s/%s %s/%s %s/%s --asan'%(pwd,target, pwd,asm_file, pwd,target))
     cmd_list.append('cd -')
     cmd_list.append('mv %s/%s %s/%s'%(src_dir, new_name, dirname, target_name ))
-    cmd_list.append('rm %s'%(tmp_name))
+    cmd_list.append('rm %s/%s'%(src_dir, tmp_name))
     cmd = ';'.join(cmd_list)
     os.system(cmd)
 
 def build_suri(core):
 
     conf_list = []
-    for target in glob.glob('bin_original/CWE*/*/*'):
+    for target in glob.glob('bin_original/CWE*/*/CWE*'):
         dir_name = os.path.dirname(target).replace('bin_original', 'bin_suri')
         base_name = os.path.basename(target)
         if not base_name.endswith('.bin'):
