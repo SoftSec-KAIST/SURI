@@ -7,9 +7,11 @@ experiments, and (3) datasets we used.
 
 ## Preperation
 
-This artifact can be downloaded from [Zenodo](https://zenodo.org/records/14770657).
-It contains both all codes and data necessary for the artifact evaluation.
-You can also access our source code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
+This artifact can be downloaded from
+Zenodo([code](https://zenodo.org/records/14783863),
+[dataset](https://zenodo.org/records/14784107)). It contains both all codes and
+data necessary for the artifact evaluation. You can also access our source code
+through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
 
 :warning: We exclude SPEC benchmark binaries from our dataset because they are
 proprietary. See [2.4 Docker Images with SPEC CPU](#24-docker-images-with-spec-cpu)
