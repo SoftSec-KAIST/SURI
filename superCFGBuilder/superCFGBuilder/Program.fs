@@ -104,7 +104,7 @@ let SaveJSON fileName data =
 
 [<EntryPoint>]
 let main args =
-  let path =  Path.Combine(Path.GetTempPath(), args[0])
+  let path =  args[0]
   if File.Exists(path) then
     let hdl = BinHandle.Init(ISA.DefaultISA, fileName = args[0])
     let fileName = args[1]
