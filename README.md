@@ -6,7 +6,7 @@ Reassembly of Modern x86-64 Binaries", which will be published in the ACM
 International Conference on Architectural Support for Programming Languages and
 Operating Systems (ASPLOS) 2025.
 
-If you are interested in our artifact, visit [here](FIXME)
+If you are interested in our artifact, visit [here](artifact/README.md)
 
 ## Dependencies
 
