@@ -1,12 +1,13 @@
 import os
 
 class SURI:
-    def __init__(self, target, verbose):
-        self.target =target
+    def __init__(self, target, use_docker, verbose):
+        self.target = target
         self.input_dir = os.path.dirname(target)
         self.output_dir = os.getcwd()
         self.suri_dir = os.path.dirname(os.path.realpath(__file__))
         self.filename = os.path.basename(target)
+        self.use_docker = use_docker
         self.verbose = verbose
 
         self.json = '%s.json'%(self.filename)
@@ -23,21 +24,52 @@ class SURI:
         os.system(docker_cmd)
 
     def cfg_suri(self):
-        cmd = 'dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s'%(self.filename, self.json)
-        self.run_docker(cmd)
+        if self.use_docker:
+            file_path = '/input/%s'%(self.filename)
+            json_path = '/output/%s'%(self.json)
+            cmd = 'dotnet run --project=/project/superCFGBuilder/superCFGBuilder %s %s'%(file_path, json_path)
+            self.run_docker(cmd)
+        else:
+            file_path = '%s/%s'%(self.input_dir, self.filename)
+            json_path = '%s/%s'%(self.output_dir, self.json)
+            cmd = 'dotnet run --project=%s/superCFGBuilder/superCFGBuilder %s %s'%(self.suri_dir, file_path, json_path)
+            os.system(cmd)
 
     def symbol_suri(self):
-
-        cmd= 'python3 /project/superSymbolizer/SuperSymbolizer.py /input/%s /output/%s /output/%s --optimization 3 '%(self.filename, self.json , self.asm)
-        self.run_docker(cmd)
+        if self.use_docker:
+            file_path = '/input/%s'%(self.filename)
+            json_path = '/output/%s'%(self.json)
+            asm_path = '/output/%s'%(self.asm)
+            cmd = 'python3 /project/superSymbolizer/SuperSymbolizer.py %s %s %s --optimization 3 '%(file_path, json_path , asm_path)
+            self.run_docker(cmd)
+        else:
+            file_path = '%s/%s'%(self.input_dir, self.filename)
+            json_path = '%s/%s'%(self.output_dir, self.json)
+            asm_path = '%s/%s'%(self.asm_dir, self.asm)
+            cmd = 'python3 %s/superSymbolizer/SuperSymbolizer.py %s/%s %s/%s %s/%s --optimization 3 '%(self.suri_dir, file_path, json_path, asm_path)
+            os.system(cmd)
 
     def compile_suri(self):
-        cmd = 'python3 %s/superSymbolizer/CustomCompiler.py %s %s/%s %s/%s'%(self.suri_dir, self.target, self.output_dir, self.asm, self.output_dir, self.filename)
+        if self.use_docker:
+            input_path = '/input/%s'%(self.input_dir, self.filename)
+            asm_path = '/output/%s'%(self.output_dir, self.asm)
+            output_path = '/output/%s'%(self.output_dir, self.filename)
+            cmd = 'python3 /project/superSymbolizer/CustomCompiler.py %s %s %s'%(self.suri_dir, input_path, asm_path, output_path)
 
-        if self.verbose:
-            print(cmd)
+            if self.verbose:
+                print(cmd)
 
-        os.system(cmd)
+            self.run_docker(cmd)
+        else:
+            input_path = '%s/%s'%(self.input_dir, self.filename)
+            asm_path = '%s/%s'%(self.output_dir, self.asm)
+            output_path = '%s/%s'%(self.output_dir, self.filename)
+            cmd = 'python3 %s/superSymbolizer/CustomCompiler.py %s %s %s'%(self.suri_dir, input_path, asm_path, output_path)
+
+            if self.verbose:
+                print(cmd)
+
+            os.system(cmd)
 
     def run(self):
         self.cfg_suri()
@@ -62,12 +94,12 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SURI')
     parser.add_argument('target', type=str, help='Target Binary')
+    parser.add_argument('--usedocker', action='store_true')
     parser.add_argument('--verbose', action='store_true')
 
     args = parser.parse_args()
 
     target = os.path.abspath(args.target)
 
-    suri = SURI(target, args.verbose)
+    suri = SURI(target, arg.usedocker, args.verbose)
     suri.run()
-
