@@ -55,11 +55,11 @@ def check_super(root, filename, verbose):
 
     if os.path.exists(target):
         t1 = read_time('%s/tlog1.txt'%(root))
-        if t1 == 0:
-            return 0.0
-        t2 = read_time('%s/tlog2.txt'%(root))
-        t3 = read_time('%s/tlog3.txt'%(root))
-        return t1 + t2 + t3
+        if os.path.exists('%s/tlog2.txt'%(root)):
+            t1 += read_time('%s/tlog2.txt'%(root))
+        if os.path.exists('%s/tlog3.txt'%(root)):
+            t1 += read_time('%s/tlog3.txt'%(root))
+        return t1
     if verbose:
         print(' [-] SURI fails to reassemble %s'%(target))
     return 0.0
