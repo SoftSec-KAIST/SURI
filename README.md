@@ -20,10 +20,10 @@ for more details.
 
 (1) From Zenodo:
 ```
-$ wget https://zenodo.org/records/14783785/files/suri_artifact.zip
+$ wget https://zenodo.org/records/14783863/files/suri_artifact.zip
 $ unzip suri_artifact.zip
 $ cd ./suri_artifact/artifact
-$ wget https://zenodo.org/records/14770657/files/dataset.zip
+$ wget https://zenodo.org/records/14784107/files/dataset.zip
 $ unzip dataset.zip
 ```
 
@@ -31,7 +31,7 @@ $ unzip dataset.zip
 ```
 $ git clone https://github.com/SoftSec-KAIST/SURI.git
 $ cd ./SURI/artifact
-$ wget https://zenodo.org/records/14770657/files/dataset.zip
+$ wget https://zenodo.org/records/14784107/files/dataset.zip
 $ unzip dataset.zip
 ```
 
