@@ -8,10 +8,9 @@ Note that we used a machine with an Intel Core i9-11900K processor and 128GB of 
 
 :alarm_clock: 28 hrs on Coreutils and Binutils, 10 days on full dataset
 
-In this experiment, we rewrite binaries using SURI and other tools and see if the binary reassembly is successful.
+In this experiment, we rewrite binaries using SURI (setA, setB, and setC), Ddisasm (setA), Egalito (setB) and see if reassembly is successful.
 
-To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
-script provided in the artifact.
+To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py` script provided in the artifact.
 
 For setA, rewrite the binaries using SURI and Ddisasm:
 ```
@@ -35,7 +34,7 @@ $ python3 1_get_reassembled_code.py setC
 ```
 
 Once rewriting is complete, you can check the success rate and reassembly time
-using the following script. Then the results for Table 2 and 3 of our paper are shown
+using the following script. Then the partial results for Table 2 and 3 of our paper are shown
 on the screen.
 ```
 $ python3 1_print_rewrite_result.py setA
