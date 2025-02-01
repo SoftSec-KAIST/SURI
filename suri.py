@@ -3,7 +3,7 @@ from superSymbolizer import SuperSymbolizer, CustomCompiler, SuperAsan
 
 
 class SURI:
-    def __init__(self, target, new_out_dir, asan, use_docker, verbose):
+    def __init__(self, target, new_out_dir, asan, use_docker, verbose, metafile):
         self.target = target
         self.input_dir = os.path.dirname(target)
         if new_out_dir:
@@ -15,7 +15,10 @@ class SURI:
         self.use_docker = use_docker
         self.verbose = verbose
 
-        self.json = '%s.json'%(self.filename)
+        if metafile:
+            self.json = '%s.json'%(metafile)
+        else:
+            self.json = '%s.json'%(self.filename)
 
         if asan:
             self.asan = '%s_asan.json'%(self.filename)
@@ -120,33 +123,38 @@ class SURI:
 
 
     def run(self):
+        json_path = '%s/%s'%(self.output_dir, self.json)
+        asm_path = '%s/%s'%(self.output_dir, self.asm)
+        my_path = '%s/%s'%(self.output_dir, self.myfile)
+
         self.cfg_suri()
-        if not os.path.exists(self.json):
+
+        if not os.path.exists(json_path):
             return
 
         if self.asan:
             self.asan_suri()
 
             self.symbol_asan_suri()
-            if not os.path.exists(self.asm):
+            if not os.path.exists(asm_path):
                 return
 
             print('[+] Generate assembly file: %s'%(self.asm))
 
         else:
             self.symbol_suri()
-            if not os.path.exists(self.asm):
+            if not os.path.exists(asm_path):
                 return
 
             print('[+] Generate assembly file: %s'%(self.asm))
 
-        if os.path.exists(self.myfile):
+        if os.path.exists(my_path):
             os.remove(self.myfile)
 
         self.compile_suri()
 
-        if os.path.exists(self.myfile):
-            print('[+] Generate rewritten binary: %s'%(self.myfile))
+        if os.path.exists(my_path):
+            print('[+] Generate rewritten binary: %s'%(my_path))
 
 import argparse
 if __name__ == '__main__':
@@ -156,10 +164,11 @@ if __name__ == '__main__':
     parser.add_argument('--asan', action='store_true')
     parser.add_argument('--usedocker', action='store_true')
     parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('--metafile', type=str)
 
     args = parser.parse_args()
 
     target = os.path.abspath(args.target)
 
-    suri = SURI(target, args.ofolder, args.asan, args.usedocker, args.verbose)
+    suri = SURI(target, args.ofolder, args.asan, args.usedocker, args.verbose, args.metafile)
     suri.run()
