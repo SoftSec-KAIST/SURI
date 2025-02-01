@@ -1,9 +1,9 @@
 import struct
 
-from ElfBricks import ElfBricks
-from lib.CFIInfo import CFIInfo
-from lib.LocalSymbolizer import LocalSymbolizer
-from lib.Misc import EParser, FunBriefInfo
+from superSymbolizer.ElfBricks import ElfBricks
+from superSymbolizer.lib.CFIInfo import CFIInfo
+from superSymbolizer.lib.LocalSymbolizer import LocalSymbolizer
+from superSymbolizer.lib.Misc import EParser, FunBriefInfo
 import json
 import re
 

@@ -2,7 +2,7 @@ import os, sys
 import enum
 from ctypes import *
 
-from ElfBricks import ElfInfo
+from superSymbolizer.ElfBricks import ElfInfo
 
 
 class ProgramType(enum.IntEnum):

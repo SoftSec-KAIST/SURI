@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from lib.Misc import is_unsupported_instruction, Instrumentation, InstType
+from superSymbolizer.lib.Misc import is_unsupported_instruction, Instrumentation, InstType
 
 BBLInfo = namedtuple('BBLInfo', ['Start', 'End', 'Fallthrough'])
 

@@ -1,4 +1,4 @@
-from lib.ElfDef import ELFHeader, SectionHeader, ProgramHeader, Elf64_Sym, Elf64_Rela, Elf64_Dyn, Elf64_Verneed, \
+from superSymbolizer.lib.ElfDef import ELFHeader, SectionHeader, ProgramHeader, Elf64_Sym, Elf64_Rela, Elf64_Dyn, Elf64_Verneed, \
     Elf64_Vernaux, Elf64_VernIdx, SectionType, SectionFlag, ProgramFlag, ProgramType, DynamicArrayTag, RelocationType, \
     Pack, Unpack, SectionBrick, VersionBrick, Elf64_Addr
 

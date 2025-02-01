@@ -1,7 +1,7 @@
 import re
-from lib.CFGSerializer import CFGSerializer
-from lib.ExceptTable import EHTable
-from lib.Misc import RelocExpr, Instrumentation, InstType, REGISTERS, is_register, REGISTERS_x64, is_unsupported_instruction
+from superSymbolizer.lib.CFGSerializer import CFGSerializer
+from superSymbolizer.lib.ExceptTable import EHTable
+from superSymbolizer.lib.Misc import RelocExpr, Instrumentation, InstType, REGISTERS, is_register, REGISTERS_x64, is_unsupported_instruction
 
 pattern = re.compile('\[(.*)\]')
 

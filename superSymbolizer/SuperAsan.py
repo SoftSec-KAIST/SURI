@@ -1,6 +1,6 @@
 import json
 import re
-from SuperSymbolizer import SuperSymbolizer
+from superSymbolizer.SuperSymbolizer import SuperSymbolizer
 
 
 class SuperAsan(SuperSymbolizer):

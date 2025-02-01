@@ -5,8 +5,8 @@ from elftools.dwarf.callframe import CallFrameInfo
 from elftools.dwarf.callframe import FDE
 from elftools.dwarf.structs import DWARFStructs
 from elftools.dwarf.dwarf_expr import DW_OP_opcode2name
-from lib.ExceptTable import GCCExceptTable
-from lib.ExceptTable import decode_uleb128
+from superSymbolizer.lib.ExceptTable import GCCExceptTable
+from superSymbolizer.lib.ExceptTable import decode_uleb128
 import struct
 
 class CFIInfo:
