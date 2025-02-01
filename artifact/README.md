@@ -88,5 +88,5 @@ binaries, though.
 
 These are the links that explain how to set up our artifact and how to run the
 experiments.
-- [Preparation](FIXME)
-- [Experiment](FIXME)
+- [Preparation](PREPARATION.md)
+- [Experiment](EXPERIMENT.md)
