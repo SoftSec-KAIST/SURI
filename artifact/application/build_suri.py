@@ -16,8 +16,8 @@ def run_docker(cmd):
 def make_suri(target, b2r2_meta, b2r2_asan, asm_file, dirname):
 
     cmd_list = []
-    cmd_list.append('dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s'%(target, b2r2_meta))
-    cmd_list.append('dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s asan'%(target, b2r2_asan))
+    cmd_list.append('dotnet run --project=/project/superCFGBuilder /input/%s /output/%s'%(target, b2r2_meta))
+    cmd_list.append('dotnet run --project=/project/superCFGBuilder /input/%s /output/%s asan'%(target, b2r2_asan))
     cmd_list.append('python3 /project/superSymbolizer/SuperAsan.py /input/%s /output/%s /output/%s /output/%s'%(target, b2r2_meta, b2r2_asan, asm_file))
     cmd = ';'.join(cmd_list)
     run_docker(cmd)
@@ -27,7 +27,7 @@ def make_suri(target, b2r2_meta, b2r2_asan, asm_file, dirname):
     target_name = target.split('/')[-1]
     tmp_name = 'tmp_' + target_name
     new_name = 'my_' + target_name
-    
+
     cmd_list = []
     pwd = os.getcwd()
     cmd_list.append('cd ../superSymbolizer')
@@ -63,7 +63,7 @@ def main(out_dir):
         for dir_name in os.listdir('./C/testcases'):
             if dir_name.startswith('CWE%d' % cwe):
                 build_suri(out_dir, dir_name)
-                
+
 
 
 if __name__ == '__main__':

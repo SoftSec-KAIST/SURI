@@ -23,7 +23,7 @@ class Builder:
         os.system(docker_cmd)
 
     def cfg_suri(self):
-        cmd = 'dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s'%(self.filename, self.json)
+        cmd = 'dotnet run --project=/project/superCFGBuilder/superCFGBuilder /input/%s /output/%s'%(self.filename, self.json)
         self.run_docker(cmd)
 
     def symbol_suri(self):
