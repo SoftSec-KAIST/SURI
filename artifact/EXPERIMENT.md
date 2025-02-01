@@ -34,7 +34,7 @@ And for setC:
 $ python3 1_get_reassembled_code.py setC
 ```
 
-Once rewriting is complete, you can check the success rate and execution time
+Once rewriting is complete, you can check the success rate and reassembly time
 using the following script. Then the results for Table 2 and 3 of our paper are shown
 on the screen.
 ```
