@@ -364,23 +364,19 @@ These results correspond to Table 4 in our paper.
 
 In this experiment, we implement our own binary-only address sanitizer on top of SURI and compare to BASan, a binary-only address sanitizer on top of RetroWrite.
 
-To set up Juliet test suite:
+Download the Juliet Test Suite files used in the experiment. These files
+include binaries compiled with default options (`bin_original`) and binaries with
+AddressSanitizer applied (`bin_asan`).
 ```
 $ cd $SURI_AE_HOME/application
-$ wget https://samate.nist.gov/SARD/downloads/test-suites/2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
-$ unzip  2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
-```
-
-To build Juliet test suite binaries, run the following commands:
-```
-$ python3 build_original.py
-$ python3 build_asan.py
+$ wget FIXME:juliet_bin.zip
+$ unzip  juliet_bin.zip
 ```
 
 Rewrite original Juliet test suite binaries with SURI and RetroWrite.
 ```
-$ python3 build_suri.py
-$ python3 build_retrowrite.py
+$ python3 rewrite_juliet.py suri
+$ python3 rewrite_juliet.py retrowrite
 ```
 
 To run juliet test suit binaries, execute the following commands:
