@@ -17,9 +17,9 @@ class Builder:
     def run_docker(self, cmd):
         if self.verbose:
             print(cmd)
-            docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri:v1.0 sh -c " %s; "'%(self.input_dir, self.output_dir, cmd )
+            docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s; "'%(self.input_dir, self.output_dir, cmd )
         else:
-            docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri:v1.0 sh -c " %s 2> /dev/null "'%(self.input_dir, self.output_dir, cmd )
+            docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s 2> /dev/null "'%(self.input_dir, self.output_dir, cmd )
         os.system(docker_cmd)
 
     def cfg_suri(self):

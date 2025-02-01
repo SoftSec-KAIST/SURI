@@ -1,7 +1,7 @@
 #!/bin/bash
 
-python3 ../../../suri.py 7zip --usedocker
-python3 ../../../suri.py apache --usedocker
-python3 ../../../suri.py mariadb --usedocker
-python3 ../../../suri.py nginx --usedocker
-python3 ../../../suri.py sqlite3 --usedocker
+python3 build.py 7zip
+python3 build.py apache
+python3 build.py mariadb
+python3 build.py nginx
+python3 build.py sqlite3
