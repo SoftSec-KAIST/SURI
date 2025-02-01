@@ -24,9 +24,8 @@ RUN pip install pyelftools
 RUN mkdir -p /project
 
 # Add SURI
-COPY ./B2R2 /project/B2R2
-COPY ./superCFGBuilder /project/superCFGBuilder
-COPY ./superSymbolizer /project/superSymbolizer
+RUN cd /project/ && git clone https://github.com/SoftSec-KAIST/SURI.git && \
+    cd SURI && python3 setup.py install
 
 # Build superCFGBuilder
-RUN cd /project/superCFGBuilder && dotnet build
+RUN cd /project/SURI/superCFGBuilder && dotnet build
