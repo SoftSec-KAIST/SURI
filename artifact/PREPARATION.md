@@ -84,13 +84,13 @@ in line 3 and line 15 of the Dockerfiles at `./artifact/build_script/test_suite_
 
 Then, build the suri_spec:v1.0 image using the following command at the top-level directory:
 ```
-$ cd ./artifact/build_script/test_suite_script/
+$ cd $SURI_AE_HOME/build_script/test_suite_script/
 $ docker build -tag suri_spec:v1.0 .
 ```
 
 To build the one for the ubuntu 18.04 image, run the following command at the top-level directory:
 ```
-$ cd ./artifact/build_script/test_suite_script_ubuntu18.04/
+$ cd $SURI_AE_HOME/build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ```
 
@@ -121,7 +121,7 @@ Docs.txt     README      bin        install.sh               shrc      version.t
 LICENSE      README.txt  config     install_archives         shrc.bat
 LICENSE.txt  Revisions   cshrc      redistributable_sources  tools
 
-$ cd ./artifact/build_script
+$ cd $SURI_AE_HOME/build_script
 $ python3 build_spec2006.py /path/to/spec_cpu2006
 [+] ...
 ```
@@ -136,7 +136,7 @@ Docs         PTDaemon    bin          install.sh               shrc      uninsta
 LICENSE.txt  README.txt  cshrc        install_archives         shrc.bat  version.txt
 MANIFEST     Revisions   install.bat  redistributable_sources  tools
 
-$ cd ./artifact/build_script
+$ cd $SURI_AE_HOME/build_script
 $ python3 build_spec2017.py /path/to/spec_cpu2017
 [+] ...
 ```
@@ -158,7 +158,7 @@ $ /bin/bash ./install.sh
 After Reassessor is installed, you can generate ground truth from our dataset
 using these commands (see [Run Experiments](#run-experiments) if you want to know what setA and setC are):
 ```
-$ cd ./artifact
+$ cd $SURI_AE_HOME
 $ python3 make_gt.py setA
 $ python3 make_gt.py setC
 ```
