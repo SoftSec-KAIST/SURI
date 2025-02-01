@@ -199,7 +199,7 @@ In this experiment, we rewrite real-world binaries and runs their own test suite
 
 First, you can rewrite five real-world programs (7zip, apache, mariadb, nginx,
 sqlite3) in Phoronix test suite. The Phoenix binaries will be executed
-within the Phoenix test suite inside the `suri:v1.0` Docker image. We provide a
+within the Phoenix test suite inside the `suri_artifact:v1.0` Docker image. We provide a
 separate build script to ensure that the binaries can be compiled in an Ubuntu
 20.04 environment.
 
@@ -276,7 +276,7 @@ rewritten by SURI, as explained in Section 4.3.1 of the paper.
 
 To measure code size overhead, execute the following scripts:
 ```
-cd $SURI_AE_HOMEvvvv
+cd $SURI_AE_HOME
 $ python3 4_get_code_size.py setA
 $ python3 4_print_code_size_overhead.py setA
 
@@ -331,16 +331,16 @@ To measure runtime overhead, execute the following commands:
 
 ```
 cd $SURI_AE_HOME
-$ python3 4_get_runtime_overhead.py setA | tee 2_runtime_overheadA.sh
-$ /bin/bash 2_runtime_overheadA.sh
+$ python3 4_get_runtime_overhead.py setA | tee 4_runtime_overheadA.sh
+$ /bin/bash 4_runtime_overheadA.sh
 
-$ python3 4_get_runtime_overhead.py setB | tee 2_runtime_overheadB.sh
-$ /bin/bash 2_runtime_overheadB.sh
+$ python3 4_get_runtime_overhead.py setB | tee 4_runtime_overheadB.sh
+$ /bin/bash 4_runtime_overheadB.sh
 
 ```
 
 After running the above commands, you can analyze the results using
-`2_print_runtime_overhead.py`:
+`4_print_runtime_overhead.py`:
 
 ```
 cd $SURI_AE_HOME
@@ -358,32 +358,32 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 These results correspond to Table 4 in our paper.
 
-## Exp5: Application of SURI (Section 4.4)
+## Exp5: Application of SURI (RQ3)
 
 :alarm_clock: 5 days
 
 In this experiment, we implement our own binary-only address sanitizer on top of SURI and compare to BASan, a binary-only address sanitizer on top of RetroWrite.
 
-To set up Juliet testsuite:
+To set up Juliet test suite:
 ```
 $ cd $SURI_AE_HOME/application
 $ wget https://samate.nist.gov/SARD/downloads/test-suites/2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
 $ unzip  2017-10-01-juliet-test-suite-for-c-cplusplus-v1-3.zip
 ```
 
-To build Juliet testsuite binaries, run the following commands:
+To build Juliet test suite binaries, run the following commands:
 ```
 $ python3 build_original.py
 $ python3 build_asan.py
 ```
 
-Rewrite original Juliet testsuite binaries with SURI and RetroWrite.
+Rewrite original Juliet test suite binaries with SURI and RetroWrite.
 ```
 $ python3 build_suri.py
 $ python3 build_retrowrite.py
 ```
 
-To run juliet testsuit binaries, execute the following commands:
+To run juliet test suit binaries, execute the following commands:
 ```
 $ python3 run_juliet.py original    --core $(nproc)
 $ python3 run_juliet.py suri        --core $(nproc)
