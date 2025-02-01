@@ -1,36 +1,14 @@
-## Run Experiments
+# How To Run Experiments
 
-All artifact scripts are located in the `./artifact` folder, so we assume that
-all instructions are executed within this directory.
+:alarm_clock:: This mark shows the estimated time when we ran the experiment on our environment.
+Depending on your computing machine, the actual time may be different from the indicated time.
+Note that we used a machine with an Intel Core i9-11900K processor and 128GB of RAM.
 
-Also, we have three different sets of benchmark binaries because we have different running
-environments for our comparison targets, Ddisasm and Egalito (see [2 Build Docker Images](#2-build-docker-images)).
-
-To easily distinguish between different benchmark binary sets, we define the
-following categories:
-
-- setA: Binaries compiled on Ubuntu 20.04 (SURI vs. Ddisasm).
-- setB: Binaries compiled on Ubuntu 18.04 (SURI vs. Egalito).
-- setC: Binaries compiled on Ubuntu 20.04 without call frame information (see Section 4.3.3 of the paper).
-
-Note 1: setB excludes C++ binaries because Egalito cannot handle binaries
-written in C++ language.
-
-Note 2: We used a machine with an Intel Core i9-11900K processor and
-128GB of RAM when we ran experiments. Thus, it will take more or less time
-depending on your computing machine.
-
-Note 3: Our scripts automatically detect whether SPEC binaries are included in the dataset or not,
-and show the results accordingly unless commands are separated between SPEC binaries and others.
-
-### 1 Reliability Comparison (Section 4.2)
-
-This experiment answers **RQ1**: How well does SURI compare to the state-of-the-art reassembly tools in terms of reliability?
-We rewrite binaries using SURI and other comparison targets and see if the binary rewriting is successful and the rewritten binaries can pass the test suites.
-
-### 1.1 Rewriting Completion Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
+## Exp1: Reassembly completion comparison (RQ1)
 
 :alarm_clock: 28 hrs on Coreutils and Binutils, 10 days on full dataset
+
+In this experiment, we rewrite binaries using SURI and other tools and see if the binary reassembly is successful.
 
 To rewrite the binaries in each dataset, use the `1_get_reassembled_code.py`
 script provided in the artifact.
@@ -89,7 +67,7 @@ $ python3 1_print_rewrite_result.py setB
                        all (4286) : 100.000000%  27.821629 :  94.680355%   1.458404
 ```
 
-### 1.2 Testsuite Pass Rate Comparison against Ddisasm and Egalito (Section 4.2.1 and 4.2.2)
+## Exp2: Test suite pass rate comparison (RQ1)
 
 After completion of the previous experiment, collect the binaries for the
 reliability testing using the `make_set.py` script. This will create setA,
@@ -204,7 +182,75 @@ $ python3 1_run_testsuite_spec.py setA --core 4
 
 These results correspond to Table 2 and 3 in our paper.
 
-### 2 Overhead of Rewritten Binaries (Section 4.3)
+## Exp3: Reliability test on real-world programs (RQ1)
+
+To further demonstrate the reliability of SURI, this experiment rewrites
+real-world binaries and runs their own test suits.
+
+You can rewrite five real-world programs having Phoronix test suite as follows:
+```
+$ cd realworld/phoronix
+$ python3 ../../../suri.py 7zip
+$ python3 ../../../suri.py apache
+$ python3 ../../../suri.py mariadb
+$ python3 ../../../suri.py nginx
+$ python3 ../../../suri.py sqlite3
+```
+
+After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
+```
+$ /bin/bash run_docker.sh
+root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
+```
+
+You can run the Phoronix Test Suite using the following commands. When running
+the test suite, you can select the desired benchmark for each test.
+```
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark 7zip
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark apache
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark mysqlslap
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
+
+root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
+```
+Each command will report the success of test suites. We compared the execution
+results of the rewritten binaries with those of the original binaries before
+running /data/copy.sh to determine whether the rewritten binaries were
+successfully executed.
+
+Similarly, to rewrite real-world client programs, follow the steps below:
+```
+$ cd realworld/client
+$ ls
+epiphany  filezilla  openssh  putty  vim
+
+$ python3 ../../../suri.py epiphany
+$ python3 ../../../suri.py filezilla
+$ python3 ../../../suri.py openssh
+$ python3 ../../../suri.py putty
+$ python3 ../../../suri.py vim
+```
+Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
+
+Additionally, Epiphany, PuTTY, and FileZilla are GNU programs that require a
+desktop environment to run. For Epiphany, we provide a dedicated script,
+`run_epiphany.sh`, to facilitate execution.
+```
+$ /bin/bash run_epiphany.sh
+
+$ ./my_filezilla
+
+$ ./my_openssh
+
+$ ./my_putty
+
+$ ./my_vim
+```
+
+## Exp4: Overhead of Rewritten Binaries (Section 4.3)
 
 This experiment answers **RQ2**: How big is the performance overhead introduced by SURI for rewritten binaries?
 
@@ -292,77 +338,7 @@ spec_cpu2017      21 | 0.167273% 0.037466%
 
 These results correspond to Table 4 in our paper.
 
-
-### 2.3 Reliability of SURI (Section 4.2.3)
-
-To further demonstrate the reliability of SURI, this experiment rewrites
-real-world binaries and runs their own test suits.
-
-You can rewrite five real-world programs having Phoronix test suite as follows:
-```
-$ cd realworld/phoronix
-$ python3 ../../../suri.py 7zip
-$ python3 ../../../suri.py apache
-$ python3 ../../../suri.py mariadb
-$ python3 ../../../suri.py nginx
-$ python3 ../../../suri.py sqlite3
-```
-
-After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
-```
-$ /bin/bash run_docker.sh
-root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
-```
-
-You can run the Phoronix Test Suite using the following commands. When running
-the test suite, you can select the desired benchmark for each test.
-```
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark 7zip
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark apache
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark mysqlslap
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
-
-root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
-```
-Each command will report the success of test suites. We compared the execution
-results of the rewritten binaries with those of the original binaries before
-running /data/copy.sh to determine whether the rewritten binaries were
-successfully executed.
-
-Similarly, to rewrite real-world client programs, follow the steps below:
-```
-$ cd realworld/client
-$ ls
-epiphany  filezilla  openssh  putty  vim
-
-$ python3 ../../../suri.py epiphany
-$ python3 ../../../suri.py filezilla
-$ python3 ../../../suri.py openssh
-$ python3 ../../../suri.py putty
-$ python3 ../../../suri.py vim
-```
-Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
-
-Additionally, Epiphany, PuTTY, and FileZilla are GNU programs that require a
-desktop environment to run. For Epiphany, we provide a dedicated script,
-`run_epiphany.sh`, to facilitate execution.
-```
-$ /bin/bash run_epiphany.sh
-
-$ ./my_filezilla
-
-$ ./my_openssh
-
-$ ./my_putty
-
-$ ./my_vim
-```
-
-
-### 3 Application of SURI (Section 4.4)
+## Exp5: Application of SURI (Section 4.4)
 
 :alarm_clock: 5 days
 
