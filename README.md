@@ -20,10 +20,10 @@ for more details.
 
 (1) From Zenodo:
 ```
-$ cd ./artifact/
-$ wget https://zenodo.org/records/14779330/files/suri_artifact.zip
-$ wget https://zenodo.org/records/14770657/files/dataset.zip
+$ wget https://zenodo.org/records/14783785/files/suri_artifact.zip
 $ unzip suri_artifact.zip
+$ cd ./suri_artifact/artifact
+$ wget https://zenodo.org/records/14770657/files/dataset.zip
 $ unzip dataset.zip
 ```
 
@@ -64,7 +64,7 @@ $ docker pull reassessor/ddisasm:1.7.0_time
 Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
 Thus, we provide an additional environment based on Ubuntu 18.04 for a fair
 comparison. This image includes SURI, Egalito, and RetroWrite. The Dockerfile
-for this image is located in the `./ubuntu18.04` directory. To build this
+for this image is located in the `./artifact/ubuntu18.04` directory. To build this
 image, run these commands at the top-level directory:
 ```
 $ cd ./artifact/ubuntu18.04
@@ -97,7 +97,7 @@ $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ### 3 Prepare Dataset
 
 Our dataset used for our evaluation consists of Coreutils v9.1, Binutils v2.40,
-SPEC CPU 2006 (v1.1) and SPEC CPU 2017 (v1.1). We provide the dataset (including
+SPEC CPU 2006 (v1.2) and SPEC CPU 2017 (v1.1.5). We provide the dataset (including
 binaries and ground truths) for Coreutils and Binutils through Zenodo (see
 [1. Download the Artifact](#1-download-the-artifact)). However, due to licensing
 restrictions, we are not able to distribute SPEC CPU benchmark binaries. Instead,
@@ -515,7 +515,7 @@ root@bc838d2d3cfe:/# phoronix-test-suite benchmark nginx
 
 root@bc838d2d3cfe:/# phoronix-test-suite benchmark sqlite
 ```
-Each command will report the success of test suites.  We compared the execution
+Each command will report the success of test suites. We compared the execution
 results of the rewritten binaries with those of the original binaries before
 running /data/copy.sh to determine whether the rewritten binaries were
 successfully executed.
@@ -527,29 +527,32 @@ $ ls
 epiphany  filezilla  openssh  putty  vim
 
 $ python3 ../../../suri.py epiphany
-...
-[+] Generate rewritten binary: my_filezilla
-
 $ python3 ../../../suri.py filezilla
-...
-[+] Generate rewritten binary: my_git
-
 $ python3 ../../../suri.py openssh
-...
-[+] Generate rewritten binary: my_openssh
-
 $ python3 ../../../suri.py putty
-...
-[+] Generate rewritten binary: my_putty
-
 $ python3 ../../../suri.py vim
-...
-[+] Generate rewritten binary: my_vim
 ```
 Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
 
+Additionally, Epiphany, PuTTY, and FileZilla are GNU programs that require a
+desktop environment to run. For Epiphany, we provide a dedicated script,
+`run_epiphany.sh`, to facilitate execution.
+```
+$ /bin/bash run_epiphany.sh
+
+$ ./my_filezilla
+
+$ ./my_openssh
+
+$ ./my_putty
+
+$ ./my_vim
+```
+
 
 ### 3 Application of SURI (Section 4.4)
+
+:alarm_clock: 5 days
 
 This experiment answers **RQ3**: Is SURI applicable to real-world scenarios, such as runtime memory sanitization?
 In this experiment, we implement our own binary-only address sanitizer on top of SURI and compare to BASan, a binary-only address sanitizer on top of RetroWrite.
@@ -575,10 +578,10 @@ $ python3 build_retrowrite.py
 
 To run juliet testsuit binaries, execute the following commands:
 ```
-$ python3 run_juliet.py original
-$ python3 run_juliet.py suri
-$ python3 run_juliet.py asan
-$ python3 run_juliet.py retrowrite
+$ python3 run_juliet.py original    --core $(nproc)
+$ python3 run_juliet.py suri        --core $(nproc)
+$ python3 run_juliet.py asan        --core $(nproc)
+$ python3 run_juliet.py retrowrite  --core $(nproc)
 ```
 
 The `summary.py` script prints the results from both our binary-only address sanatizer, BASan, and ASan.
