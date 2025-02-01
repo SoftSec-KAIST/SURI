@@ -101,5 +101,5 @@ if __name__ == '__main__':
 
     target = os.path.abspath(args.target)
 
-    suri = SURI(target, arg.usedocker, args.verbose)
+    suri = SURI(target, args.usedocker, args.verbose)
     suri.run()
