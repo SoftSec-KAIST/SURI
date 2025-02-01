@@ -37,7 +37,7 @@ class SURI:
         if self.use_docker:
             file_path = '/input/%s'%(self.filename)
             json_path = '/output/%s'%(self.json)
-            cmd = 'dotnet run --project=/project/superCFGBuilder/superCFGBuilder %s %s'%(file_path, json_path)
+            cmd = 'dotnet run --project=/project/SURI/superCFGBuilder/superCFGBuilder %s %s'%(file_path, json_path)
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
@@ -49,7 +49,7 @@ class SURI:
         if self.use_docker:
             file_path = '/input/%s'%(self.filename)
             asan_path = '/output/%s'%(self.asan)
-            cmd = 'dotnet run --project=/project/superCFGBuilder/superCFGBuilder %s %s asan'%(file_path, asan_path)
+            cmd = 'dotnet run --project=/project/SURI/superCFGBuilder/superCFGBuilder %s %s asan'%(file_path, asan_path)
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
@@ -62,14 +62,12 @@ class SURI:
             file_path = '/input/%s'%(self.filename)
             json_path = '/output/%s'%(self.json)
             asm_path = '/output/%s'%(self.asm)
-            cmd = 'python3 /project/superSymbolizer/SuperSymbolizer.py %s %s %s --optimization 3 '%(file_path, json_path , asm_path)
+            cmd = 'python3 /project/SURI/superSymbolizer/SuperSymbolizer.py %s %s %s --optimization 3 '%(file_path, json_path , asm_path)
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
             json_path = '%s/%s'%(self.output_dir, self.json)
             asm_path = '%s/%s'%(self.output_dir, self.asm)
-            #cmd = 'python3 %s/superSymbolizer/SuperSymbolizer.py %s %s %s --optimization 3 '%(self.suri_dir, file_path, json_path, asm_path)
-            #os.system(cmd)
             sym = SuperSymbolizer.SuperSymbolizer(file_path, json_path, 3, 'intel')
             sym.symbolize(True)
             sym.create_reassem_file(asm_path)
@@ -81,9 +79,9 @@ class SURI:
             output_path = '/output/%s'%(self.filename)
 
             if self.asan:
-                cmd = 'python3 /project/superSymbolizer/CustomCompiler.py %s %s %s --asan'%(self.suri_dir, input_path, asm_path, output_path)
+                cmd = 'python3 /project/SURI/superSymbolizer/CustomCompiler.py %s %s %s --asan'%(input_path, asm_path, output_path)
             else:
-                cmd = 'python3 /project/superSymbolizer/CustomCompiler.py %s %s %s'%(self.suri_dir, input_path, asm_path, output_path)
+                cmd = 'python3 /project/SURI/superSymbolizer/CustomCompiler.py %s %s %s'%(input_path, asm_path, output_path)
 
             if self.verbose:
                 print(cmd)
@@ -107,14 +105,14 @@ class SURI:
             json_path = '/output/%s'%(self.json)
             asan_path = '/output/%s'%(self.asan)
             asm_path = '/output/%s'%(self.asm)
-            cmd = 'python3 /project/superSymbolizer/SuperAsan.py %s %s %s %s --optimization 3 '%(file_path, json_path , asan_path, asm_path)
+            cmd = 'python3 /project/SURI/superSymbolizer/SuperAsan.py %s %s %s %s'%(file_path, json_path , asan_path, asm_path)
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
             json_path = '%s/%s'%(self.output_dir, self.json)
             asan_path = '%s/%s'%(self.output_dir, self.asan)
             asm_path = '%s/%s'%(self.output_dir, self.asm)
-            sym = SuperAsan.SuperAsan(file_path, json_path, 0, 'intel')
+            sym = SuperAsan.SuperAsan(file_path, json_path, 3, 'intel')
             sym.read_asan_meta(asan_path)
             sym.symbolize(True)
             sym.create_reassem_file(asm_path, True)
