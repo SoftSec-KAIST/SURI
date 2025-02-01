@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "superCFGBuilder", "superCFGBuilder\superCFGBuilder.fsproj", "{3ADE980F-93D1-4C2D-8DF4-B2696FEABEAB}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "B2R2.Core", "..\B2R2\src\Core\B2R2.Core.fsproj", "{0013A413-B277-4972-ABF2-3C9D1F54019D}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "B2R2.FrontEnd.BinInterface", "..\B2R2\src\FrontEnd\BinInterface\B2R2.FrontEnd.BinInterface.fsproj", "{E0B4E126-D3AC-4358-BA19-9C3444840023}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "B2R2.MiddleEnd.BinEssence", "..\B2R2\src\MiddleEnd\BinEssence\B2R2.MiddleEnd.BinEssence.fsproj", "{732A330D-6489-4337-ABC4-A3F9D98D37A7}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "B2R2.MiddleEnd.BinGraph", "..\B2R2\src\MiddleEnd\BinGraph\B2R2.MiddleEnd.BinGraph.fsproj", "{2B354C55-71E0-4948-A5BA-0874AB7C8FB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3ADE980F-93D1-4C2D-8DF4-B2696FEABEAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ADE980F-93D1-4C2D-8DF4-B2696FEABEAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ADE980F-93D1-4C2D-8DF4-B2696FEABEAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ADE980F-93D1-4C2D-8DF4-B2696FEABEAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0013A413-B277-4972-ABF2-3C9D1F54019D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0013A413-B277-4972-ABF2-3C9D1F54019D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0013A413-B277-4972-ABF2-3C9D1F54019D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0013A413-B277-4972-ABF2-3C9D1F54019D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0B4E126-D3AC-4358-BA19-9C3444840023}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0B4E126-D3AC-4358-BA19-9C3444840023}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0B4E126-D3AC-4358-BA19-9C3444840023}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0B4E126-D3AC-4358-BA19-9C3444840023}.Release|Any CPU.Build.0 = Release|Any CPU
+		{732A330D-6489-4337-ABC4-A3F9D98D37A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{732A330D-6489-4337-ABC4-A3F9D98D37A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{732A330D-6489-4337-ABC4-A3F9D98D37A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{732A330D-6489-4337-ABC4-A3F9D98D37A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B354C55-71E0-4948-A5BA-0874AB7C8FB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B354C55-71E0-4948-A5BA-0874AB7C8FB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B354C55-71E0-4948-A5BA-0874AB7C8FB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B354C55-71E0-4948-A5BA-0874AB7C8FB0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F929855-5C9D-4C24-8F1D-95B7D16BB819}
+	EndGlobalSection
+EndGlobal

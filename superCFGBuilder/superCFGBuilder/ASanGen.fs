@@ -1,4 +1,4 @@
-module SupersetCFG.ASanGen
+﻿module SupersetCFG.ASanGen
 
 open System.Collections
 open B2R2
@@ -104,4 +104,3 @@ let ASanMetaGen (ess: BinEssence) hdl =
 
   ()
   fnList
-
