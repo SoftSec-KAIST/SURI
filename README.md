@@ -8,7 +8,6 @@ Operating Systems (ASPLOS) 2025.
 
 If you are interested in our artifact, visit [here](FIXME)
 
-
 ## Dependencies
 
 SURI requires the following software dependencies:

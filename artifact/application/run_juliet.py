@@ -32,7 +32,8 @@ def single(target):
         os.system(cmd)
 
 
-def job(target, multiple):
+def job(conf):
+    target, multiple = conf
 
     log_file = '/'.join(target.split('/')[:2]) + '/logs/' + os.path.basename(target)
 
@@ -85,7 +86,7 @@ def run_cwe(out_dir, dir_name, core, dataset, multiple):
             if dataset in ['original']:
                 single(conf)
             else:
-                job(conf, multiple)
+                job((conf, multiple))
 
 def main(out_dir, core, dataset, multiple):
     for cwe in CWES:
