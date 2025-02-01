@@ -68,21 +68,21 @@ $ python3 1_print_rewrite_result.py setB
 
 ## Exp2: Test suite pass rate comparison (RQ1)
 
-After completion of the previous experiment, collect the binaries for the
-reliability testing using the `2_make_set.py` script. This will create setA,
-setB, and setC directories in the project directory.
+In this experiment, we run the test suite of each benchmark to see if the rewritten binaries from Exp1 run normally as before.
+
+You need to first collect the binaries for the reliability testing using the `2_make_set.py` script.
+This will create setA, setB, and setC directories in the project directory.
 ```
 $ python3 2_make_set.py setA
 $ python3 2_make_set.py setB
 $ python3 2_make_set.py setC
 ```
 
-#### 1.2.1 Coreutils and Binutils Tests
+### Coreutils and Binutils Tests
 
 :alarm_clock: 15 hrs, 3-5 mins per each test suite
 
-To verify the reliability of the rewritten binaries, run the test suites for
-Coreutils and Binutils.
+To verify the reliability of the rewritten binaries, run the test suites for Coreutils and Binutils.
 
 Run the test suite for setA (SURI vs. Ddisasm):
 ```
@@ -113,7 +113,7 @@ provided script to terminate the Docker process:
 $ /bin/bash terminate_suri_docker.sh
 ```
 
-Finally, test setC:
+Finally, test setC (ablation study of SURI):
 ```
 $ python3 2_run_testsuite.py setC
 ...
@@ -125,7 +125,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 
 ```
 
-#### 1.2.2 SPEC Benchmark
+### SPEC Benchmark
 
 :alarm_clock: 7-10 days
 
@@ -178,7 +178,7 @@ If your PC has enough memory, we can ran it with multithreading by enabling --co
 $ python3 2_run_testsuite_spec.py setA --core 4
 ```
 
-These results correspond to Table 2 and 3 in our paper.
+These results correspond to the remaining data of Table 2 and 3 in our paper.
 
 ## Exp3: Reliability test on real-world programs (RQ1)
 
