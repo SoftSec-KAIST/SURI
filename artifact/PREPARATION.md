@@ -1,17 +1,12 @@
 # Preperation
 
 This artifact can be downloaded from
-Zenodo([code](https://zenodo.org/records/14783863),
+Zenodo ([code](https://zenodo.org/records/14783863),
 [dataset](https://zenodo.org/records/14784107)).
 It contains both all codes and data necessary for the artifact evaluation.
 You can also access our source code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
 
-:warning: We exclude SPEC benchmark binaries from our dataset because they are
-proprietary. See [2.4 Docker Images with SPEC CPU](#24-docker-images-with-spec-cpu)
-and [3.1 Build SPEC CPU Benchmark Binaries](#31-build-spec-cpu-benchmark-binaries)
-for more details.
-
-### 1 Download the Artifact
+### 1. Download the Artifact
 
 (1) From Zenodo:
 ```
@@ -32,13 +27,13 @@ $ wget https://zenodo.org/records/14784107/files/dataset.zip
 $ unzip dataset.zip
 ```
 
-### 2 Build Docker Images
+### 2. Build Docker Images
 
 We provide Docker images for easy reproduction of our experimental results. Here,
 we explain how to build Docker images for running SURI, Ddisasm, and Egalito, and
 additional Docker images for running SPEC CPU benchmark test suites.
 
-### 2.1 Docker Image for SURI
+### 2.1. Docker Image for SURI
 
 This image sets up the execution environment based on Ubuntu 20.04 for running
 SURI. To build the image, you first need to build the SURI Docker image (see
@@ -49,7 +44,7 @@ $ cd $SURI_AE_HOME
 $ docker build --tag suri_artifact:v1.0 .
 ```
 
-### 2.2 Docker Image for Ddisasm
+### 2.2. Docker Image for Ddisasm
 
 For Ddisasm, we used the official Docker image provided by GrammaTech. This
 image is also based on Ubuntu 20.04. To ensure reproducibility, we uploaded
@@ -59,7 +54,7 @@ using this command:
 $ docker pull reassessor/ddisasm:1.7.0_time
 ```
 
-### 2.3 Docker Image for Egalito
+### 2.3. Docker Image for Egalito
 
 Unfortunately, Egalito could not run with binaries compiled on Ubuntu 20.04.
 Thus, we provide an additional environment based on Ubuntu 18.04 for a fair
@@ -71,7 +66,7 @@ $ cd $SURI_AE_HOME/ubuntu18.04
 $ docker build --tag suri_artifact_ubuntu18.04:v1.0 .
 ```
 
-### 2.4 Docker Images with SPEC CPU
+### 2.4. Docker Images with SPEC CPU
 
 If you have your own SPEC CPU benchmark, then you need to build additional
 Docker images for our reliability test experiment on SPEC CPU benchmarks (see [here](#122-spec-benchmark)).
@@ -94,7 +89,7 @@ $ cd $SURI_AE_HOME/build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
 ```
 
-### 3 Prepare Dataset
+### 3. Prepare Dataset
 
 Our dataset used for our evaluation consists of Coreutils v9.1, Binutils v2.40,
 SPEC CPU 2006 (v1.2) and SPEC CPU 2017 (v1.1.5). We provide the dataset (including
@@ -107,7 +102,7 @@ Note that you can still run our artifact **without** SPEC CPU benchmark binaries
 Our experiment scripts will show the results on Coreutils and Binutils benchmarks
 only if you do not have SPEC CPU benchmark.
 
-### 3.1 Build SPEC CPU Benchmark Binaries
+### 3.1. Build SPEC CPU Benchmark Binaries
 
 If you have a valid license for SPEC CPU, you can generate the benchmark
 binaries by following these steps.
@@ -145,11 +140,10 @@ Thus, generating all combinations will take about 1.5 days.
 
 If all build processes are done, the benchmark binaries are built under `benchmark/...`
 
-### 3.2 Generate Ground Truth
+### 3.2. Generate Ground Truth
 
-Once SPEC CPU benchmark binaries are built, you need to generate ground truth for
-measuring the instrumentation code size overhead of SURI (see [2.1 Overhead Incurred by SURI (Section 4.3.1)](#21-overhead-incurred-by-suri-section-431)).
-We used Reassessor [1] to generate the ground truth from the binaries. You can
+Once SPEC CPU benchmark binaries are built, you need to generate ground truth for Exp4.
+We used [Reassessor](https://github.com/SoftSec-KAIST/Reassessor) to generate the ground truth from the binaries. You can
 install Reassessor using the provided an install script included in this artifact:
 ```
 $ /bin/bash ./install.sh
@@ -162,9 +156,3 @@ $ cd $SURI_AE_HOME
 $ python3 make_gt.py setA
 $ python3 make_gt.py setC
 ```
-
-## References
-
-[1] Hyungseok Kim, Soomin Kim, Junoh Lee, Kangkook Jee, and Sang Kil Cha,
-    "Reassembly is Hard: A Reflection on Challenges and Strategies," USENIX
-    Security Symposium 2023, 1469-1486
