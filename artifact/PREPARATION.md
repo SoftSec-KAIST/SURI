@@ -37,7 +37,7 @@ additional Docker images for running SPEC CPU benchmark test suites.
 
 This image sets up the execution environment based on Ubuntu 20.04 for running
 SURI. To build the image, you first need to build the SURI Docker image (see
-[here](FIXME)).
+[here](../README.md#docker-environment)).
 Then, run these commands:
 ```
 $ cd $SURI_AE_HOME
