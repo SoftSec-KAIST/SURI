@@ -35,8 +35,8 @@ RUN cd /coreutils-9.1 && \
     FORCE_UNSAFE_CONFIGURE=1 ./configure && \
     make
 
-COPY ./build_script/script/coreutils_copy.sh /coreutils-9.1/copy.sh
-COPY ./build_script/script/coreutils-9.1_list.txt /coreutils-9.1/coreutils-9.1_list.txt
+COPY ./artifact/build_script/script/coreutils_copy.sh /coreutils-9.1/copy.sh
+COPY ./artifact/build_script/script/coreutils-9.1_list.txt /coreutils-9.1/coreutils-9.1_list.txt
 
 RUN wget https://ftp.gnu.org/gnu/binutils/binutils-2.40.tar.gz && \
     tar -xzf binutils-2.40.tar.gz
@@ -46,8 +46,8 @@ RUN apt install texinfo bison dejagnu -y  && \
     ./configure && \
     make
 
-COPY ./build_script/script/binutils_copy.sh /binutils-2.40/copy.sh
-COPY ./build_script/script/binutils-2.40_list.txt /binutils-2.40/binutils-2.40_list.txt
+COPY ./artifact/build_script/script/binutils_copy.sh /binutils-2.40/copy.sh
+COPY ./artifact/build_script/script/binutils-2.40_list.txt /binutils-2.40/binutils-2.40_list.txt
 
 RUN wget --no-check-certificate -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     add-apt-repository 'deb http://apt.llvm.org/focal/   llvm-toolchain-focal-13  main' && \
