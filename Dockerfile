@@ -23,6 +23,7 @@ RUN pip install pyelftools
 
 RUN mkdir -p /project
 
+# Add SURI
 COPY ./B2R2 /project/B2R2
 COPY ./superCFGBuilder /project/superCFGBuilder
 COPY ./superSymbolizer /project/superSymbolizer
