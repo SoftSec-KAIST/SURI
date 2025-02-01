@@ -485,22 +485,33 @@ These results correspond to Table 4 in our paper.
 
 ### 2.3 Reliability of SURI (Section 4.2.3)
 
+:alarm_clock: 1 days
+
+You can rewrite five real-world programs that have a Phoronix test suite as follows:
+
 To further demonstrate the reliability of SURI, this experiment rewrites
 real-world binaries and runs their own test suits.
 
-You can rewrite five real-world programs having Phoronix test suite as follows:
+First, you can rewrite five real-world programs (7zip, apache, mariadb, nginx,
+sqlite3) in Phoronix test suite. The Phoenix binaries will be executed
+within the Phoenix test suite inside the `suri:v1.0` Docker image. We provide a
+separate build script to ensure that the binaries can be compiled in an Ubuntu
+20.04 environment.
+
 ```
 $ cd realworld/phoronix
-$ python3 ../../../suri.py 7zip
-$ python3 ../../../suri.py apache
-$ python3 ../../../suri.py mariadb
-$ python3 ../../../suri.py nginx
-$ python3 ../../../suri.py sqlite3
+$ /bin/bash build.sh
 ```
 
-After rewriting the binaries, run Docker and copy them to the Phoronix diretory.
+After execution, the following binaries will be generated: `my_7zip`,
+`my_apache`, `my_mariadb`, `my_nginx`, and `my_sqlite3`.
+
+Next, run the Docker container and copy the binaries to the Phoronix directory:
 ```
+# Run docker
 $ /bin/bash run_docker.sh
+
+# Copy to Phoronix directory.
 root@bc838d2d3cfe:/# /bin/bash /data/copy.sh
 ```
 
@@ -534,7 +545,9 @@ $ python3 ../../../suri.py openssh
 $ python3 ../../../suri.py putty
 $ python3 ../../../suri.py vim
 ```
-Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
+
+Since these programs do not have their own test suites, you can manually test
+the rewritten binaries by executing them.
 
 Additionally, Epiphany, PuTTY, and FileZilla are GNU programs that require a
 desktop environment to run. For Epiphany, we provide a dedicated script,
