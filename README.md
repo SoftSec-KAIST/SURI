@@ -20,7 +20,6 @@ for more details.
 
 (1) From Zenodo:
 ```
-$ cd ./artifact/
 $ wget https://zenodo.org/records/14779330/files/suri_artifact.zip
 $ unzip suri_artifact.zip
 $ cd ./suri_artifact/artifact
