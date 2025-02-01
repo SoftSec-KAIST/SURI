@@ -75,6 +75,23 @@ $ ls -al my_vim
 If you want to use the Docker environment, you need to pass the `--usedocker` flag to SURI.
 
 
+## Directory Structure
+
+This tree shows some important files and directories only.
+
+```
+.
+├── artifact/                   : contains files related to the artifact evaluation
+├── superCFGBuilder/            : contains our Superset CFG Builder module
+├── superSymbolizer/
+│   ├── lib/
+│   │   └── CFGSerializer.py    : contains our CFG Serializer module
+│   ├── CustomCompiler.py.py    : contains our Emitter module
+│   └── SuperSymbolizer.py      : contains our Pointer Repairer and Superset Symbolizer modules
+├── README.md                   : this document
+└── suri.py                     : the main entry point of SURI
+```
+
 ## Citation
 
 If you want to cite SURI:
