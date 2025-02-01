@@ -45,8 +45,8 @@ class SURI:
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
             json_path = '%s/%s'%(self.output_dir, self.json)
-            asm_path = '%s/%s'%(self.asm_dir, self.asm)
-            cmd = 'python3 %s/superSymbolizer/SuperSymbolizer.py %s/%s %s/%s %s/%s --optimization 3 '%(self.suri_dir, file_path, json_path, asm_path)
+            asm_path = '%s/%s'%(self.output_dir, self.asm)
+            cmd = 'python3 %s/superSymbolizer/SuperSymbolizer.py %s %s %s --optimization 3 '%(self.suri_dir, file_path, json_path, asm_path)
             os.system(cmd)
 
     def compile_suri(self):
