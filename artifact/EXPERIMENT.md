@@ -73,9 +73,9 @@ After completion of the previous experiment, collect the binaries for the
 reliability testing using the `make_set.py` script. This will create setA,
 setB, and setC folders in the project directory.
 ```
-$ python3 make_set.py setA
-$ python3 make_set.py setB
-$ python3 make_set.py setC
+$ python3 2_make_set.py setA
+$ python3 2_make_set.py setB
+$ python3 2_make_set.py setC
 ```
 
 #### 1.2.1 Coreutils and Binutils Tests
@@ -87,7 +87,7 @@ Coreutils and Binutils.
 
 Run the test suite for setA (SURI vs. Ddisasm):
 ```
-$ python3 1_run_testsuite.py setA
+$ python3 2_run_testsuite.py setA
 ...
                                           suri                Ddiasm
 coreutils-9.1   (clang):       Succ(  24/  24)       Succ(  24/  24)
@@ -98,7 +98,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)       Fail(   7/  24)
 
 Run the test suite for setB (SURI vs. Egalito):
 ```
-$ python3 1_run_testsuite.py setB
+$ python3 2_run_testsuite.py setB
 ...
                                           suri               Egalito
 coreutils-9.1   (gcc  ):       Succ(  12/  12)       Fail(   0/  12)
@@ -116,7 +116,7 @@ $ /bin/bash terminate_suri_docker.sh
 
 Finally, test setC:
 ```
-$ python3 1_run_testsuite.py setC
+$ python3 2_run_testsuite.py setC
 ...
                               suri(no_ehframe)
 coreutils-9.1   (clang):       Succ(  24/  24)
@@ -139,7 +139,7 @@ If you restart the script, it will skip previously completed tests and continue
 from the next test suite.
 
 ```
-$ python3 1_run_testsuite_spec.py setA
+$ python3 2_run_testsuite_spec.py setA
                         :                    suri :                 ddiasm
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 724/ 724) :  86.878453% ( 629/ 724)
@@ -151,7 +151,7 @@ spec_cpu2017    (clang) : 100.000000% (1078/1078) :  86.270872% ( 930/1078)
 spec_cpu2017    (gcc  ) : 100.000000% (1116/1116) :  82.885305% ( 925/1116)
 			[+] SURI passes all test suites (1126/1126)
 
-$ python3 1_run_testsuite_spec.py setB
+$ python3 2_run_testsuite_spec.py setB
                         :                    suri :                egalito
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 275/ 275) :  93.454545% ( 257/ 275)
@@ -163,7 +163,7 @@ spec_cpu2017    (clang) : 100.000000% ( 374/ 374) :  87.967914% ( 329/ 374)
 spec_cpu2017    (gcc  ) : 100.000000% ( 360/ 360) :  80.555556% ( 290/ 360)
 			[+] SURI passes all test suites (396/396)
 
-$ python3 1_run_testsuite_spec.py setC
+$ python3 2_run_testsuite_spec.py setC
                         :       suri (no ehframe)
 -----------------------------------------------------------------------------
 spec_cpu2006    (clang) : 100.000000% ( 724/ 724)
@@ -177,7 +177,7 @@ spec_cpu2017    (gcc  ) : 100.000000% (1126/1126)
 ```
 If your PC has enough memory, we can ran it with multithreading by enabling --core options.
 ```
-$ python3 1_run_testsuite_spec.py setA --core 4
+$ python3 2_run_testsuite_spec.py setA --core 4
 ```
 
 These results correspond to Table 2 and 3 in our paper.
@@ -272,8 +272,8 @@ rewritten by SURI, as explained in Section 4.3.1 of the paper.
 
 To measure code size overhead, execute the following scripts:
 ```
-$ python3 2_get_code_size.py setA
-$ python3 2_print_code_size_overhead.py setA
+$ python3 4_get_code_size.py setA
+$ python3 4_print_code_size_overhead.py setA
 
   coreutils-9.1       5180   2.691429
   binutils-2.40        720   0.598323
@@ -286,8 +286,8 @@ $ python3 2_print_code_size_overhead.py setA
 
 To analyze the overhead of if-then-else statements, run:
 ```
-$ python3 2_get_br_stat.py ./benchmark ./output
-$ python3 2_print_br_overhead.py setA
+$ python3 4_get_br_stat.py ./benchmark ./output
+$ python3 4_print_br_overhead.py setA
 
 Multi Br-------------
   coreutils-9.1       5136   0.020213
@@ -299,8 +299,8 @@ Multi Br-------------
 
 Finally, to measure jump table entries overhead, run:
 ```
-$ python3 2_get_table_size.py ./benchmark ./output
-$ python3 2_print_table_overhead.py
+$ python3 4_get_table_size.py ./benchmark ./output
+$ python3 4_print_table_overhead.py
 
 Table-------------
   coreutils-9.1       5136   0.097256
@@ -323,10 +323,10 @@ measurements, as the SPEC benchmark test suite is highly sensitive.
 To measure runtime overhead, execute the following commands:
 
 ```
-$ python3 2_get_runtime_overhead.py setA | tee 2_runtime_overheadA.sh
+$ python3 4_get_runtime_overhead.py setA | tee 2_runtime_overheadA.sh
 $ /bin/bash 2_runtime_overheadA.sh
 
-$ python3 2_get_runtime_overhead.py setB | tee 2_runtime_overheadB.sh
+$ python3 4_get_runtime_overhead.py setB | tee 2_runtime_overheadB.sh
 $ /bin/bash 2_runtime_overheadB.sh
 
 ```
@@ -335,12 +335,12 @@ After running the above commands, you can analyze the results using
 `2_print_runtime_overhead.py`:
 
 ```
-$ python3 2_print_runtime_overhead.py setA
+$ python3 4_print_runtime_overhead.py setA
                      |      suri   ddisasm
 spec_cpu2006      24 | 0.329513% 0.321086%
 spec_cpu2017      21 | 0.188620% 0.319419%
 
-$ python3 2_print_runtime_overhead.py setB
+$ python3 4_print_runtime_overhead.py setB
                      |     suri    egalito
 spec_cpu2006      24 | 0.457050% 0.694204%
 spec_cpu2017      21 | 0.167273% 0.037466%
