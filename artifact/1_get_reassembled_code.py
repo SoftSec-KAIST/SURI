@@ -41,7 +41,7 @@ def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
 
 
 def cfg_suri(conf, filename, input_dir, output_dir):
-    sub1 = '/usr/bin/time  -f\'%%E %%U %%S\' -o /output/tlog1.txt dotnet run --project=/project/superCFGBuilder/superCFGBuilder /input/%s /output/b2r2_meta.json > /output/log.txt'%(filename)
+    sub1 = '/usr/bin/time  -f\'%%E %%U %%S\' -o /output/tlog1.txt dotnet run --project=/project/SURI/superCFGBuilder/superCFGBuilder /input/%s /output/b2r2_meta.json > /output/log.txt'%(filename)
 
     cmd = 'docker run --rm --memory 64g --cpus 1  -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s"'%( input_dir, output_dir, sub1)
     print(cmd)
@@ -59,7 +59,7 @@ def symbol_suri(conf, filename, input_dir, output_dir):
 
     current = multiprocessing.current_process()
 
-    sub2 = '/usr/bin/time  -f\'%%E %%U %%S\' -o /output/tlog2.txt python3 /project/superSymbolizer/SuperSymbolizer.py /input/%s /output/b2r2_meta.json /output/%s.s --optimization 3 >> /output/log.txt'%(filename, filename)
+    sub2 = '/usr/bin/time  -f\'%%E %%U %%S\' -o /output/tlog2.txt python3 /project/SURI/superSymbolizer/SuperSymbolizer.py /input/%s /output/b2r2_meta.json /output/%s.s --optimization 3 >> /output/log.txt'%(filename, filename)
 
     cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s; "'%(input_dir, output_dir, sub2 )
     print(cmd)
@@ -70,8 +70,8 @@ def symbol_suri(conf, filename, input_dir, output_dir):
 
 def compile_suri(conf, filename, input_dir, output_dir):
     current = multiprocessing.current_process()
-    sub3 = 'cd /project/superSymbolizer/'
-    sub4 = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlog3.txt python3 /project/superSymbolizer/CustomCompiler.py /input/%s /output/%s.s /output/%s'%(filename, filename, filename)
+    sub3 = 'cd /project/SURI/superSymbolizer/'
+    sub4 = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlog3.txt python3 /project/SURI/superSymbolizer/CustomCompiler.py /input/%s /output/%s.s /output/%s'%(filename, filename, filename)
 
     if conf.dataset in ['setA', 'setC']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s; %s"'%( input_dir, output_dir, sub3, sub4)

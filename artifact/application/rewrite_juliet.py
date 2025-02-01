@@ -56,9 +56,9 @@ def make_suri(args):
     target, b2r2_meta, b2r2_asan, asm_file, dirname = args
 
     cmd_list = []
-    cmd_list.append('dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s'%(target, b2r2_meta))
-    cmd_list.append('dotnet run --project=/project/B2R2/src/Test /input/%s /output/%s asan'%(target, b2r2_asan))
-    cmd_list.append('python3 /project/superSymbolizer/SuperAsan.py /input/%s /output/%s /output/%s /output/%s'%(target, b2r2_meta, b2r2_asan, asm_file))
+    cmd_list.append('dotnet run --project=/project/SURI/B2R2/src/Test /input/%s /output/%s'%(target, b2r2_meta))
+    cmd_list.append('dotnet run --project=/project/SURI/B2R2/src/Test /input/%s /output/%s asan'%(target, b2r2_asan))
+    cmd_list.append('python3 /project/SURI/superSymbolizer/SuperAsan.py /input/%s /output/%s /output/%s /output/%s'%(target, b2r2_meta, b2r2_asan, asm_file))
     cmd = ';'.join(cmd_list)
     run_docker(cmd)
     print(asm_file)

@@ -2,7 +2,7 @@ import os, sys
 import enum
 from ctypes import *
 
-from superSymbolizer.ElfBricks import ElfInfo
+from superSymbolizer import ElfBricks
 
 
 class ProgramType(enum.IntEnum):
@@ -83,7 +83,7 @@ def get_next_vaddr(filename, page_size):
         return get_vaddr_max(program_header_list, page_size)
 
 
-def run(target, reassem_path, output, page_size, asan, verbose):
+def emitter(target, reassem_path, output, page_size=0x200000, asan=False, verbose=False):
 
     #elf = ElfInfo(target)
     #lopt_list2 = elf.get_ld_option()
@@ -155,7 +155,9 @@ def run(target, reassem_path, output, page_size, asan, verbose):
 
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     #print("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
-    os.system("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
+    #os.system("python3 %s/ElfBricks.py %s %s %s"%(cur_dir, target, tmp_file, my_file))
+    lego = ElfBricks.ElfBricks(tmp_file)
+    lego.fix_file(target, my_file)
 
     if verbose:
         print('chmod +x %s'%(my_file))
@@ -173,4 +175,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    run(args.target, args.code, args.output, args.page_size, args.asan, args.verbose)
+    emitter(args.target, args.code, args.output, args.page_size, args.asan, args.verbose)
