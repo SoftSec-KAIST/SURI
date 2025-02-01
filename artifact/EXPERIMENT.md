@@ -70,8 +70,8 @@ $ python3 1_print_rewrite_result.py setB
 ## Exp2: Test suite pass rate comparison (RQ1)
 
 After completion of the previous experiment, collect the binaries for the
-reliability testing using the `make_set.py` script. This will create setA,
-setB, and setC folders in the project directory.
+reliability testing using the `2_make_set.py` script. This will create setA,
+setB, and setC directories in the project directory.
 ```
 $ python3 2_make_set.py setA
 $ python3 2_make_set.py setB
@@ -131,12 +131,11 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 :alarm_clock: 7-10 days
 
 If you have your own SPEC benchmarks and you have built updated Docker images
-(See 1.1.4), then you can run the SPEC benchmark test suites. Execute the test
-suite using the `1_run_testsuite_spec.py' script. After running the script, the
+(FIXME), then you can run the SPEC benchmark test suites. Execute the test
+suite using the `2_run_testsuite_spec.py` script. After running the script, the
 results will be displayed.
 
-If you restart the script, it will skip previously completed tests and continue
-from the next test suite.
+If the tests are stopped occasionally, you can continue from the stopped test suite.
 
 ```
 $ python3 2_run_testsuite_spec.py setA
@@ -261,11 +260,9 @@ $ ./my_putty
 $ ./my_vim
 ```
 
-## Exp4: Overhead of Rewritten Binaries (Section 4.3)
+## Exp4: Overhead of Rewritten Binaries (RQ2)
 
-This experiment answers **RQ2**: How big is the performance overhead introduced by SURI for rewritten binaries?
-
-### 2.1 Overhead Incurred by SURI (Section 4.3.1)
+### Overhead Incurred by SURI
 
 In this experiment, we measured the instrumentation overhead of the binaries
 rewritten by SURI, as explained in Section 4.3.1 of the paper.
@@ -312,7 +309,7 @@ Table-------------
 ```
 
 
-### 2.2 Comparison against SOTA Reassemblers (Section 4.3.2)
+### Comparison against SOTA Reassemblers
 
 :alarm_clock: 2.5 days
 
@@ -353,7 +350,6 @@ These results correspond to Table 4 in our paper.
 
 :alarm_clock: 5 days
 
-This experiment answers **RQ3**: Is SURI applicable to real-world scenarios, such as runtime memory sanitization?
 In this experiment, we implement our own binary-only address sanitizer on top of SURI and compare to BASan, a binary-only address sanitizer on top of RetroWrite.
 
 To set up Juliet testsuite:
