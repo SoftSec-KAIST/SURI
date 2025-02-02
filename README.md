@@ -28,21 +28,24 @@ $ pip install pyelftools
 ```
 
 
-## Build SURI
+## Install SURI
 
-You need to build our Superset CFG Builder in order to use SURI. You can simply
-build it by:
+You need to build our Superset CFG Builder and install SURI Python project in order to use SURI.
+Try:
 ```
+$ python3 setup.py install --user # install SURI Python project
 $ cd superCFGBuilder
-$ dotnet build
+$ dotnet build # build Superset CFG Builder
 ```
 
 ### Docker environment
 
 We also provide Docker environment in case you don't want to struggle to set up
-the software dependencies. Type this on your shell:
+the software dependencies. You still need to install SURI python project though.
+Type this on your shell:
 ```
-$ docker build --tag suri:v1.0 .
+$ python3 setup.py install --user # install SURI Python project
+$ docker build --tag suri:v1.0 . # build Docker image for .NET and gcc-11
 ```
 
 Note that you still need Python 3 because the top-level SURI script runs on
