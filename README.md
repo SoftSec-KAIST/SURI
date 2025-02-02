@@ -54,9 +54,7 @@ outside of the Docker image.
 
 ## Usage
 
-### Generating Rewritten Binary
-
-If you want to rewrite a target binary, use following command;
+If you want to reassemble a target binary, use following command;
 ```
 $ python3 suri.py [target binary path]
 ```
@@ -72,15 +70,28 @@ $ python3 suri.py artifact/realworld/client/vim
 [+] Generate rewritten binary: /test/my_vim
 ```
 
-SURI generates a rewritten binary.
+SURI generates a reassembled binary.
 ```
 $ ls -al my_vim
 -rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 my_vim
 ```
 
-### Generating Assembly Code Using SURI
+#### Running SURI in a Docker environment
 
-If you only want to generate the assembly file without compiling it, use the `--without-compile` option:
+If you want to use the Docker environment, you need to pass the `--usedocker` flag to SURI.
+
+```
+python3 suri.py [target binary path] --usedocker
+```
+This will make that Superset CFG Builder and compiler for reassembly run inside the provided Docker image.
+
+### Two-step SURI execution
+
+If you want to manually instrument the assembly file from the target binary, follow the steps below.
+
+#### 1. Generating assembly code using SURI
+
+If you want to generate the assembly file without compiling it, use the `--without-compile` option:
 ```
 python3 suri.py [target binary path] [--without-compile]
 ```
@@ -95,29 +106,20 @@ $ python3 suri.py artifact/realworld/client/vim --without-compile
 [+] Generate assembly file: vim.s
 ```
 
-SURI generates an assembly file with the `.s` extension:
+SURI will generate an assembly file with the `.s` extension:
 ```
 $ ls -al vim.s
 -rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 vim.s
 ```
-You can modify the assembly code for instrumentation if needed.
+You can modify the assembly code for instrumentation if necessary.
 
-### Compiling the Assembly File
+#### 2. Compiling the assembly file
 
-After editing, you can compile the assembly file using `emitter.py` script:
+After editing the assembly file, you can compile the assembly file using `emitter.py` script:
 ```
 python3 emitter.py artifact/realworld/client/vim vim.s
 [+] Generate rewritten binary: /test/my_vim
 ```
-
-### Running SURI in a Docker Environment
-
-If you want to use the Docker environment, you need to pass the `--usedocker` flag to SURI.
-
-```
-python3 suri.py [target binary path] --usedocker
-```
-This ensures that SURI runs inside the provided Docker container.
 
 ## Directory Structure
 
