@@ -33,7 +33,7 @@ class Builder:
 
     def compile_suri(self):
         cmd_list = []
-        cmd_list.append('cd /project/superSymbolizer/')
+        cmd_list.append('cd /SURI/project/superSymbolizer/')
         cmd_list.append('python3 CustomCompiler.py /input/%s /output/%s /output/%s'%(self.filename, self.asm, self.filename))
         cmd = ';'.join(cmd_list)
         if self.verbose:
