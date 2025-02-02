@@ -140,7 +140,7 @@ binutils-2.40   (gcc  ):       Succ(  24/  24)
 :alarm_clock: 7-10 days
 
 If you have your own SPEC benchmarks and you have built updated Docker images
-(FIXME), then you can run the SPEC benchmark test suites. Execute the test
+(`suri_spec` and `suri_ubuntu18.04_spec`), then you can run the SPEC benchmark test suites. Execute the test
 suite using the `2_run_testsuite_spec.py` script. After running the script, the
 results will be displayed.
 
