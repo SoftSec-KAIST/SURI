@@ -55,13 +55,8 @@ def make_suri(args):
 
     target, b2r2_meta, b2r2_asan, asm_file, dirname = args
 
-    cmd_list = []
-    cmd_list.append('dotnet run --project=/project/SURI/B2R2/src/Test /input/%s /output/%s'%(target, b2r2_meta))
-    cmd_list.append('dotnet run --project=/project/SURI/B2R2/src/Test /input/%s /output/%s asan'%(target, b2r2_asan))
-    cmd_list.append('python3 /project/SURI/superSymbolizer/SuperAsan.py /input/%s /output/%s /output/%s /output/%s'%(target, b2r2_meta, b2r2_asan, asm_file))
-    cmd = ';'.join(cmd_list)
+    cmd = 'python3 /project/SURI/suri.py /input/%s --ofolder /output/%s --asan --without-compile'%(target, dirname)
     run_docker(cmd)
-    print(asm_file)
 
     src_dir = os.path.dirname(target)
     target_name = target.split('/')[-1]
@@ -70,11 +65,9 @@ def make_suri(args):
 
     cmd_list = []
     pwd = os.getcwd()
-    cmd_list.append('cd ../../superSymbolizer')
-    cmd_list.append('python3 CustomCompiler.py %s/%s %s/%s %s/%s --asan'%(pwd,target, pwd,asm_file, pwd,target))
-    cmd_list.append('cd -')
-    cmd_list.append('mv %s/%s %s/%s'%(src_dir, new_name, dirname, target_name ))
-    cmd_list.append('rm %s/%s'%(src_dir, tmp_name))
+    cmd_list.append('python3 ../../emitter.py %s %s --ofolder %s --asan'%(target, asm_file, dirname))
+    cmd_list.append('mv %s/%s %s/%s'%(dirname, new_name, dirname, target_name ))
+    cmd_list.append('rm %s/%s'%(dirname, tmp_name))
     cmd = ';'.join(cmd_list)
     os.system(cmd)
 
@@ -93,7 +86,7 @@ def build_suri(core):
         name = base_name[:-4]
         b2r2_meta = os.path.join(dir_name, name + '.json')
         b2r2_asan = os.path.join(dir_name, name + '_asan.json')
-        asm_file = os.path.join(dir_name, name + '.s')
+        asm_file = os.path.join(dir_name, base_name + '.s')
         conf_list.append(ConfSURI(target, b2r2_meta, b2r2_asan, asm_file, dir_name))
 
     if core and core > 1:
