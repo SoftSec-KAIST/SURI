@@ -56,7 +56,7 @@ outside of the Docker image.
 
 If you want to reassemble a target binary, use following command;
 ```
-$ python3 suri.py [target binary path]
+$ python3 suri.py [target_binary_path]
 ```
 
 For example, to rewrite the vim binary located at realworld/client/vim, run SURI as follows:
@@ -79,10 +79,10 @@ $ ls -al my_vim
 #### Running SURI in a Docker environment
 
 If you want to use the Docker environment, you need to pass the `--usedocker` flag to SURI.
-
 ```
 python3 suri.py [target binary path] --usedocker
 ```
+
 This will make that Superset CFG Builder and compiler for reassembly run inside the provided Docker image.
 
 ### Two-step SURI execution
