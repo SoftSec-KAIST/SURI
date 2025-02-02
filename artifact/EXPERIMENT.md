@@ -360,6 +360,26 @@ Total             77 | 0.233275%         0.653868%
 
 These results correspond to Table 4 in our paper.
 
+
+### Overall Overhead
+
+:alarm_clock: 2 months
+
+It is an overhead measurement experiment for the entire set of SPEC binaries
+rewritten by SURI. This experiment is designed to measure the execution
+overhead of SURI, as mentioned in the introduction of the paper.
+
+```
+$ python3 4_get_suri_overhead.py setA
+
+$ python3 4_print_suri_overhead.py setA
+                     |      suri
+spec_cpu2006    1446 | 0.240980%
+spec_cpu2017    2254 | 0.180407%
+Total           3700 | 0.204080%
+```
+
+
 ## Exp5: Application of SURI (RQ3)
 
 :alarm_clock: 5 days
