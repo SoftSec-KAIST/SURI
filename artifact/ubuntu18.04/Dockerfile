@@ -11,6 +11,13 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
     apt update && \
     apt install -y gcc-11 g++-11 clang-10 gfortran-11
 
+# Install dotnet7
+RUN wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm packages-microsoft-prod.deb && \
+    apt-get update && \
+    apt-get install -y dotnet-sdk-7.0
+
 # Install Python3 dependency
 RUN pip3 install pyelftools
 
@@ -24,7 +31,11 @@ RUN apt install -y time flex texinfo bison dejagnu libcap-dev
 RUN mkdir -p /project
 
 # Add SURI
-COPY ./superSymbolizer /project/superSymbolizer
+RUN cd /project/ && git clone https://github.com/SoftSec-KAIST/SURI.git && \
+    cd SURI && python3 setup.py install
+
+# Build superCFGBuilder
+RUN cd /project/SURI/superCFGBuilder && dotnet build
 
 # Install Egalito
 RUN cd /project && \
@@ -34,11 +45,6 @@ RUN cd /project && \
     sed -i 's|git@github.com:|https://github.com/|' .gitmodules && \
     git submodule update --init --recursive && \
     make
-
-# Install RetroWrite
-RUN git clone https://github.com/witbring/retrowrite_ef4e541.git /project/retrowrite && \
-    cd /project/retrowrite && \
-    pip3 install -r requirements.txt
 
 # Build Coreutils for test suite
 RUN wget https://ftp.gnu.org/gnu/coreutils/coreutils-9.1.tar.gz && \
