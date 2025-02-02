@@ -243,12 +243,7 @@ Similarly, to rewrite real-world client programs, follow the steps below:
 $ cd $SURI_AE_HOME/realworld/client
 $ ls
 epiphany  filezilla  openssh  putty  vim
-
-$ python3 ../../../suri.py epiphany
-$ python3 ../../../suri.py filezilla
-$ python3 ../../../suri.py openssh
-$ python3 ../../../suri.py putty
-$ python3 ../../../suri.py vim
+$ /bin/bash build.sh
 ```
 Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
 
