@@ -48,7 +48,9 @@ def run(base_folder):
         tot_tot_cnt += tot_cnt
         tot_tot_sum += tot_sum
         print('%15s %10d %10f'%(package, tot_cnt, tot_sum/tot_cnt))
-    print('%15s %10d %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt*100))
+
+    if tot_cnt > 0:
+        print('%15s %10d %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt*100))
 
 import argparse
 if __name__ == '__main__':
