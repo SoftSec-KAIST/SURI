@@ -51,7 +51,7 @@ outside of the Docker image.
 
 ## Usage
 
-### Generating Assembly File and Rewritten Binary
+### Generating Rewritten Binary
 
 If you want to rewrite a target binary, use following command;
 ```
@@ -69,9 +69,15 @@ $ python3 suri.py artifact/realworld/client/vim
 [+] Generate rewritten binary: /test/my_vim
 ```
 
+SURI generates a rewritten binary.
+```
+$ ls -al my_vim
+-rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 my_vim
+```
+
 ### Generating Assembly Code Using SURI
 
-If you want to create assembly file, use `--without-compile` option.
+If you only want to generate the assembly file without compiling it, use the `--without-compile` option:
 ```
 python3 suri.py [target binary path] [--without-compile]
 ```
@@ -88,7 +94,7 @@ $ python3 suri.py artifact/realworld/client/vim --without-compile
 
 SURI generates an assembly file with the `.s` extension:
 ```
-$ ls -al vim.s my_vim
+$ ls -al vim.s
 -rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 vim.s
 ```
 You can modify the assembly code for instrumentation if needed.
@@ -96,7 +102,6 @@ You can modify the assembly code for instrumentation if needed.
 ### Compiling the Assembly File
 
 After editing, you can compile the assembly file using `emitter.py` script:
-
 ```
 python3 emitter.py artifact/realworld/client/vim vim.s
 [+] Generate rewritten binary: /test/my_vim
