@@ -140,7 +140,7 @@ We used [Reassessor](https://github.com/SoftSec-KAIST/Reassessor) to generate th
 install Reassessor using the provided an install script included in this artifact:
 ```
 $ cd $SURI_AE_HOME
-$ /bin/bash ./install.sh
+$ /bin/bash ./install_reassessor.sh
 ```
 
 After Reassessor is installed, you can generate ground truth from our dataset using these commands:
