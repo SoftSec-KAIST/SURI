@@ -55,7 +55,7 @@ def run_suri(conf, filename):
     if conf.dataset in ['setA', 'setC']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s;"'%(input_dir, output_dir, sub)
     elif conf.dataset in ['setB']:
-        cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact_ubuntu18.04:v1.0 sh -c " %s; %s"'%( input_dir, output_dir, sub3, sub4)
+        cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact_ubuntu18.04:v1.0 sh -c " %s; %s"'%(input_dir, output_dir, sub)
 
     print(cmd)
 
