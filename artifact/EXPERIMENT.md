@@ -369,7 +369,7 @@ include binaries compiled with default options (`bin_original`) and binaries wit
 AddressSanitizer applied (`bin_asan`).
 ```
 $ cd $SURI_AE_HOME/application
-$ wget FIXME:juliet_bin.zip
+$ wget https://zenodo.org/records/14788616/files/juliet_bin.zip
 $ unzip  juliet_bin.zip
 ```
 

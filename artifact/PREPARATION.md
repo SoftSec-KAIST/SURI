@@ -1,20 +1,19 @@
 # Preperation
 
 This artifact can be downloaded from
-Zenodo ([code](https://zenodo.org/records/14783863),
-[dataset](https://zenodo.org/records/14784107)).
-It contains both all codes and data necessary for the artifact evaluation.
-You can also access our source code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
+[Zenodo](https://zenodo.org/records/14788616), It contains both all codes and
+data necessary for the artifact evaluation.  You can also access our source
+code through the [GitHub](https://github.com/SoftSec-KAIST/SURI) repository.
 
 ### 1. Download the Artifact
 
 (1) From Zenodo:
 ```
-$ wget https://zenodo.org/records/14783863/files/suri_artifact.zip
-$ unzip suri_artifact.zip
-$ cd ./suri_artifact/artifact
+$ wget https://zenodo.org/records/14788616/files/SURI.zip
+$ unzip SURI.zip
+$ cd ./SURI/artifact
 $ export SURI_AE_HOME=$(pwd) # set up an environment variable to avoid confusion
-$ wget https://zenodo.org/records/14784107/files/dataset.zip
+$ wget https://zenodo.org/records/14788616/files/dataset.zip
 $ unzip dataset.zip
 ```
 
@@ -23,7 +22,7 @@ $ unzip dataset.zip
 $ git clone https://github.com/SoftSec-KAIST/SURI.git
 $ cd ./SURI/artifact
 $ export SURI_AE_HOME=$(pwd) # set up an environment variable to avoid confusion
-$ wget https://zenodo.org/records/14784107/files/dataset.zip
+$ wget https://zenodo.org/records/14788616/files/dataset.zip
 $ unzip dataset.zip
 ```
 
