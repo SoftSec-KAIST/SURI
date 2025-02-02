@@ -146,7 +146,10 @@ def make_script(dataset, image, package, basename, cur):
             with open('%s/%s'%(script_folder, run_script), 'w') as f:
                 log_file = '%s/%s.txt'%(log_folder, filename)
 
-                if filename not in white_list:
+                # in case of suri and original, we execute all cases.
+                if filepath.split('/')[-2] in ['original', 'suri'] and dataset in ['setA', 'setC']:
+                    pass
+                elif filename not in white_list:
                     continue
 
                 if os.path.exists(log_file):

@@ -332,6 +332,8 @@ $ /bin/bash 4_runtime_overheadA.sh
 $ python3 4_get_runtime_overhead.py setB | tee 4_runtime_overheadB.sh
 $ /bin/bash 4_runtime_overheadB.sh
 
+$ python3 4_get_runtime_overhead.py setC | tee 4_runtime_overheadC.sh
+$ /bin/bash 4_runtime_overheadC.sh
 ```
 
 After running the above commands, you can analyze the results using
@@ -349,6 +351,11 @@ $ python3 4_print_runtime_overhead.py setB
 spec_cpu2006      24 | 0.457050% 0.694204%
 spec_cpu2017      21 | 0.167273% 0.037466%
 
+$ python3 4_print_runtime_overhead.py setC
+                     |      suri  suri(no_ehframe)
+spec_cpu2006      30 | 0.344754%         1.035873%
+spec_cpu2017      47 | 0.162118%         0.410035%
+Total             77 | 0.233275%         0.653868%
 ```
 
 These results correspond to Table 4 in our paper.
