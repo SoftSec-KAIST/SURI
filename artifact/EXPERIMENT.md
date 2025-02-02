@@ -292,7 +292,7 @@ $ python3 4_print_code_size_overhead.py setA
 To analyze the overhead of if-then-else statements, run:
 ```
 cd $SURI_AE_HOME
-$ python3 4_get_br_stat.py ./benchmark ./output
+$ python3 4_get_br_stat.py setA
 $ python3 4_print_br_overhead.py setA
 
 Multi Br-------------
@@ -306,8 +306,8 @@ Multi Br-------------
 Finally, to measure jump table entries overhead, run:
 ```
 cd $SURI_AE_HOME
-$ python3 4_get_table_size.py ./benchmark ./output
-$ python3 4_print_table_overhead.py
+$ python3 4_get_table_size.py setA
+$ python3 4_print_table_overhead.py setA
 
 Table-------------
   coreutils-9.1       5136   0.097256
