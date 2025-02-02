@@ -267,7 +267,7 @@ $ ./my_putty
 $ ./my_vim
 ```
 
-## Exp4: Overhead of Rewritten Binaries (RQ2)
+## Exp4: Overhead of rewritten binaries (RQ2)
 
 ### Overhead Incurred by SURI
 
