@@ -3,39 +3,36 @@ import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'output_path', 'arch', 'pie', 'package', 'bin'])
+BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'output_path', 'package', 'bin'])
 
 
 def gen_option(input_root, reassem_root, dataset, output_root, package, blacklist, whitelist):
     ret = []
     cnt = 0
-    for arch in ['x64']:
-        for comp in ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        input_dir = '%s/%s'%(input_root, sub_dir)
-                        #print(input_dir)
-                        for target in glob.glob('%s/bin/*'%(input_dir)):
+    for comp in ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']:
+        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
+            for lopt in ['bfd', 'gold']:
+                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
+                input_dir = '%s/%s'%(input_root, sub_dir)
+                for target in glob.glob('%s/bin/*'%(input_dir)):
 
-                            filename = os.path.basename(target)
-                            binpath = '%s/bin/%s'%(input_dir, filename)
+                    filename = os.path.basename(target)
+                    binpath = '%s/bin/%s'%(input_dir, filename)
 
-                            reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
-                            out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
+                    reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
+                    out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
 
-                            if blacklist and filename in blacklist:
-                                continue
-                            if whitelist and filename not in whitelist:
-                                continue
+                    if blacklist and filename in blacklist:
+                        continue
+                    if whitelist and filename not in whitelist:
+                        continue
 
-                            if check_exclude_files(dataset, package, comp, opt, filename):
-                                continue
+                    if check_exclude_files(dataset, package, comp, opt, filename):
+                        continue
 
-                            ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, output_root, arch, popt, package, binpath))
+                    ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, output_root, package, binpath))
 
-                            cnt += 1
+                    cnt += 1
     return ret
 
 def job(conf, reset=False):
@@ -52,8 +49,9 @@ def job(conf, reset=False):
         return
 
     print(output_file)
-    os.system("objdump -d %s -j .text --no-show-raw-insn | grep '^ \s*[0-9a-f]' | grep -v 'xor    %%eax,%%eax' | grep -v 'xor    %%eax,%%eax' | grep -v 'data16 nop' | grep -v '\snop' | wc -l > %s"%(conf.bin, output_file))
-    os.system("objdump -d %s -j .text --no-show-raw-insn | grep '^ \s*[0-9a-f]' | grep -v 'xor    %%eax,%%eax' | grep -v 'xor    %%eax,%%eax' | grep -v 'data16 nop' | grep -v '\snop' | wc -l >> %s"%(b2r2_func_path, output_file))
+    if os.path.exists(output_file):
+        os.system("objdump -d %s -j .text --no-show-raw-insn | grep '^ \s*[0-9a-f]' | grep -v 'xor    %%eax,%%eax' | grep -v 'xor    %%eax,%%eax' | grep -v 'data16 nop' | grep -v '\snop' | wc -l > %s"%(conf.bin, output_file))
+        os.system("objdump -d %s -j .text --no-show-raw-insn | grep '^ \s*[0-9a-f]' | grep -v 'xor    %%eax,%%eax' | grep -v 'xor    %%eax,%%eax' | grep -v 'data16 nop' | grep -v '\snop' | wc -l >> %s"%(b2r2_func_path, output_file))
 
 
 

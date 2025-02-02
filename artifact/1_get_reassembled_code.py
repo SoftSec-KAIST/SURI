@@ -3,7 +3,7 @@ import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'arch', 'comp', 'pie', 'package', 'bin', 'dataset'])
+BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'package', 'bin', 'dataset'])
 
 
 def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
@@ -12,31 +12,29 @@ def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
 
     comp_set = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 
-    for arch in ['x64']:
-        for comp in comp_set:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        input_dir = '%s/%s'%(input_root, sub_dir)
-                        for target in glob.glob('%s/stripbin/*'%(input_dir)):
+    for comp in comp_set:
+        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
+            for lopt in ['bfd', 'gold']:
+                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
+                input_dir = '%s/%s'%(input_root, sub_dir)
+                for target in glob.glob('%s/stripbin/*'%(input_dir)):
 
-                            filename = os.path.basename(target)
-                            binpath = '%s/stripbin/%s'%(input_dir, filename)
+                    filename = os.path.basename(target)
+                    binpath = '%s/stripbin/%s'%(input_dir, filename)
 
-                            out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
+                    out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
 
-                            if blacklist and filename in blacklist:
-                                continue
-                            if whitelist and filename not in whitelist:
-                                continue
+                    if blacklist and filename in blacklist:
+                        continue
+                    if whitelist and filename not in whitelist:
+                        continue
 
-                            if check_exclude_files(dataset, package, comp, opt, filename):
-                                continue
+                    if check_exclude_files(dataset, package, comp, opt, filename):
+                        continue
 
-                            ret.append(BuildConf(target, input_root, sub_dir, out_dir, arch, comp, popt, package, binpath, dataset))
+                    ret.append(BuildConf(target, input_root, sub_dir, out_dir, comp, package, binpath, dataset))
 
-                            cnt += 1
+                    cnt += 1
     return ret
 
 

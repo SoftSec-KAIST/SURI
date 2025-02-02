@@ -3,38 +3,36 @@ import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'gt_path', 'reassem_path', 'output_path', 'arch', 'pie', 'package', 'bin'])
+BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'gt_path', 'reassem_path', 'output_path', 'package', 'bin'])
 
 def gen_option(input_root, gt_root, reassem_root, output_root, dataset, package, blacklist, whitelist):
     ret = []
     cnt = 0
-    for arch in ['x64']:
-        for comp in ['clang-13', 'gcc-11']:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        input_dir = '%s/%s'%(input_root, sub_dir)
-                        for target in glob.glob('%s/bin/*'%(input_dir)):
+    for comp in ['clang-13', 'gcc-11']:
+        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
+            for lopt in ['bfd', 'gold']:
+                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
+                input_dir = '%s/%s'%(input_root, sub_dir)
+                for target in glob.glob('%s/bin/*'%(input_dir)):
 
-                            filename = os.path.basename(target)
-                            binpath = '%s/bin/%s'%(input_dir, filename)
+                    filename = os.path.basename(target)
+                    binpath = '%s/bin/%s'%(input_dir, filename)
 
-                            reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
-                            gt_dir = '%s/%s/%s'%(gt_root, sub_dir, filename)
-                            out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
+                    reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
+                    gt_dir = '%s/%s/%s'%(gt_root, sub_dir, filename)
+                    out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
 
-                            if blacklist and filename in blacklist:
-                                continue
-                            if whitelist and filename not in whitelist:
-                                continue
+                    if blacklist and filename in blacklist:
+                        continue
+                    if whitelist and filename not in whitelist:
+                        continue
 
-                            if check_exclude_files(dataset, package, comp, opt, filename):
-                                continue
+                    if check_exclude_files(dataset, package, comp, opt, filename):
+                        continue
 
-                            ret.append(BuildConf(target, input_root, sub_dir, gt_dir, reassem_dir, output_root, arch, popt, package, binpath))
+                    ret.append(BuildConf(target, input_root, sub_dir, gt_dir, reassem_dir, output_root, package, binpath))
 
-                            cnt += 1
+                    cnt += 1
     return ret
 
 def job(conf, reset=False):

@@ -114,7 +114,9 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
         os.system('mkdir -p %s'%(log_folder))
 
         for filepath in glob.glob(folder + '/*'):
-            if 'original' in filepath:
+
+
+            if 'original' in filepath.split('/')[-2]:
                 continue
 
             filename = os.path.basename(filepath)
@@ -207,7 +209,7 @@ def summary(dataset, config_list):
                 stat[key] = dict()
 
             stat[key][tool] = value
-    
+
     report(dataset, stat, 'clang')
     report(dataset, stat, 'gcc')
 
@@ -243,7 +245,7 @@ def report(dataset, old_stat, comp):
                 egalito += 1
 
     if ck_cnt == 0:
-        return 
+        return
 
     if dataset in ['setA']:
         print('%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)'%(package, comp, suri/ck_cnt*100, suri, ck_cnt, ddisasm/ck_cnt*100, ddisasm, ck_cnt))
