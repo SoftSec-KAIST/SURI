@@ -51,29 +51,71 @@ outside of the Docker image.
 
 ## Usage
 
-To rewrite a binary using SURI, give the target binary path for an argument to SURI:
+### Generating Assembly Code Using SURI
+
+To generate a assembly code using SURI, provide the target binary path as an argument:
+
 ```
 python3 suri.py [target binary path] [--usedocker]
 ```
 
-For example, if you want to rewrite a `vim` binary at `realworld/client/vim`, run SURI like below:
+For example, to create an assembly file for the vim binary located at realworld/client/vim, run SURI as follows:
+
 ```
 $ python3 suri.py artifact/realworld/client/vim
 [*] All done in 27.285196 sec.
 [*] Construct CFG 4.193936 sec.
 [*] Extract data 0.004162 sec.
 [*] JsonSerializer 1.452532 sec.
-[+] Generate rewritten binary: my_vim
+[+] Generate assembly file: vim.s
 ```
 
-SURI generates rewritten binary with the prefix 'my_'.
+SURI generates an assembly file with the `.s` extension:
 ```
-$ ls -al my_vim
--rwxrwxr-x 1 test test 7608639 Jan 31 18:46 my_vim
+$ ls -al vim.s
+-rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 vim.s
 ```
+
+You can modify the assembly code for instrumentation if needed.
+
+### Compiling the Assembly File
+
+After editing, you can compile the assembly file using `emitter.py` script:
+
+```
+python3 emitter.py artifact/realworld/client/vim vim.s
+[+] Generate rewritten binary: /test/my_vim
+```
+
+### Generating and Compiling in One Step
+
+If you want to generate the assembly file and compile it in a single step, use the `--with-compile` option:
+
+```
+python3 suri.py [target binary path] [--with-compile]
+```
+
+For example,
+```
+$ python3 suri.py artifact/realworld/client/vim
+[*] All done in 27.285196 sec.
+[*] Construct CFG 4.193936 sec.
+[*] Extract data 0.004162 sec.
+[*] JsonSerializer 1.452532 sec.
+[+] Generate assembly file: vim.s
+[+] Generate rewritten binary: /test/my_vim
+```
+
+Running this command will generate both vim.s and my_vim in a single execution.
+
+### Running SURI in a Docker Environment
 
 If you want to use the Docker environment, you need to pass the `--usedocker` flag to SURI.
 
+```
+python3 suri.py [target binary path] --usedocker
+```
+This ensures that SURI runs inside the provided Docker container.
 
 ## Directory Structure
 

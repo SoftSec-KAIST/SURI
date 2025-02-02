@@ -50,7 +50,7 @@ def run_suri(conf, filename):
     if os.path.exists('%s/my_%s'%(output_dir, filename)):
         return
 
-    sub = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/tlog1.txt python3 /project/SURI/suri.py /input/%s --ofolder /output/ --meta b2r2_meta >> /output/log.txt'%(filename)
+    sub = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/tlog1.txt python3 /project/SURI/suri.py /input/%s --ofolder /output/ --meta b2r2_meta --with-compile >> /output/log.txt'%(filename)
 
     if conf.dataset in ['setA', 'setC']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s;"'%(input_dir, output_dir, sub)

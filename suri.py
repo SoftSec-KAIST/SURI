@@ -122,7 +122,7 @@ class SURI:
 
 
 
-    def run(self):
+    def run(self, bCompile):
         json_path = '%s/%s'%(self.output_dir, self.json)
         asm_path = '%s/%s'%(self.output_dir, self.asm)
         my_path = '%s/%s'%(self.output_dir, self.myfile)
@@ -139,22 +139,22 @@ class SURI:
             if not os.path.exists(asm_path):
                 return
 
-            print('[+] Generate assembly file: %s'%(self.asm))
 
         else:
             self.symbol_suri()
             if not os.path.exists(asm_path):
                 return
 
-            print('[+] Generate assembly file: %s'%(self.asm))
+        print('[+] Generate assembly file: %s'%(self.asm))
 
-        if os.path.exists(my_path):
-            os.remove(self.myfile)
+        if bCompile:
+            if os.path.exists(my_path):
+                os.remove(self.myfile)
 
-        self.compile_suri()
+            self.compile_suri()
 
-        if os.path.exists(my_path):
-            print('[+] Generate rewritten binary: %s'%(my_path))
+            if os.path.exists(my_path):
+                print('[+] Generate rewritten binary: %s'%(my_path))
 
 import argparse
 if __name__ == '__main__':
@@ -165,10 +165,11 @@ if __name__ == '__main__':
     parser.add_argument('--usedocker', action='store_true')
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--metafile', type=str)
+    parser.add_argument('--with-compile', action='store_true', dest='bCompile')
 
     args = parser.parse_args()
 
     target = os.path.abspath(args.target)
 
     suri = SURI(target, args.ofolder, args.asan, args.usedocker, args.verbose, args.metafile)
-    suri.run()
+    suri.run(args.bCompile)

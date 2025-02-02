@@ -244,11 +244,11 @@ $ cd $SURI_AE_HOME/realworld/client
 $ ls
 epiphany  filezilla  openssh  putty  vim
 
-$ python3 ../../../suri.py epiphany
-$ python3 ../../../suri.py filezilla
-$ python3 ../../../suri.py openssh
-$ python3 ../../../suri.py putty
-$ python3 ../../../suri.py vim
+$ python3 ../../../suri.py epiphany --with-compile
+$ python3 ../../../suri.py filezilla --with-compile
+$ python3 ../../../suri.py openssh --with-compile
+$ python3 ../../../suri.py putty --with-compile
+$ python3 ../../../suri.py vim  --with-compile
 ```
 Since these programs do not have their own Phoronix test suites, you can manually test the rewritten binaries by executing them.
 
