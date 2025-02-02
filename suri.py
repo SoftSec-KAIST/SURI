@@ -149,7 +149,7 @@ class SURI:
 
         if bCompile:
             if os.path.exists(my_path):
-                os.remove(self.myfile)
+                os.remove(my_path)
 
             self.compile_suri()
 
