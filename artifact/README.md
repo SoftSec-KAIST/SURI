@@ -45,7 +45,7 @@ This table is a brief summary of each tool:
 We used 5 different kinds of benchmark programs to evaluate SURI:
 - Coreutils v9.1
 - Binutils v2.40
-- SPEC CPU 2006 v1.1 and 2017 v1.1
+- SPEC CPU 2006 v1.2 and 2017 v1.1.5
 - 10 real-world programs
   - Apache v2.4.56
   - MariaDB v11.5.0
