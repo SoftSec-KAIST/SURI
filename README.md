@@ -51,18 +51,34 @@ outside of the Docker image.
 
 ## Usage
 
-### Generating Assembly Code Using SURI
+### Generating Assembly File and Rewritten Binary
 
-To generate a assembly code using SURI, provide the target binary path as an argument:
-
+If you want to rewrite a target binary, use following command;
 ```
-python3 suri.py [target binary path] [--usedocker]
+$ python3 suri.py [target binary path]
 ```
 
-For example, to create an assembly file for the vim binary located at realworld/client/vim, run SURI as follows:
-
+For example, to rewrite the vim binary located at realworld/client/vim, run SURI as follows:
 ```
 $ python3 suri.py artifact/realworld/client/vim
+[*] All done in 27.285196 sec.
+[*] Construct CFG 4.193936 sec.
+[*] Extract data 0.004162 sec.
+[*] JsonSerializer 1.452532 sec.
+[+] Generate assembly file: vim.s
+[+] Generate rewritten binary: /test/my_vim
+```
+
+### Generating Assembly Code Using SURI
+
+If you want to create assembly file, use `--without-compile` option.
+```
+python3 suri.py [target binary path] [--without-compile]
+```
+
+For example,
+```
+$ python3 suri.py artifact/realworld/client/vim --without-compile
 [*] All done in 27.285196 sec.
 [*] Construct CFG 4.193936 sec.
 [*] Extract data 0.004162 sec.
@@ -72,10 +88,9 @@ $ python3 suri.py artifact/realworld/client/vim
 
 SURI generates an assembly file with the `.s` extension:
 ```
-$ ls -al vim.s
+$ ls -al vim.s my_vim
 -rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 vim.s
 ```
-
 You can modify the assembly code for instrumentation if needed.
 
 ### Compiling the Assembly File
@@ -86,27 +101,6 @@ After editing, you can compile the assembly file using `emitter.py` script:
 python3 emitter.py artifact/realworld/client/vim vim.s
 [+] Generate rewritten binary: /test/my_vim
 ```
-
-### Generating and Compiling in One Step
-
-If you want to generate the assembly file and compile it in a single step, use the `--with-compile` option:
-
-```
-python3 suri.py [target binary path] [--with-compile]
-```
-
-For example,
-```
-$ python3 suri.py artifact/realworld/client/vim
-[*] All done in 27.285196 sec.
-[*] Construct CFG 4.193936 sec.
-[*] Extract data 0.004162 sec.
-[*] JsonSerializer 1.452532 sec.
-[+] Generate assembly file: vim.s
-[+] Generate rewritten binary: /test/my_vim
-```
-
-Running this command will generate both vim.s and my_vim in a single execution.
 
 ### Running SURI in a Docker Environment
 
@@ -132,6 +126,7 @@ This tree shows some important files and directories only.
 │   └── SuperSymbolizer.py      : contains our Pointer Repairer and Superset Symbolizer modules
 ├── README.md                   : this document
 └── suri.py                     : the main entry point of SURI
+└── emitter.py                  : a script for compiling assembly file
 ```
 
 ## Citation

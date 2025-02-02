@@ -165,7 +165,7 @@ if __name__ == '__main__':
     parser.add_argument('--usedocker', action='store_true')
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--metafile', type=str)
-    parser.add_argument('--with-compile', action='store_true', dest='bCompile')
+    parser.add_argument('--without-compile', action='store_false', dest='bCompile')
 
     args = parser.parse_args()
 
