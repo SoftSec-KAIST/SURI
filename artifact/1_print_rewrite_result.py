@@ -4,49 +4,52 @@ import multiprocessing
 from filter_utils import check_exclude_files
 import argparse
 
-BuildConf = namedtuple('BuildConf', ['output_path', 'comp', 'bin', 'dataset'])
+ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'output_dir', 'bin_name'])
 
+PACKAGES = ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--input_dir', type=str, default='benchmark')
     parser.add_argument('--output_dir', type=str, default='output')
     parser.add_argument('--verbose', action='store_true')
 
     args = parser.parse_args()
 
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
 
-def gen_option(input_root, output_root, package, dataset):
-    ret = []
-    cnt = 0
+def prepare_tasks(args, package):
+    input_root = './%s/%s'%(args.input_dir, args.dataset)
+    output_root = './%s/%s'%(args.output_dir, args.dataset)
+
+    tasks = []
     for comp in COMPILERS:
         for opt in OPTIMIZATIONS:
             for lopt in LINKERS:
-                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                input_dir = '%s/%s'%(input_root, sub_dir)
-                for target in glob.glob('%s/stripbin/*'%(input_dir)):
+                input_base = os.path.join(args.input_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                output_base = os.path.join(args.output_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                strip_dir = os.path.join(input_base, 'stripbin', '*')
 
+                for target in glob.glob(strip_dir):
                     filename = os.path.basename(target)
-                    binpath = '%s/stripbin/%s'%(input_dir, filename)
 
-                    out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
-
-                    if check_exclude_files(dataset, package, comp, opt, filename):
+                    # Filter binaries
+                    if check_exclude_files(args.dataset, package, comp, opt, filename):
                         continue
 
-                    ret.append(BuildConf(out_dir, comp, binpath, dataset))
+                    out_dir = os.path.join(output_base, filename)
+                    tasks.append(ExpTask(args.dataset, comp, out_dir, filename))
+    return tasks
 
-                    cnt += 1
-    return ret
+################################
 
-def read_time(filename):
+def read_time_data(filename):
     with open(filename) as f:
         data = f.read()
         if not data:
@@ -65,162 +68,135 @@ def read_time(filename):
         sec = float(t.split(':')[1])
         return (minute*60+sec)
 
-def check_super(root, filename, verbose):
-    target = '%s/%s'%(root, filename)
+def get_data_suri(task, is_setC, verbose):
+    if task.dataset == 'setC' and not is_setC:
+        out_dir = os.path.join(task.output_dir.replace('setC', 'setA'), 'super')
+    else:
+        out_dir = os.path.join(task.output_dir, 'super')
+    res_path = os.path.join(out_dir, 'my_' + task.bin_name)
 
-    if os.path.exists(target):
-        t1 = read_time('%s/tlog1.txt'%(root))
-        if os.path.exists('%s/tlog2.txt'%(root)):
-            t1 += read_time('%s/tlog2.txt'%(root))
-        if os.path.exists('%s/tlog3.txt'%(root)):
-            t1 += read_time('%s/tlog3.txt'%(root))
-        return t1
-    if verbose:
-        print(' [-] SURI fails to reassemble %s'%(target))
-    return 0.0
+    if os.path.exists(res_path):
+        return read_time_data('%s/tlog1.txt'%(out_dir))
+    else:
+        if verbose:
+            print(' [-] SURI fails to reassemble %s'%(res_path))
+        return None
 
-def check_ddisasm(root, filename, verbose):
-    target = '%s/%s'%(root, filename)
+def get_data_ddisasm(task, verbose):
+    out_dir = os.path.join(task.output_dir, 'ddisasm')
+    res_path = os.path.join(out_dir, task.bin_name)
 
-    if os.path.exists(target):
-        t1 = read_time('%s/tlog.txt'%(root))
-        t2 = read_time('%s/tlog2.txt'%(root))
-        return t1 + t2
-    if verbose:
-        print(' [-] Ddisasm fails to reassemble %s'%(target))
-    return 0.0
+    if os.path.exists(res_path):
+        t_reasm = read_time_data('%s/tlog.txt'%(out_dir))
+        t_compile = read_time_data('%s/tlog2.txt'%(out_dir))
+        return t_reasm + t_compile
+    else:
+        if verbose:
+            print(' [-] Ddisasm fails to reassemble %s'%(res_path))
+        return None
 
-def check_egalito(root, filename, verbose):
-    target = '%s/%s'%(root, filename)
-    if os.path.exists(target):
-        t1 = read_time('%s/tlogx.txt'%(root))
-        return t1, True
-    if verbose:
-        print(' [-] Egalito fails to reassemble %s'%(target))
-    return 0.0, False
+def get_data_egalito(target, verbose):
+    out_dir = os.path.join(task.output_dir, 'egalito')
+    res_path = os.path.join(out_dir, task.bin_name)
 
-def job(conf, verbose):
-    filename = os.path.basename(conf.bin)
-    super_dir = '%s/super'%(conf.output_path)
-    ddisasm_dir = '%s/ddisasm'%(conf.output_path)
-    egalito_dir = '%s/egalito'%(conf.output_path)
+    if os.path.exists(res_path):
+        return read_time_data('%s/tlogx.txt'%(out_dir))
+    else:
+        if verbose:
+            print(' [-] Egalito fails to reassemble %s'% res_path)
+        return None
 
-    t1 = check_super(super_dir, 'my_'+filename, verbose)
-    if conf.dataset == 'setA':
-        t2 = check_ddisasm(ddisasm_dir, filename, verbose)
-        egalito_succ = False
-    elif conf.dataset == 'setB':
-        t2, egalito_succ = check_egalito(egalito_dir, filename, verbose)
-    elif conf.dataset == 'setC':
-        t2 = check_super(super_dir.replace('setC','setA'), 'my_'+filename, verbose)
-        egalito_succ = False
+def get_data(task, verbose):
+    t1 = get_data_suri(task, False, verbose)
+    if task.dataset == 'setA':
+        t2 = get_data_ddisasm(task, verbose)
+    elif task.dataset == 'setB':
+        t2 = get_data_egalito(task, verbose)
+    elif task.dataset == 'setC':
+        t2 = get_data_suri(task, True, verbose)
 
-    return (filename, t1, t2, egalito_succ)
+    return t1, t2
 
+def collect_data(args, package):
+    tasks = prepare_tasks(args, package)
 
+    data = {}
+    for task in tasks:
+        d_suri, d_target = get_data(task, args.verbose)
 
-def run(input_root, output_root, dataset, package, verbose):
+        if task.compiler not in data:
+            data[task.compiler] = 0, 0, 0, 0.0, 0.0, 0
+        num_bins, suri_succ, target_succ, suri_time, target_time, succ = data[task.compiler]
 
-    if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006' ]:
-        return False
+        num_bins += 1
+        if d_suri is not None:
+            suri_succ += 1
+        if d_target is not None:
+            target_succ += 1
+        if d_suri is not None and d_target is not None:
+            suri_time += d_suri
+            target_time += d_target
+            succ += 1
 
-    config_list = gen_option(input_root, output_root, package, dataset)
+        data[task.compiler] = num_bins, suri_succ, target_succ, suri_time, target_time, succ
 
-    time_dict = dict()
-    file_dict = dict()
-    suri_dict = dict()
-    other_dict = dict()
-    for conf in config_list:
-        if conf.comp not in time_dict:
-            time_dict[conf.comp] = dict()
-            file_dict[conf.comp] = 0
-            suri_dict[conf.comp] = 0
-            other_dict[conf.comp] = 0
+    return data
 
-        filename, t1, t2, egalito_succ = job(conf, verbose)
-        if t1 > 0 and t2 > 0:
-            if filename not in time_dict[conf.comp]:
-                time_dict[conf.comp][filename] = []
-            time_dict[conf.comp][filename].append((t1, t2))
+################################
 
-        if t1 > 0:
-            suri_dict[conf.comp] += 1
-        if t2 > 0:
-            other_dict[conf.comp] += 1
-        elif egalito_succ:
-            other_dict[conf.comp] += 1
-        file_dict[conf.comp] += 1
-
-
-
-    file_cnt, suri_cnt, other_cnt, suri_sum, other_sum = 0, 0, 0, 0, 0
-
-    for comp_base in ['clang', 'gcc']:
-        suri_sum_cnt = 0
-        other_sum_cnt = 0
-        file_sum_cnt = 0
-
-        success = 0
-
-        tot1 = 0
-        tot2 = 0
-        for comp in sorted(time_dict):
-            if comp_base not in comp:
-                continue
-
-            filedict = time_dict[comp]
-            for filename in filedict.keys():
-                for (t1, t2) in time_dict[comp][filename]:
-                    tot1 += t1
-                    tot2 += t2
-                    success += 1
-            suri_sum_cnt += suri_dict[comp]
-            other_sum_cnt += other_dict[comp]
-            file_sum_cnt += file_dict[comp]
-
-        if success == 0:
-            continue
-
-        print('%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'%(package, comp_base, file_sum_cnt,
-            suri_sum_cnt / file_sum_cnt * 100, tot1/success,
-            other_sum_cnt / file_sum_cnt * 100, tot2/success ))
-
-        file_cnt += file_sum_cnt
-        suri_cnt += suri_sum_cnt
-        other_cnt += other_sum_cnt
-        suri_sum += tot1
-        other_sum += tot2
-
-    return file_cnt, suri_cnt, other_cnt, suri_sum, other_sum
-
-
-if __name__ == '__main__':
-    args = parse_arguments()
-
-    dataset = args.dataset
-    input_root = './%s/%s'%(args.input_dir, args.dataset)
-    output_root = './%s/%s'%(args.output_dir, args.dataset)
-
+def print_header(dataset):
     if dataset == 'setA':
         print('%32s    %22s   %22s'%('', 'suri', 'ddisasm'))
     elif dataset == 'setB':
         print('%32s    %22s   %22s'%('', 'suri', 'egalito'))
     elif dataset == 'setC':
-        print('%32s    %22s   %22s'%('', 'suri(no_ehframe)', 'suri'))
+        print('%32s    %22s   %22s'%('', 'suri', 'suri(no_ehframe)'))
 
+def print_line():
     print('-----------------------------------------------------------------------------------')
 
-    file_cnt, suri_cnt, other_cnt, suri_sum, other_sum = 0, 0, 0, 0, 0
-    for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
-        cnt1, cnt2, cnt3, cnt4, cnt5 = run(input_root, output_root, dataset, package, args.verbose)
-        file_cnt += cnt1
-        suri_cnt += cnt2
-        other_cnt += cnt3
-        suri_sum += cnt4
-        other_sum += cnt5
+def print_data(package, data):
+    total_num_bins, total_suri_succ, total_target_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0
+    for compiler in data:
+        num_bins, suri_succ, target_succ, suri_time, target_time, succ = data[compiler]
 
-    if file_cnt:
-        print('----------------------------------------------------------------------------------')
-        print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', file_cnt,
-            suri_cnt / file_cnt * 100, suri_sum / file_cnt ,
-            other_cnt / file_cnt * 100, other_sum / file_cnt ))
+        comp_base = compiler.split('-')[0]
+        print('%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'%(package, comp_base, num_bins,
+            suri_succ / num_bins * 100, suri_time/succ,
+            target_succ / num_bins * 100, target_time/succ ))
+
+        total_num_bins += num_bins
+        total_suri_succ += suri_succ
+        total_target_succ += target_succ
+        total_suri_time += suri_time
+        total_target_time += target_time
+
+    return total_num_bins, total_suri_succ, total_target_succ, total_suri_time, total_target_time
+
+def run(args):
+    data = {}
+    for package in PACKAGES:
+        data[package] = collect_data(args, package)
+
+    print_header(args.dataset)
+    print_line()
+
+    total_num_bins, total_suri_succ, total_target_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0
+    for package in PACKAGES:
+        num_bins, suri_succ, target_succ, suri_time, target_time = print_data(package, data[package])
+        total_num_bins += num_bins
+        total_suri_succ += suri_succ
+        total_target_succ += target_succ
+        total_suri_time += suri_time
+        total_target_time += target_time
+
+    if total_num_bins:
+        print_line()
+        print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', total_num_bins,
+            total_suri_succ / total_num_bins * 100, total_suri_time / total_num_bins ,
+            total_target_succ / total_num_bins * 100, total_target_time / total_num_bins ))
+
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    run(args)
