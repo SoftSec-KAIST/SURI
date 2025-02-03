@@ -6,6 +6,7 @@ import argparse
 
 BuildConf = namedtuple('BuildConf', ['output_path', 'bin', 'dataset'])
 
+PACKAGES = ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
@@ -15,20 +16,27 @@ def parse_arguments():
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--input_dir', type=str, default='benchmark')
     parser.add_argument('--output_dir', type=str, default='output')
-    parser.add_argument('--package', type=str, help='Package')
+    parser.add_argument('--package', type=str, help='Select package (coreutils-9.1, binutils-2.40, spec_cpu2017, spec_cpu2006)')
     parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
     parser.add_argument('--blacklist', nargs='+')
     parser.add_argument('--whitelist', nargs='+')
 
     args = parser.parse_args()
 
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
+    if args.package:
+        assert args.package in PACKAGES, 'Invalid package: "%s"'%(args.package)
 
     return args
 
-def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
+def gen_option(args, package):
+    input_root = './%s/%s'%(args.input_dir, args.dataset)
+    output_root = './%s/%s'%(args.output_dir, args.dataset)
+    blacklist = args.blacklist
+    whitelist = args.whitelist
+    dataset = args.dataset
+
     ret = []
-    cnt = 0
 
     for comp in COMPILERS:
         for opt in OPTIMIZATIONS:
@@ -52,7 +60,6 @@ def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
 
                     ret.append(BuildConf(out_dir, binpath, dataset))
 
-                    cnt += 1
     return ret
 
 
@@ -184,28 +191,19 @@ def job(conf):
     if conf.dataset == 'setB':
         run_egalito(conf, filename)
 
+def run_package(args, package):
+    config_list = gen_option(args, package)
 
-def run(input_root, output_root, package, core=1, blacklist=None, whitelist=None, dataset=''):
-    if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
-        return False
-    config_list = gen_option(input_root, output_root, package, blacklist, whitelist, dataset)
+    p = multiprocessing.Pool(args.core)
+    p.map(job, config_list)
 
-    if core > 1:
-        p = multiprocessing.Pool(core)
-        p.map(job, [(conf) for conf in config_list])
+def run(args):
+    if args.package:
+        run_package(args, args.package)
     else:
-        for conf in config_list:
-            job(conf)
-
+        for package in PACKAGES:
+            run_package(args, package)
 
 if __name__ == '__main__':
     args = parse_arguments()
-
-    input_dir = './%s/%s'%(args.input_dir, args.dataset)
-    output_dir = './%s/%s'%(args.output_dir, args.dataset)
-
-    if args.package:
-        run(input_dir, output_dir, args.dataset, args.package, args.core, args.blacklist, args.whitelist, args.dataset)
-    else:
-        for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
-            run(input_dir, output_dir, package, args.core, args.blacklist, args.whitelist, args.dataset)
+    run(args)
