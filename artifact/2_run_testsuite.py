@@ -5,7 +5,7 @@ import enum
 from collections import namedtuple
 from ctypes import *
 
-BuildConf = namedtuple('BuildConf', ['cmd', 'dataset', 'log_dir', 'bExist'])
+BuildConf = namedtuple('BuildConf', ['cmd', 'log_dir', 'bExist'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
@@ -42,7 +42,7 @@ def gen_option(input_root, image, package):
                     cmds = ';'.join([cmd1, cmd2, cmd3])
                     dock_cmd = 'docker run --rm -v "%s/%s:/dataset/" -v "%s/%s:/logs/" %s sh -c "%s"'%(cwd, dataset_dir, cwd, log_dir, image, cmds)
 
-                    ret.append(BuildConf(dock_cmd, input_root, log_dir, bExist))
+                    ret.append(BuildConf(dock_cmd, log_dir, bExist))
 
     return ret
 

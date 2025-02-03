@@ -3,7 +3,7 @@ import glob
 import os
 import multiprocessing
 
-BuildConf = namedtuple('BuildConf', ['cmd', 'dataset', 'log_file', 'bExist'])
+BuildConf = namedtuple('BuildConf', ['cmd', 'log_file', 'bExist'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
@@ -96,7 +96,7 @@ def make_script(dataset, image, package, basename, cur, core):
                 ret = make_sub_script(dataset, image, package, basename, cur, linker, comp, opt)
                 conf_list.extend(ret)
 
-    cmd_list = [item.cmd for item in conf_list if not item.bExist]
+    cmd_list = [conf.cmd for conf in conf_list if not conf.bExist]
     p = multiprocessing.Pool(core)
     p.map(job, cmd_list)
     return conf_list
@@ -142,7 +142,7 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
                 cmd_dict[filename] = []
 
             if os.path.exists(log_file):
-                cmd_dict[filename].append(BuildConf([], dataset, log_file, True))
+                cmd_dict[filename].append(BuildConf([], log_file, True))
                 continue
 
 
@@ -173,7 +173,7 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
                 cmd = get_docker_cmd(cur, folder, script_folder, log_folder, run_script, image, cpu_id)
 
 
-                cmd_dict[filename].append(BuildConf(cmd, dataset, log_folder, False))
+                cmd_dict[filename].append(BuildConf(cmd, log_folder, False))
 
         cpu_id += 4
 

@@ -3,7 +3,7 @@ import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'output_path', 'package', 'bin'])
+BuildConf = namedtuple('BuildConf', ['sub_dir', 'reassem_path', 'output_path', 'bin'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
@@ -33,7 +33,7 @@ def gen_option(input_root, reassem_root, output_root, dataset, package, blacklis
                     if check_exclude_files(dataset, package, comp, opt, filename):
                         continue
 
-                    ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, output_root, package, binpath))
+                    ret.append(BuildConf(sub_dir, reassem_dir, output_root, binpath))
 
                     cnt += 1
     return ret

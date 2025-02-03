@@ -6,7 +6,7 @@ from collections import namedtuple
 from ctypes import *
 from filter_utils import check_exclude_files
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'comp', 'pie', 'package', 'bin'])
+BuildConf = namedtuple('BuildConf', ['sub_dir', 'reassem_path', 'bin'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
@@ -36,7 +36,7 @@ def gen_option(input_root, reassem_root, dataset, package, blacklist, whitelist)
                     if check_exclude_files(dataset, package, comp, opt, filename):
                         continue
 
-                    ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, comp, 'pie', package, binpath))
+                    ret.append(BuildConf(sub_dir, reassem_dir, binpath))
 
                     cnt += 1
     return ret
