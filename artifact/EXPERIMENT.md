@@ -208,7 +208,7 @@ $ cd $SURI_AE_HOME/realworld/phoronix
 $ /bin/bash build.sh
 ```
 
-After execution, the following binaries will be generated: `my_7zip`,
+After execution, the following binaries will be generated in `output` folder: `my_7zip`,
 `my_apache`, `my_mariadb`, `my_nginx`, and `my_sqlite3`.
 
 Next, run the Docker container and copy the binaries to the Phoronix directory:
@@ -250,16 +250,19 @@ Since these programs do not have their own Phoronix test suites, you can manuall
 Additionally, Epiphany, PuTTY, and FileZilla are GNU programs that require a
 desktop environment to run. For Epiphany, we provide a dedicated script,
 `run_epiphany.sh`, to facilitate execution.
+
+:warning: If a missing library error occurs, please install the required library and try again.
+
 ```
 $ /bin/bash run_epiphany.sh
 
-$ ./my_filezilla
+$ ./output/my_filezilla
 
-$ ./my_openssh
+$ ./output/my_openssh
 
-$ ./my_putty
+$ ./output/my_putty
 
-$ ./my_vim
+$ ./output/my_vim
 ```
 
 ## Exp4: Overhead of rewritten binaries (RQ2)
@@ -361,25 +364,6 @@ Total             77 | 0.233275%         0.653868%
 These results correspond to Table 4 in our paper.
 
 
-### Overall Overhead
-
-:alarm_clock: 2 months
-
-It is an overhead measurement experiment for the entire set of SPEC binaries
-rewritten by SURI. This experiment is designed to measure the execution
-overhead of SURI, as mentioned in the introduction of the paper.
-
-```
-$ python3 4_get_suri_overhead.py setA
-
-$ python3 4_print_suri_overhead.py setA
-                     |      suri
-spec_cpu2006    1446 | 0.240980%
-spec_cpu2017    2254 | 0.180407%
-Total           3700 | 0.204080%
-```
-
-
 ## Exp5: Application of SURI (RQ3)
 
 :alarm_clock: 5 days
@@ -422,3 +406,22 @@ $ python3 summary.py
 ```
 
 These results correspond to Table 5 in our paper.
+
+
+## Bonus: Overall Overhead
+
+:alarm_clock: 2 months
+
+It is an overhead measurement experiment for the entire set of SPEC binaries
+rewritten by SURI. This experiment is designed to measure the execution
+overhead of SURI, as mentioned in the introduction of the paper.
+
+```
+$ python3 4_get_suri_overhead.py setA
+
+$ python3 4_print_suri_overhead.py setA
+                     |      suri
+spec_cpu2006    1446 | 0.240980%
+spec_cpu2017    2254 | 0.180407%
+Total           3700 | 0.204080%
+```
