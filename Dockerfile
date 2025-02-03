@@ -23,8 +23,6 @@ RUN pip install pyelftools
 
 RUN mkdir -p /project
 
-RUN pwd
-
 # Add SURI
 RUN cd /project/ && git clone https://github.com/SoftSec-KAIST/SURI.git && \
     cd SURI && python3 setup.py install
