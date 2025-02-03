@@ -31,37 +31,30 @@ def parse_arguments():
     return args
 
 def prepare_tasks(args, package):
-    input_root = './%s/%s'%(args.input_dir, args.dataset)
-    output_root = './%s/%s'%(args.output_dir, args.dataset)
-    blacklist = args.blacklist
-    whitelist = args.whitelist
-    dataset = args.dataset
-
-    ret = []
-
+    tasks = []
     for comp in COMPILERS:
         for opt in OPTIMIZATIONS:
             for lopt in LINKERS:
-                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                input_dir = '%s/%s'%(input_root, sub_dir)
-                for target in glob.glob('%s/stripbin/*'%(input_dir)):
+                input_base = os.path.join(args.input_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                output_base = os.path.join(args.output_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                strip_dir = os.path.join(input_base, 'stripbin', '*')
 
+                for target in glob.glob(strip_dir):
                     filename = os.path.basename(target)
-                    bin_dir = '%s/stripbin'%(input_dir)
 
-                    out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
-
-                    if blacklist and filename in blacklist:
+                    # Filter binaries
+                    if args.blacklist and filename in args.blacklist:
                         continue
-                    if whitelist and filename not in whitelist:
+                    if args.whitelist and filename not in args.whitelist:
                         continue
-
-                    if check_exclude_files(dataset, package, comp, opt, filename):
+                    if check_exclude_files(args.dataset, package, comp, opt, filename):
                         continue
 
-                    ret.append(ExpTask(dataset, bin_dir, out_dir, filename))
+                    bin_dir = os.path.join(input_base, 'stripbin')
+                    out_dir = os.path.join(output_base, filename)
+                    tasks.append(ExpTask(args.dataset, bin_dir, out_dir, filename))
 
-    return ret
+    return tasks
 
 def run_in_docker(image, in_dir, out_dir, log_name, cmd):
     time_cmd = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/%s %s' % (log_name, cmd)
