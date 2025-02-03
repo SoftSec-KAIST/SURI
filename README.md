@@ -62,10 +62,6 @@ $ python3 suri.py [target_binary_path]
 For example, to rewrite the 7zip binary located at artifact/realworld/phoronix/7zip, run SURI as follows:
 ```
 $ python3 suri.py artifact/realworld/phoronix/7zip
-[*] All done in 26.445190 sec.
-[*] Construct CFG 3.714226 sec.
-[*] Extract data 0.003845 sec.
-[*] JsonSerializer 1.575038 sec.
 [+] Generate assembly file: 7zip.s
 [+] Generate rewritten binary: /test/SURI/my_7zip
 ```
@@ -73,7 +69,7 @@ $ python3 suri.py artifact/realworld/phoronix/7zip
 SURI generates a reassembled binary.
 ```
 $ ls -al my_7zip
--rw-rw-r-- 1 test  test 7428218  Jan  2 14:22 my_7zip
+-rw-rw-r-- 1 test  test 7428218  Jan  1 00:00 my_7zip
 ```
 
 #### Running SURI in a Docker environment
@@ -99,17 +95,13 @@ python3 suri.py [target binary path] [--without-compile]
 For example,
 ```
 $ python3 suri.py artifact/realworld/phoronix/7zip --without-compile
-[*] All done in 26.201983 sec.
-[*] Construct CFG 3.704804 sec.
-[*] Extract data 0.003851 sec.
-[*] JsonSerializer 1.571691 sec.
 [+] Generate assembly file: 7zip.s
 ```
 
 SURI will generate an assembly file with the `.s` extension:
 ```
 $ ls -al 7zip.s
--rw-rw-r-- 1 test  test 43578474 Jan  2 14:22 7zip.s
+-rw-rw-r-- 1 test  test 43578474 Jan  1 00:00 7zip.s
 ```
 You can modify the assembly code for instrumentation if necessary.
 
@@ -124,8 +116,8 @@ $ python3 emitter.py artifact/realworld/phoronix/7zip 7zip.s
 ## Application
 
 ### Binary Only Address Sanitizer
-If you want to enable the AddressSanitizer feature in the target binary, 
-use the `--asan` option. This will generate a binary with memory sanitizing 
+If you want to enable the AddressSanitizer feature in the target binary,
+use the `--asan` option. This will generate a binary with memory sanitizing
 code inserted.
 ```
 python3 suri.py [target_binary_path] --asan
@@ -134,7 +126,7 @@ python3 suri.py [target_binary_path] --asan
 For example,
 ```
 $ python3 suri.py artifact/realworld/phoronix/7zip --asan
-...
+[+] Generate assembly file: 7zip.s
 [+] Generate rewritten binary: /test/SURI/my_7zip
 ```
 
