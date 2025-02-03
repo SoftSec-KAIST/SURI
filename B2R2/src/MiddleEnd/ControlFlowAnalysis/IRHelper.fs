@@ -442,8 +442,7 @@ let rec GetSimpleUDChain cpState ess depth = function
     if depth < 0 then ess
     else
       match e1, e2 with
-      | Var {Kind = PCVar _}, Num v2 ->
-        let (Var v) = e1
+      | Var ({Kind = PCVar _} as v), Num v2 ->
         match Map.tryFind v cpState.SSAEdges.Defs with
         | Some (Def (v:Variable, Num v1))
           -> let candidate = BitVector.ToUInt64 (v1.Add v2)

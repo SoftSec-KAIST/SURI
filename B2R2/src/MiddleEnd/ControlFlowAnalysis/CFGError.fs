@@ -53,3 +53,4 @@ module CFGError =
     | ErrorLateDetection -> nameof ErrorLateDetection
     | ErrorParsing -> nameof ErrorParsing
     | ErrorConnectingEdge -> nameof ErrorConnectingEdge
+    | _ -> ""
