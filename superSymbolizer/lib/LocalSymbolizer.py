@@ -1055,8 +1055,8 @@ class LocalSymbolizer:
                 for n in range(4):
                     tmp = int(offset_str[n*2:(n+1)*2], 16)
                     offset += tmp << (8 * n)
-                    print('fix:' , hex(offset))
-                print(offset_str)
+                    #print('fix:' , hex(offset))
+                #print(offset_str)
                 target_addr = offset + pc
 
 
