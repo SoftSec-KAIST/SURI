@@ -6,9 +6,9 @@ function copy()
     name=$(basename $src | awk -F'my_' '{print $2}' )
     if [ -f $dst ]; then
         cp $src $dst
-        echo "[+] Replace $name file in phoronix directory."
+        echo "[+] Replaced `$name` file in phoronix directory."
     else
-        echo "[-] Error: The target file for '$name' does not exist."
+        echo "[-] Error: Could not copy '$name' as the destination file does not exist."
         echo "    Please run: phoronix-test-suite benchmark $name"
     fi
 }
