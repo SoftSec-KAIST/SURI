@@ -4,7 +4,7 @@ import multiprocessing
 from filter_utils import check_exclude_files
 import argparse
 
-BuildConf = namedtuple('BuildConf', ['output_path', 'bin', 'dataset'])
+ExpTask = namedtuple('ExpTask', ['output_path', 'bin', 'dataset'])
 
 PACKAGES = ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
@@ -29,7 +29,7 @@ def parse_arguments():
 
     return args
 
-def gen_option(args, package):
+def prepare_tasks(args, package):
     input_root = './%s/%s'%(args.input_dir, args.dataset)
     output_root = './%s/%s'%(args.output_dir, args.dataset)
     blacklist = args.blacklist
@@ -58,14 +58,14 @@ def gen_option(args, package):
                     if check_exclude_files(dataset, package, comp, opt, filename):
                         continue
 
-                    ret.append(BuildConf(out_dir, binpath, dataset))
+                    ret.append(ExpTask(out_dir, binpath, dataset))
 
     return ret
 
 
-def run_suri(conf, filename):
-    input_dir = os.path.dirname(conf.bin)
-    output_dir = '%s/super'%(conf.output_path)
+def run_suri(task, filename):
+    input_dir = os.path.dirname(task.bin)
+    output_dir = '%s/super'%(task.output_path)
 
     if not os.path.exists(output_dir):
         os.system('mkdir -p %s'%(output_dir))
@@ -75,9 +75,9 @@ def run_suri(conf, filename):
 
     sub = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/tlog1.txt python3 /project/SURI/suri.py /input/%s --ofolder /output/ --meta b2r2_meta >> /output/log.txt'%(filename)
 
-    if conf.dataset in ['setA', 'setC']:
+    if task.dataset in ['setA', 'setC']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s;"'%(input_dir, output_dir, sub)
-    elif conf.dataset in ['setB']:
+    elif task.dataset in ['setB']:
         cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact_ubuntu18.04:v1.0 sh -c " %s;"'%(input_dir, output_dir, sub)
 
     print(cmd)
@@ -125,7 +125,7 @@ def get_options(filepath):
     return compiler, lopt
 
 
-def reassem_ddisasm(conf, filename, input_dir, output_dir):
+def reassem_ddisasm(task, filename, input_dir, output_dir):
 
     current = multiprocessing.current_process()
 
@@ -134,30 +134,30 @@ def reassem_ddisasm(conf, filename, input_dir, output_dir):
     sys.stdout.flush()
     os.system(cmd)
 
-def compile_ddisasm(conf, filename, input_dir, output_dir):
+def compile_ddisasm(task, filename, input_dir, output_dir):
 
-    comp, lopt = get_options(conf.bin)
+    comp, lopt = get_options(task.bin)
     sub = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlog2.txt %s /output/ddisasm.s %s -nostartfiles -o /output/%s'%(comp, lopt, filename)
     cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s;"'%( input_dir, output_dir, sub)
     print(cmd)
     os.system(cmd)
 
-def run_ddisasm(conf, filename):
+def run_ddisasm(task, filename):
 
-    input_dir = os.path.dirname(conf.bin)
-    output_dir = '%s/ddisasm'%(conf.output_path)
+    input_dir = os.path.dirname(task.bin)
+    output_dir = '%s/ddisasm'%(task.output_path)
 
     if not os.path.exists(output_dir):
         os.system('mkdir -p %s'%(output_dir))
 
     if not os.path.exists('%s/ddisasm.s'%(output_dir)) or os.stat('%s/ddisasm.s'%(output_dir)).st_size == 0:
-        reassem_ddisasm(conf, filename, input_dir, output_dir)
+        reassem_ddisasm(task, filename, input_dir, output_dir)
 
     if not os.path.exists('%s/%s'%(output_dir, filename)):
-        compile_ddisasm(conf, filename, input_dir, output_dir)
+        compile_ddisasm(task, filename, input_dir, output_dir)
 
 
-def reassem_egalito(conf, filename, input_dir, output_dir):
+def reassem_egalito(task, filename, input_dir, output_dir):
 
     current = multiprocessing.current_process()
 
@@ -168,34 +168,30 @@ def reassem_egalito(conf, filename, input_dir, output_dir):
     os.system(cmd)
 
 
-def run_egalito(conf, filename):
-    input_dir = os.path.dirname(conf.bin)
-    output_dir = '%s/egalito'%(conf.output_path)
+def run_egalito(task, filename):
+    input_dir = os.path.dirname(task.bin)
+    output_dir = '%s/egalito'%(task.output_path)
 
     if not os.path.exists(output_dir):
         os.system('mkdir -p %s'%(output_dir))
 
     if not os.path.exists('%s/%s'%(output_dir, filename)) or os.stat('%s/%s'%(output_dir, filename)).st_size == 0:
-        reassem_egalito(conf, filename, input_dir, output_dir)
+        reassem_egalito(task, filename, input_dir, output_dir)
 
+def run_task(task):
+    filename = os.path.basename(task.bin)
 
+    run_suri(task, filename)
 
-
-def job(conf):
-    filename = os.path.basename(conf.bin)
-
-    run_suri(conf, filename)
-
-    if conf.dataset == 'setA':
-        run_ddisasm(conf, filename)
-    if conf.dataset == 'setB':
-        run_egalito(conf, filename)
+    if task.dataset == 'setA':
+        run_ddisasm(task, filename)
+    if task.dataset == 'setB':
+        run_egalito(task, filename)
 
 def run_package(args, package):
-    config_list = gen_option(args, package)
-
+    tasks = prepare_tasks(args, package)
     p = multiprocessing.Pool(args.core)
-    p.map(job, config_list)
+    p.map(run_task, tasks)
 
 def run(args):
     if args.package:
