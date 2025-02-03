@@ -5,21 +5,19 @@ class Builder:
         self.target =target
         self.input_dir = os.path.dirname(target)
         self.output_dir = os.getcwd()
-        self.suri_dir = os.path.dirname(os.path.realpath(__file__))
         self.filename = os.path.basename(target)
         self.verbose = verbose
 
 
     def run_docker(self, cmd):
         if self.verbose:
-            print(cmd)
             docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s; "'%(self.input_dir, self.output_dir, cmd )
         else:
             docker_cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s 2> /dev/null "'%(self.input_dir, self.output_dir, cmd )
         os.system(docker_cmd)
 
     def run(self):
-        cmd= 'python3 /project/SURI/suri.py /input/%s  --ofolder /output/'%(self.filename)
+        cmd= 'python3 /project/SURI/suri.py /input/%s  --ofolder /output/output --without-compile'%(self.filename)
         self.run_docker(cmd)
 
 import argparse

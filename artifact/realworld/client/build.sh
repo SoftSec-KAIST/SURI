@@ -1,7 +1,15 @@
 #!/bin/bash
 
-python3 build.py epiphany
-python3 build.py filezilla
-python3 build.py openssh
-python3 build.py putty
-python3 build.py vim
+function build()
+{
+    target=$1
+    python3 build.py $target --verbose
+    python3 ../../../emitter.py $target output/$target.s  --ofolder output
+}
+mkdir -p output
+build epiphany
+build filezilla
+build openssh
+build putty
+build vim
+

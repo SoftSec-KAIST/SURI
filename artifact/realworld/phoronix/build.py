@@ -19,7 +19,7 @@ class Builder:
         os.system(docker_cmd)
 
     def run(self):
-        cmd= 'python3 /project/SURI/suri.py /input/%s  --ofolder /output/'%(self.filename)
+        cmd= 'python3 /project/SURI/suri.py /input/%s  --ofolder /output/output'%(self.filename)
         self.run_docker(cmd)
 
 import argparse
