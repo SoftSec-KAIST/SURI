@@ -59,21 +59,21 @@ If you want to reassemble a target binary, use following command;
 $ python3 suri.py [target_binary_path]
 ```
 
-For example, to rewrite the vim binary located at realworld/client/vim, run SURI as follows:
+For example, to rewrite the 7zip binary located at artifact/realworld/phoronix/7zip, run SURI as follows:
 ```
-$ python3 suri.py artifact/realworld/client/vim
-[*] All done in 27.285196 sec.
-[*] Construct CFG 4.193936 sec.
-[*] Extract data 0.004162 sec.
-[*] JsonSerializer 1.452532 sec.
-[+] Generate assembly file: vim.s
-[+] Generate rewritten binary: /test/my_vim
+$ python3 suri.py artifact/realworld/phoronix/7zip
+[*] All done in 26.445190 sec.
+[*] Construct CFG 3.714226 sec.
+[*] Extract data 0.003845 sec.
+[*] JsonSerializer 1.575038 sec.
+[+] Generate assembly file: 7zip.s
+[+] Generate rewritten binary: /test/SURI/my_7zip
 ```
 
 SURI generates a reassembled binary.
 ```
-$ ls -al my_vim
--rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 my_vim
+$ ls -al my_7zip
+-rw-rw-r-- 1 test  test 7428218  Jan  2 14:22 my_7zip
 ```
 
 #### Running SURI in a Docker environment
@@ -98,18 +98,18 @@ python3 suri.py [target binary path] [--without-compile]
 
 For example,
 ```
-$ python3 suri.py artifact/realworld/client/vim --without-compile
-[*] All done in 27.285196 sec.
-[*] Construct CFG 4.193936 sec.
-[*] Extract data 0.004162 sec.
-[*] JsonSerializer 1.452532 sec.
-[+] Generate assembly file: vim.s
+$ python3 suri.py artifact/realworld/phoronix/7zip --without-compile
+[*] All done in 26.201983 sec.
+[*] Construct CFG 3.704804 sec.
+[*] Extract data 0.003851 sec.
+[*] JsonSerializer 1.571691 sec.
+[+] Generate assembly file: 7zip.s
 ```
 
 SURI will generate an assembly file with the `.s` extension:
 ```
-$ ls -al vim.s
--rw-rw-r-- 1 test  test 41286215 Jan  2 14:22 vim.s
+$ ls -al 7zip.s
+-rw-rw-r-- 1 test  test 43578474 Jan  2 14:22 7zip.s
 ```
 You can modify the assembly code for instrumentation if necessary.
 
@@ -117,8 +117,25 @@ You can modify the assembly code for instrumentation if necessary.
 
 After editing the assembly file, you can compile the assembly file using `emitter.py` script:
 ```
-python3 emitter.py artifact/realworld/client/vim vim.s
-[+] Generate rewritten binary: /test/my_vim
+$ python3 emitter.py artifact/realworld/phoronix/7zip 7zip.s
+[+] Generate rewritten binary: /test/SURI/my_7zip
+```
+
+## Application
+
+### Binary Only Address Sanitizer
+If you want to enable the AddressSanitizer feature in the target binary, 
+use the `--asan` option. This will generate a binary with memory sanitizing 
+code inserted.
+```
+python3 suri.py [target_binary_path] --asan
+```
+
+For example,
+```
+$ python3 suri.py artifact/realworld/phoronix/7zip --asan
+...
+[+] Generate rewritten binary: /test/SURI/my_7zip
 ```
 
 ## Directory Structure
