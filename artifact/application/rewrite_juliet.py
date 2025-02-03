@@ -9,7 +9,7 @@ failures = set()
 
 def run_docker(cmd):
     pwd = os.getcwd()
-    dock_cmd = 'docker run --rm -v %s:/input -v %s:/output suri:v1.0 sh -c " %s"'%(pwd, pwd, cmd)
+    dock_cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s"'%(pwd, pwd, cmd)
     os.system(dock_cmd)
 
 
@@ -55,7 +55,7 @@ def make_suri(args):
 
     target, b2r2_meta, b2r2_asan, asm_file, dirname = args
 
-    cmd = 'python3 /project/SURI/suri.py /input/%s --ofolder /output/%s --asan --without-compile'%(target, dirname)
+    cmd = 'python3 /project/SURI/suri.py /input/%s --ofolder /output/%s --asan --without-compile --with-stack-poisoning'%(target, dirname)
     run_docker(cmd)
 
     src_dir = os.path.dirname(target)

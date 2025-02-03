@@ -223,7 +223,7 @@ if __name__ == '__main__':
     parser.add_argument('--optimization', type=int, default=0)
     parser.add_argument('--syntax', type=str, default='intel')
     parser.add_argument('--no-endbr', dest='endbr', action='store_false')
-    parser.add_argument('--no-stack', dest='stack', action='store_false')
+    parser.add_argument('--with-stack-poisoning', dest='stack', action='store_true')
 
     args = parser.parse_args()
 

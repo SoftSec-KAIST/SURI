@@ -102,13 +102,16 @@ class SURI:
 
 
 
-    def symbol_asan_suri(self):
+    def symbol_asan_suri(self, bStack):
         if self.use_docker:
             file_path = '/input/%s'%(self.filename)
             json_path = '/output/%s'%(self.json)
             asan_path = '/output/%s'%(self.asan)
             asm_path = '/output/%s'%(self.asm)
             cmd = 'python3 /project/SURI/superSymbolizer/SuperAsan.py %s %s %s %s'%(file_path, json_path , asan_path, asm_path)
+
+            if bStack:
+                cmd += ' --with-stack-poisoning'
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
@@ -118,11 +121,14 @@ class SURI:
             sym = SuperAsan.SuperAsan(file_path, json_path, 3, 'intel')
             sym.read_asan_meta(asan_path)
             sym.symbolize(True)
-            sym.create_reassem_file(asm_path, True)
+            if bStack:
+                sym.create_reassem_file(asm_path, True)
+            else:
+                sym.create_reassem_file(asm_path, False)
 
 
 
-    def run(self, bCompile):
+    def run(self, bCompile, bStack):
         json_path = '%s/%s'%(self.output_dir, self.json)
         asm_path = '%s/%s'%(self.output_dir, self.asm)
         my_path = '%s/%s'%(self.output_dir, self.myfile)
@@ -135,7 +141,7 @@ class SURI:
         if self.asan:
             self.asan_suri()
 
-            self.symbol_asan_suri()
+            self.symbol_asan_suri(bStack)
             if not os.path.exists(asm_path):
                 return
 
@@ -166,10 +172,11 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--metafile', type=str)
     parser.add_argument('--without-compile', action='store_false', dest='bCompile')
+    parser.add_argument('--with-stack-poisoning', action='store_true', dest='bStack')
 
     args = parser.parse_args()
 
     target = os.path.abspath(args.target)
 
     suri = SURI(target, args.ofolder, args.asan, args.usedocker, args.verbose, args.metafile)
-    suri.run(args.bCompile)
+    suri.run(args.bCompile, args.bStack)
