@@ -40,24 +40,24 @@ class SURI:
         if self.use_docker:
             file_path = '/input/%s'%(self.filename)
             json_path = '/output/%s'%(self.json)
-            cmd = 'dotnet run --project=/project/SURI/superCFGBuilder/superCFGBuilder %s %s'%(file_path, json_path)
+            cmd = 'dotnet run -c Release --project=/project/SURI/superCFGBuilder/superCFGBuilder %s %s'%(file_path, json_path)
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
             json_path = '%s/%s'%(self.output_dir, self.json)
-            cmd = 'dotnet run --project=%s/superCFGBuilder/superCFGBuilder %s %s'%(self.suri_dir, file_path, json_path)
+            cmd = 'dotnet run -c Release --project=%s/superCFGBuilder/superCFGBuilder %s %s'%(self.suri_dir, file_path, json_path)
             os.system(cmd)
 
     def asan_suri(self):
         if self.use_docker:
             file_path = '/input/%s'%(self.filename)
             asan_path = '/output/%s'%(self.asan)
-            cmd = 'dotnet run --project=/project/SURI/superCFGBuilder/superCFGBuilder %s %s asan'%(file_path, asan_path)
+            cmd = 'dotnet run -c Release --project=/project/SURI/superCFGBuilder/superCFGBuilder %s %s asan'%(file_path, asan_path)
             self.run_docker(cmd)
         else:
             file_path = '%s/%s'%(self.input_dir, self.filename)
             asan_path = '%s/%s'%(self.output_dir, self.asan)
-            cmd = 'dotnet run --project=%s/superCFGBuilder/superCFGBuilder %s %s asan'%(self.suri_dir, file_path, asan_path)
+            cmd = 'dotnet run -c Relase --project=%s/superCFGBuilder/superCFGBuilder %s %s asan'%(self.suri_dir, file_path, asan_path)
             os.system(cmd)
 
     def symbol_suri(self):

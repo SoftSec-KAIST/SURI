@@ -35,7 +35,7 @@ RUN cd /project/ && git clone https://github.com/SoftSec-KAIST/SURI.git && \
     cd SURI && python3 setup.py install
 
 # Build superCFGBuilder
-RUN cd /project/SURI/superCFGBuilder && dotnet build
+RUN cd /project/SURI/superCFGBuilder && dotnet build -c Release
 
 # Install Egalito
 RUN cd /project && \
