@@ -49,7 +49,7 @@ def job(conf, reset=False):
         return
 
     print(output_file)
-    if os.path.exists(output_file):
+    if not os.path.exists(output_file):
         os.system("objdump -d %s -j .text --no-show-raw-insn | grep '^ \s*[0-9a-f]' | grep -v 'xor    %%eax,%%eax' | grep -v 'xor    %%eax,%%eax' | grep -v 'data16 nop' | grep -v '\snop' | wc -l > %s"%(conf.bin, output_file))
         os.system("objdump -d %s -j .text --no-show-raw-insn | grep '^ \s*[0-9a-f]' | grep -v 'xor    %%eax,%%eax' | grep -v 'xor    %%eax,%%eax' | grep -v 'data16 nop' | grep -v '\snop' | wc -l >> %s"%(b2r2_func_path, output_file))
 
