@@ -4,12 +4,24 @@ import multiprocessing
 import enum
 from collections import namedtuple
 from ctypes import *
+import argparse
 
 BuildConf = namedtuple('BuildConf', ['cmd', 'log_dir', 'bExist'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
+
+    args = parser.parse_args()
+
+    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+
+    return args
 
 def gen_option(input_root, image, package):
     ret = []
@@ -141,15 +153,8 @@ def report(dataset, stat, comp):
 
 
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
-    parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
-
-    args = parser.parse_args()
-
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    args = parse_arguments()
 
     if args.dataset in ['setA', 'setC']:
         image = 'suri_artifact:v1.0'

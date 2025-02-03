@@ -1,5 +1,14 @@
 import glob
 import os
+import argparse
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA)')
+    args = parser.parse_args()
+    assert args.dataset in ['setA'], '"%s" is invalid.'%(args.dataset)
+
+    return args
 
 def get_overhead(dataset, base_folder, package):
 
@@ -35,16 +44,8 @@ def get_overhead(dataset, base_folder, package):
         tot += s_dict['suri'][key] / s_dict['original'][key]
     return tot, len(s_dict['original'])
 
-
-
-
-
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA)')
-    args = parser.parse_args()
-    assert args.dataset in ['setA'], '"%s" is invalid.'%(args.dataset)
+    args = parse_arguments()
 
     base_folder = './stat/suri_runtime'
     print('%20s |  %8s  '%('', 'suri'))

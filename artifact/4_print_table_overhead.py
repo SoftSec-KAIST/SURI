@@ -1,5 +1,16 @@
 import glob
 import re
+import argparse
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='counter')
+    #parser.add_argument('base_folder', type=str)
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
+
+    args = parser.parse_args()
+    assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
+
+    return args
 
 def run(base_folder):
     res = dict()
@@ -63,14 +74,8 @@ def run(base_folder):
         print('%15s %10d %10f'%(package, tot_cnt, tot_sum/tot_cnt))
     print('%15s %10d %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt))
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='counter')
-    #parser.add_argument('base_folder', type=str)
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
-
-    args = parser.parse_args()
-    assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
+    args = parse_arguments()
 
     base_folder = './stat/table/%s'%(args.dataset)
     run(base_folder)

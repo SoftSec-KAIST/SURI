@@ -1,4 +1,14 @@
 import glob
+import argparse
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='counter')
+    parser.add_argument('dataset', type=str, help='dataset')
+    args = parser.parse_args()
+
+    assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
+
+    return args
 
 def run(base_folder):
     res = dict()
@@ -44,13 +54,8 @@ def run(base_folder):
     print('-----------------------------------------------')
     print('%15s %10s %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt*100))
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='counter')
-    parser.add_argument('dataset', type=str, help='dataset')
-    args = parser.parse_args()
-
-    assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
+    args = parse_arguments()
 
     input_dir = './stat/size/%s'%(args.dataset)
 

@@ -1,5 +1,14 @@
 import glob
 import os
+import argparse
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB)')
+    args = parser.parse_args()
+    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+
+    return args
 
 white_list=[
 '400.perlbench',
@@ -134,13 +143,8 @@ def get_overhead(dataset, base_folder, package):
 
 
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB)')
-    args = parser.parse_args()
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
-
+    args = parse_arguments()
 
     if args.dataset in ['setC']:
         base_folder = './stat/runtime'

@@ -2,12 +2,26 @@ from collections import namedtuple
 import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
+import argparse
 
 BuildConf = namedtuple('BuildConf', ['output_path', 'comp', 'bin', 'dataset'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('--input_dir', type=str, default='benchmark')
+    parser.add_argument('--output_dir', type=str, default='output')
+    parser.add_argument('--verbose', action='store_true')
+
+    args = parser.parse_args()
+
+    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+
+    return args
 
 def gen_option(input_root, output_root, package, dataset):
     ret = []
@@ -180,17 +194,8 @@ def run(input_root, output_root, dataset, package, verbose):
     return file_cnt, suri_cnt, other_cnt, suri_sum, other_sum
 
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
-    parser.add_argument('--input_dir', type=str, default='benchmark')
-    parser.add_argument('--output_dir', type=str, default='output')
-    parser.add_argument('--verbose', action='store_true')
-
-    args = parser.parse_args()
-
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    args = parse_arguments()
 
     dataset = args.dataset
     input_root = './%s/%s'%(args.input_dir, args.dataset)

@@ -2,12 +2,25 @@ from collections import namedtuple
 import glob
 import os
 import multiprocessing
+import argparse
 
 BuildConf = namedtuple('BuildConf', ['cmd', 'log_file', 'bExist'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('--package', type=str, help='Package')
+    parser.add_argument('--core', type=int, help='how many thread do you run', default=1)
+
+    args = parser.parse_args()
+
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset'
+
+    return args
 
 bin_dict = {
 '482.sphinx3': 'sphinx_livepretend',
@@ -265,16 +278,8 @@ def report(dataset, old_stat, comp):
 
 
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
-    parser.add_argument('--package', type=str, help='Package')
-    parser.add_argument('--core', type=int, help='how many thread do you run', default=1)
-
-    args = parser.parse_args()
-
-    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset'
+    args = parse_arguments()
 
     config_list = dict()
     if args.package:

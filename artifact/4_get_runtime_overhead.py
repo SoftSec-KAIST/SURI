@@ -1,6 +1,15 @@
 import glob
 import os
+import argparse
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
+
+    args = parser.parse_args()
+    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+
+    return args
 
 white_list=[
 '400.perlbench',
@@ -179,14 +188,8 @@ def make_script(dataset, image, package, basename, cur):
                 run_docker(cur, folder, script_folder, log_folder, run_script, image)
 
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
-
-    args = parser.parse_args()
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    args = parse_arguments()
 
     for package in ['spec_cpu2017', 'spec_cpu2006']:
         cmd_list = run(args.dataset, package)
-

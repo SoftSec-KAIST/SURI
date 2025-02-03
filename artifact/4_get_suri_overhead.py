@@ -2,10 +2,20 @@ import glob
 import os
 import multiprocessing
 from filter_utils import check_exclude_files
+import argparse
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA)')
+
+    args = parser.parse_args()
+    assert args.dataset in ['setA'], '"%s" is invalid. '%(args.dataset)
+
+    return args
 
 bin_dict = {
 '482.sphinx3': 'sphinx_livepretend',
@@ -163,14 +173,8 @@ def job(cmd):
     os.system(cmd)
 
 
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA)')
-
-    args = parser.parse_args()
-    assert args.dataset in ['setA'], '"%s" is invalid. '%(args.dataset)
+    args = parse_arguments()
 
     for package in ['spec_cpu2017', 'spec_cpu2006']:
         run(args.dataset, package)
-
