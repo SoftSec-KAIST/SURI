@@ -3,6 +3,10 @@ import os
 import multiprocessing
 from filter_utils import check_exclude_files
 
+COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
+OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
+LINKERS = ['bfd', 'gold']
+
 bin_dict = {
 '482.sphinx3': 'sphinx_livepretend',
 '483.xalancbmk': 'Xalan',
@@ -84,11 +88,9 @@ def get_docker_cmd(cur, folder, script_folder, log_folder, run_script, image, cp
 
 def make_script(dataset, image, package, basename, cur):
 
-    comp_set = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
-
-    for comp in comp_set:
-        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-            for lopt in ['bfd', 'gold']:
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
                 make_sub_script(dataset, image, package, basename, cur, lopt, comp, opt)
 
 def make_sub_script(dataset, image, package, basename, cur, lopt, comp, opt):

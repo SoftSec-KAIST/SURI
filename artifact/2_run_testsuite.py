@@ -7,6 +7,9 @@ from ctypes import *
 
 BuildConf = namedtuple('BuildConf', ['cmd', 'dataset', 'log_dir', 'bExist'])
 
+COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
+OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
+LINKERS = ['bfd', 'gold']
 
 def gen_option(input_root, image, package):
     ret = []
@@ -19,29 +22,27 @@ def gen_option(input_root, image, package):
     elif input_root == 'setC':
         log_root = 'log/setC'
 
-    for arch in ['x64']:
-        for comp in ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        test_dir = '%s/%s'%(input_root, sub_dir)
-                        for dataset_dir in glob.glob('%s/*'%(test_dir)):
-                            tool = dataset_dir.split('/')[-1]
-                            log_dir = '%s/%s/%s'%(log_root, sub_dir, tool)
-                            os.system('mkdir -p %s'%(log_dir))
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
+                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
+                test_dir = '%s/%s'%(input_root, sub_dir)
+                for dataset_dir in glob.glob('%s/*'%(test_dir)):
+                    tool = dataset_dir.split('/')[-1]
+                    log_dir = '%s/%s/%s'%(log_root, sub_dir, tool)
+                    os.system('mkdir -p %s'%(log_dir))
 
 
-                            bExist = os.path.exists('%s/log2.txt'%(log_dir))
+                    bExist = os.path.exists('%s/log2.txt'%(log_dir))
 
-                            cmd1 = 'cd %s'%(package)
-                            cmd2 = '/bin/bash copy.sh > /logs/log1.txt 2>&1'
-                            cmd3 = 'make check -j 8 > /logs/log2.txt 2>&1'
+                    cmd1 = 'cd %s'%(package)
+                    cmd2 = '/bin/bash copy.sh > /logs/log1.txt 2>&1'
+                    cmd3 = 'make check -j 8 > /logs/log2.txt 2>&1'
 
-                            cmds = ';'.join([cmd1, cmd2, cmd3])
-                            dock_cmd = 'docker run --rm -v "%s/%s:/dataset/" -v "%s/%s:/logs/" %s sh -c "%s"'%(cwd, dataset_dir, cwd, log_dir, image, cmds)
+                    cmds = ';'.join([cmd1, cmd2, cmd3])
+                    dock_cmd = 'docker run --rm -v "%s/%s:/dataset/" -v "%s/%s:/logs/" %s sh -c "%s"'%(cwd, dataset_dir, cwd, log_dir, image, cmds)
 
-                            ret.append(BuildConf(dock_cmd, input_root, log_dir, bExist))
+                    ret.append(BuildConf(dock_cmd, input_root, log_dir, bExist))
 
     return ret
 

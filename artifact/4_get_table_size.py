@@ -5,12 +5,16 @@ from filter_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'gt_path', 'reassem_path', 'output_path', 'package', 'bin'])
 
+COMPILERS = ['clang-13', 'gcc-11']
+OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
+LINKERS = ['bfd', 'gold']
+
 def gen_option(input_root, gt_root, reassem_root, output_root, dataset, package, blacklist, whitelist):
     ret = []
     cnt = 0
-    for comp in ['clang-13', 'gcc-11']:
-        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-            for lopt in ['bfd', 'gold']:
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
                 sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
                 input_dir = '%s/%s'%(input_root, sub_dir)
                 for target in glob.glob('%s/bin/*'%(input_dir)):

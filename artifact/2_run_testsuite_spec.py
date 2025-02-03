@@ -5,6 +5,10 @@ import multiprocessing
 
 BuildConf = namedtuple('BuildConf', ['cmd', 'dataset', 'log_file', 'bExist'])
 
+COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
+OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
+LINKERS = ['bfd', 'gold']
+
 bin_dict = {
 '482.sphinx3': 'sphinx_livepretend',
 '483.xalancbmk': 'Xalan',
@@ -86,9 +90,9 @@ def get_docker_cmd(cur, folder, script_folder, log_folder, run_script, image, cp
 
 def make_script(dataset, image, package, basename, cur, core):
     conf_list = []
-    for linker in ['bfd', 'gold']:
-        for comp in ['gcc-11', 'clang-13', 'gcc-13', 'clang-10']:
-            for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for linker in LINKERS:
                 ret = make_sub_script(dataset, image, package, basename, cur, linker, comp, opt)
                 conf_list.extend(ret)
 

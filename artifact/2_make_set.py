@@ -8,36 +8,37 @@ from filter_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'comp', 'pie', 'package', 'bin'])
 
+COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
+OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
+LINKERS = ['bfd', 'gold']
+
 def gen_option(input_root, reassem_root, dataset, package, blacklist, whitelist):
     ret = []
     cnt = 0
-    comp_set =  ['clang-10', 'clang-13', 'gcc-11', 'gcc-13']
 
-    for arch in ['x64']:
-        for comp in comp_set:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        input_dir = '%s/%s'%(input_root, sub_dir)
-                        for target in glob.glob('%s/stripbin/*'%(input_dir)):
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
+                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
+                input_dir = '%s/%s'%(input_root, sub_dir)
+                for target in glob.glob('%s/stripbin/*'%(input_dir)):
 
-                            filename = os.path.basename(target)
-                            binpath = '%s/stripbin/%s'%(input_dir, filename)
+                    filename = os.path.basename(target)
+                    binpath = '%s/stripbin/%s'%(input_dir, filename)
 
-                            reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
+                    reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
 
-                            if blacklist and filename in blacklist:
-                                continue
-                            if whitelist and filename not in whitelist:
-                                continue
+                    if blacklist and filename in blacklist:
+                        continue
+                    if whitelist and filename not in whitelist:
+                        continue
 
-                            if check_exclude_files(dataset, package, comp, opt, filename):
-                                continue
+                    if check_exclude_files(dataset, package, comp, opt, filename):
+                        continue
 
-                            ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, comp, popt, package, binpath))
+                    ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, comp, 'pie', package, binpath))
 
-                            cnt += 1
+                    cnt += 1
     return ret
 
 

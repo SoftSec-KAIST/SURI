@@ -5,16 +5,17 @@ from filter_utils import check_exclude_files
 
 BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'package', 'bin', 'dataset'])
 
+COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
+OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
+LINKERS = ['bfd', 'gold']
 
 def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
     ret = []
     cnt = 0
 
-    comp_set = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
-
-    for comp in comp_set:
-        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-            for lopt in ['bfd', 'gold']:
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
                 sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
                 input_dir = '%s/%s'%(input_root, sub_dir)
                 for target in glob.glob('%s/stripbin/*'%(input_dir)):
