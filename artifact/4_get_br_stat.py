@@ -39,7 +39,7 @@ def prepare_tasks(args, package):
             for lopt in LINKERS:
                 input_base = os.path.join(args.input_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
                 output_base = os.path.join(args.output_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
-                strip_dir = os.path.join(input_base, 'stripbin', '*')
+                strip_dir = os.path.join(input_base, 'bin', '*')
                 prefix = '_'.join([package, comp, opt, lopt])
 
                 for target in glob.glob(strip_dir):
