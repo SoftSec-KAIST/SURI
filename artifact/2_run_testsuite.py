@@ -2,175 +2,185 @@ from collections import namedtuple
 import glob, os, sys
 import multiprocessing
 import enum
-from collections import namedtuple
 from ctypes import *
 import argparse
 
-BuildConf = namedtuple('BuildConf', ['cmd', 'log_dir', 'bExist'])
+ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'log_dir'])
 
+PACKAGES = ['coreutils-9.1', 'binutils-2.40']
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
 LINKERS = ['bfd', 'gold']
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
 
     args = parser.parse_args()
 
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
 
-def gen_option(input_root, image, package):
-    ret = []
-    cnt = 0
-    cwd = os.getcwd()
-    if input_root == 'setA':
-        log_root = 'log/setA'
-    elif input_root == 'setB':
-        log_root = 'log/setB'
-    elif input_root == 'setC':
-        log_root = 'log/setC'
-
+def prepare_tasks(args, package):
+    tasks = []
     for comp in COMPILERS:
         for opt in OPTIMIZATIONS:
             for lopt in LINKERS:
-                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                test_dir = '%s/%s'%(input_root, sub_dir)
-                for dataset_dir in glob.glob('%s/*'%(test_dir)):
-                    tool = dataset_dir.split('/')[-1]
-                    log_dir = '%s/%s/%s'%(log_root, sub_dir, tool)
-                    os.system('mkdir -p %s'%(log_dir))
+                data_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                log_dir = os.path.join('log', args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                bin_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                if os.path.exists(bin_dir):
+                    tasks.append(ExpTask(args.dataset, comp, data_dir, log_dir))
 
+    return tasks
 
-                    bExist = os.path.exists('%s/log2.txt'%(log_dir))
-
-                    cmd1 = 'cd %s'%(package)
-                    cmd2 = '/bin/bash copy.sh > /logs/log1.txt 2>&1'
-                    cmd3 = 'make check -j 8 > /logs/log2.txt 2>&1'
-
-                    cmds = ';'.join([cmd1, cmd2, cmd3])
-                    dock_cmd = 'docker run --rm -v "%s/%s:/dataset/" -v "%s/%s:/logs/" %s sh -c "%s"'%(cwd, dataset_dir, cwd, log_dir, image, cmds)
-
-                    ret.append(BuildConf(dock_cmd, log_dir, bExist))
-
-    return ret
-
-def job(conf, reset=False):
-    print(conf)
+def run_in_docker(image, data_dir, log_dir, cmd):
+    if data_dir[0] != '/':
+        data_dir = os.path.join('.', data_dir)
+    if log_dir[0] != '/':
+        log_dir = os.path.join('.', log_dir)
+    docker_cmd = 'docker run --rm -v %s:/dataset -v %s:/logs %s sh -c "%s"' % (data_dir, log_dir, image, cmd)
+    print(docker_cmd)
     sys.stdout.flush()
-    os.system(conf)
+    os.system(docker_cmd)
 
-    return
+################################
 
-def run(input_root, image, package, core=1):
-    if package not in ['coreutils-9.1', 'binutils-2.40']:
-        return False
-    config_list = gen_option(input_root, image, package)
-
-    run_config_list = [ conf for conf in config_list if not conf.bExist ]
-
-    if core and core > 1:
-        p = multiprocessing.Pool(core)
-        p.map(job, [(conf.cmd) for conf in run_config_list])
+def get_docker_image(dataset):
+    if args.dataset in ['setA', 'setC']:
+        return 'suri_artifact:v1.0'
     else:
-        for conf in run_config_list:
-            job(conf.cmd)
+        return 'suri_artifact_ubuntu18.04:v1.0'
 
-    return config_list
+def run_test_suite(task, package, image, tool_name):
+    data_dir = os.path.join(task.data_dir, tool_name)
+    log_dir = os.path.join(task.log_dir, tool_name)
+    log_path = os.path.join(log_dir, 'log2.txt')
+    if os.path.exists(log_path):
+        return
 
-def summary(config_list, dataset):
-    stat = dict()
+    cmd1 = 'cd %s' % package
+    cmd2 = '/bin/bash copy.sh > /logs/log1.txt 2>&1'
+    cmd3 = 'make check -j 8 > /logs/log2.txt 2>&1'
+    cmd = ';'.join([cmd1, cmd2, cmd3])
 
-    for conf in config_list:
-        with open('%s/log2.txt'%(conf.log_dir)) as fd:
-            key = '/'.join(conf.log_dir.split('/')[:-1])
-            tool = conf.log_dir.split('/')[-1]
+    run_in_docker(image, data_dir, log_dir, cmd)
 
-            lines = fd.read().split('\n')
-            if package == 'coreutils-9.1':
-                value = set([line for line in lines if '# FAIL:' in line])
-            else:
-                value = set([line for line in lines if '# of expected passes' in line])
+def run_task(task):
+    image = get_docker_image(task.dataset)
 
+    run_test_suite(task, package, image, 'original')
+    run_test_suite(task, package, image, 'suri')
 
-            if key not in stat:
-                stat[key] = dict()
+    if task.dataset == 'setA':
+        run_test_suite(task, package, image, 'ddisasm')
+    elif task.dataset == 'setB':
+        run_test_suite(task, package, image, 'egalito')
 
-            stat[key][tool] = value
+def run(args, tasks, package):
+    p = multiprocessing.Pool(args.core)
+    p.map(run_task, tasks)
 
-    report(dataset, stat, 'clang')
-    report(dataset, stat, 'gcc')
+################################
 
-def report(dataset, stat, comp):
-
-    suri = 0
-    ddisasm = 0
-    egalito = 0
-
-    stat = { k:v for (k,v) in stat.items() if comp in k}
-
-    for key in sorted(stat.keys()):
-
-        if stat[key]['original'] != stat[key]['suri']:
-            print('[-] FAIL %s/suri'%(key))
-            pass
+def read_test_data(package, filepath):
+    with open(filepath) as f:
+        lines = f.read().split('\n')
+        if package == 'coreutils-9.1':
+            value = set([line for line in lines if '# FAIL:' in line])
         else:
-            suri += 1
+            value = set([line for line in lines if '# of expected passes' in line])
 
-        if dataset == 'setA':
-            if 'ddisasm' not in stat[key] or stat[key]['original'] != stat[key]['ddisasm']:
-                #'print('[-] FAIL %s/ddisasm'%(key))
-                pass
+def get_data_original(task, package):
+    filepath = os.path.join(task.log_dir, 'original', 'log2.txt')
+    return read_test_data(package, filepath)
+
+def get_data_suri(task, package):
+    filepath = os.path.join(task.log_dir, 'suri', 'log2.txt')
+    return read_test_data(package, filepath)
+
+def get_data_ddisasm(task, package):
+    filepath = os.path.join(task.log_dir, 'ddisasm', 'log2.txt')
+    return read_test_data(package, filepath)
+
+def get_data_egalito(task, package):
+    filepath = os.path.join(task.log_dir, 'egalito', 'log2.txt')
+    return read_test_data(package, filepath)
+
+def summary(args, tasks, package):
+    data = {}
+    for task in tasks:
+        t_orig = get_data_original(task, package)
+        t_suri = get_data_suri(task, package)
+        if task.dataset == 'setA':
+            t_target = get_data_ddisasm(task, package)
+            if task.compiler not in data:
+                data[task.compiler] = 0, 0, 0
+            num_tests, suri_succ, target_succ = data[task.compiler]
+            num_tests += 1
+            if t_orig == t_suri:
+                suri_succ += 1
+            if t_orig == t_target:
+                target_succ += 1
+            data[task.compiler] = num_tests, suri_succ, target_succ
+        elif task.dataset == 'setB':
+            target_test = get_data_egalito(task, package)
+            if task.compiler not in data:
+                data[task.compiler] = 0, 0
+            num_tests, suri_succ, target_succ = data[task.compiler]
+            num_tests += 1
+            if t_orig == t_suri:
+                suri_succ += 1
+            if t_orig == t_target:
+                target_succ += 1
+            data[task.compiler] = num_tests, suri_succ, target_succ
+        else:
+            if task.compiler not in data:
+                data[task.compiler] = 0
+            num_tests, suri_succ = data[task.compiler]
+            num_tests += 1
+            if t_orig == t_suri:
+                suri_succ += 1
+            data[task.compiler] = num_tests, suri_succ
+
+    for compiler in data:
+        if args.dataset in ['setA', 'setB']:
+            num_tests, suri_succ, target_succ = data[compiler]
+            if num_tests == suri_succ:
+                suri_res = 'Succ'
             else:
-                ddisasm += 1
-
-        if dataset == 'setB':
-            if 'egalito' not in stat[key] or stat[key]['original'] != stat[key]['egalito']:
-                #print('[-] FAIL %s/egalito'%(key))
-                pass
+                suri_res = 'Fail'
+            if num_tests == target_succ:
+                target_res = 'Succ'
             else:
-                egalito += 1
+                target_res = 'Fail'
+            print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)' % (package, compiler, suri_res, suri_succ, num_tests, target_res, target_succ, num_tests))
+        else:
+            num_tests, suri_succ = data[compiler]
+            if num_tests == suri_succ:
+                suri_res = 'Succ'
+            else:
+                suri_res = 'Fail'
+            print('%-15s (%-5s): %10s(%4d/%4d)' % (package, compiler, suri_res, suri_succ, num_tests))
 
-    res1 = 'Fail'
-    res2 = 'Fail'
-
-    if suri == len(stat):
-        res1 = 'Succ'
-
+def print_header(dataset):
     if dataset == 'setA':
-        if ddisasm == len(stat):
-            res2 = 'Succ'
-        print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat), res2, ddisasm, len(stat)))
+        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Ddiasm'))
     elif dataset == 'setB':
-        if egalito == len(stat):
-            res2 = 'Succ'
-        print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat), res2, egalito, len(stat)))
-    else:
-        print('%-15s (%-5s): %10s(%4d/%4d)'%(package, comp, res1, suri, len(stat)))
-
-
+        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Egalito'))
+    elif dataset == 'setC':
+        print('%-15s %7s  %21s'%('', '', 'suri(no_ehframe)'))
 
 if __name__ == '__main__':
     args = parse_arguments()
 
-    if args.dataset in ['setA', 'setC']:
-        image = 'suri_artifact:v1.0'
-    elif args.dataset in ['setB']:
-        image =  'suri_artifact_ubuntu18.04:v1.0'
+    for package in PACKAGES:
+        tasks = prepare_tasks(args, package)
+        run(args, tasks, package)
 
-    config_list = dict()
-    for package in ['coreutils-9.1', 'binutils-2.40']:
-        config_list[package] = run(args.dataset, image, package, args.core)
-
-    if args.dataset == 'setA':
-        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Ddiasm'))
-    if args.dataset == 'setB':
-        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Egalito'))
-    if args.dataset == 'setC':
-        print('%-15s %7s  %21s'%('', '', 'suri(no_ehframe)'))
-    for package in ['coreutils-9.1', 'binutils-2.40']:
-        summary(config_list[package], args.dataset)
-
+    print_header(args.dataset)
+    for package in PACKAGES:
+        tasks = prepare_tasks(args, package)
+        summary(args, tasks, package)
