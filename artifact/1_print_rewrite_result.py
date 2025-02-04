@@ -25,9 +25,6 @@ def parse_arguments():
     return args
 
 def prepare_tasks(args, package):
-    input_root = './%s/%s'%(args.input_dir, args.dataset)
-    output_root = './%s/%s'%(args.output_dir, args.dataset)
-
     tasks = []
     for comp in COMPILERS:
         for opt in OPTIMIZATIONS:
@@ -68,6 +65,7 @@ def read_time_data(filename):
         sec = float(t.split(':')[1])
         return (minute*60+sec)
 
+# Returns the time taken to reassemble a binary, or None if it failed.
 def get_data_suri(task, is_setC, verbose):
     if task.dataset == 'setC' and not is_setC:
         out_dir = os.path.join(task.output_dir.replace('setC', 'setA'), 'super')
@@ -82,6 +80,7 @@ def get_data_suri(task, is_setC, verbose):
             print(' [-] SURI fails to reassemble %s'%(res_path))
         return None
 
+# Returns the time taken to reassemble a binary, or None if it failed.
 def get_data_ddisasm(task, verbose):
     out_dir = os.path.join(task.output_dir, 'ddisasm')
     res_path = os.path.join(out_dir, task.bin_name)
@@ -95,6 +94,7 @@ def get_data_ddisasm(task, verbose):
             print(' [-] Ddisasm fails to reassemble %s'%(res_path))
         return None
 
+# Returns the time taken to reassemble a binary, or None if it failed.
 def get_data_egalito(target, verbose):
     out_dir = os.path.join(task.output_dir, 'egalito')
     res_path = os.path.join(out_dir, task.bin_name)
@@ -106,16 +106,17 @@ def get_data_egalito(target, verbose):
             print(' [-] Egalito fails to reassemble %s'% res_path)
         return None
 
+# Returns the data for SURI and the comparison target
 def get_data(task, verbose):
-    t1 = get_data_suri(task, False, verbose)
+    d_suri = get_data_suri(task, False, verbose)
     if task.dataset == 'setA':
-        t2 = get_data_ddisasm(task, verbose)
+        d_target = get_data_ddisasm(task, verbose)
     elif task.dataset == 'setB':
-        t2 = get_data_egalito(task, verbose)
+        d_target = get_data_egalito(task, verbose)
     elif task.dataset == 'setC':
-        t2 = get_data_suri(task, True, verbose)
+        d_target = get_data_suri(task, True, verbose)
 
-    return t1, t2
+    return d_suri, d_target
 
 def collect_data(args, package):
     tasks = prepare_tasks(args, package)
@@ -195,7 +196,6 @@ def run(args):
         print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', total_num_bins,
             total_suri_succ / total_num_bins * 100, total_suri_time / total_num_bins ,
             total_target_succ / total_num_bins * 100, total_target_time / total_num_bins ))
-
 
 if __name__ == '__main__':
     args = parse_arguments()
