@@ -10,6 +10,7 @@ def parse_arguments():
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setC)')
 
     args = parser.parse_args()
+
     assert args.dataset in ['setA', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
@@ -30,7 +31,7 @@ def read_branch_data(filepath):
 def collect_data(dataset):
     base_folder = os.path.join('stat', 'bbl', dataset)
 
-    data = dict()
+    data = {}
     for filepath in glob.glob('%s/*'%(base_folder)):
         br = read_branch_data(filepath)
 
@@ -40,7 +41,7 @@ def collect_data(dataset):
             package = pack1 + '_' + pack2
 
         if package not in data:
-            data[package] = dict()
+            data[package] = {}
         if compiler not in data[package]:
             data[package][compiler] = 0, 0
         if br is not None:
@@ -57,7 +58,6 @@ def print_header():
     print('Multi Br-------------')
 
 def run(args):
-    base_folder = './stat/bbl/%s'%(args.dataset)
     data = collect_data(args.dataset)
 
     print_header()
@@ -74,6 +74,7 @@ def run(args):
             num_bins, overhead = data[package][compiler]
             pkg_num_bins += num_bins
             pkg_overhead += overhead
+
         print('%15s %10d %10f' % (package, pkg_num_bins, pkg_overhead/pkg_num_bins*100))
 
         total_num_bins += pkg_num_bins
