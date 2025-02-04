@@ -57,6 +57,10 @@ def prepare_tasks(args, package):
     return tasks
 
 def run_in_docker(image, in_dir, out_dir, log_name, cmd):
+    if in_dir[0] != '/':
+        in_dir = os.path.join('.', in_dir)
+    if out_dir[0] != '/':
+        out_dir = os.path.join('.', out_dir)
     time_cmd = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/%s %s' % (log_name, cmd)
     docker_cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output %s sh -c "%s"' % (in_dir, out_dir, image, time_cmd)
     print(docker_cmd)
