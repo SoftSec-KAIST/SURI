@@ -126,20 +126,20 @@ def collect_data(args, package):
         d_suri, d_target = get_data(task, args.verbose)
 
         if task.compiler not in data:
-            data[task.compiler] = 0, 0, 0, 0.0, 0.0, 0
-        num_bins, suri_succ, target_succ, suri_time, target_time, succ = data[task.compiler]
+            data[task.compiler] = 0, 0, 0, 0, 0.0, 0.0
+        num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[task.compiler]
 
         num_bins += 1
         if d_suri is not None:
             suri_succ += 1
         if d_target is not None:
             target_succ += 1
-        if d_suri is not None and d_target is not None:
+        if d_suri is not None and d_target is not None: # Time is counted when both tools succeed for a fair comparison
             suri_time += d_suri
             target_time += d_target
-            succ += 1
+            both_succ += 1
 
-        data[task.compiler] = num_bins, suri_succ, target_succ, suri_time, target_time, succ
+        data[task.compiler] = num_bins, suri_succ, target_succ, both_succ, suri_time, target_time
 
     return data
 
@@ -157,22 +157,23 @@ def print_line():
     print('-----------------------------------------------------------------------------------')
 
 def print_data(package, data):
-    total_num_bins, total_suri_succ, total_target_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0
+    total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
     for compiler in data:
-        num_bins, suri_succ, target_succ, suri_time, target_time, succ = data[compiler]
+        num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[compiler]
 
         comp_base = compiler.split('-')[0]
         print('%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'%(package, comp_base, num_bins,
-            suri_succ / num_bins * 100, suri_time/succ,
-            target_succ / num_bins * 100, target_time/succ ))
+            suri_succ / num_bins * 100, suri_time/both_succ,
+            target_succ / num_bins * 100, target_time/both_succ ))
 
         total_num_bins += num_bins
         total_suri_succ += suri_succ
         total_target_succ += target_succ
+        total_both_succ += both_succ
         total_suri_time += suri_time
         total_target_time += target_time
 
-    return total_num_bins, total_suri_succ, total_target_succ, total_suri_time, total_target_time
+    return total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time
 
 def run(args):
     data = {}
@@ -182,20 +183,21 @@ def run(args):
     print_header(args.dataset)
     print_line()
 
-    total_num_bins, total_suri_succ, total_target_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0
+    total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
     for package in PACKAGES:
-        num_bins, suri_succ, target_succ, suri_time, target_time = print_data(package, data[package])
+        num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = print_data(package, data[package])
         total_num_bins += num_bins
         total_suri_succ += suri_succ
         total_target_succ += target_succ
+        total_both_succ += both_succ
         total_suri_time += suri_time
         total_target_time += target_time
 
     if total_num_bins:
         print_line()
         print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', total_num_bins,
-            total_suri_succ / total_num_bins * 100, total_suri_time / total_num_bins ,
-            total_target_succ / total_num_bins * 100, total_target_time / total_num_bins ))
+            total_suri_succ / total_num_bins * 100, total_suri_time / total_both_succ ,
+            total_target_succ / total_num_bins * 100, total_target_time / total_both_succ ))
 
 if __name__ == '__main__':
     args = parse_arguments()
