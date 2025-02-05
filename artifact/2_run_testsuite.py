@@ -57,6 +57,7 @@ def get_docker_image(dataset):
 def run_test_suite(task, package, image, tool_name):
     data_dir = os.path.join(task.data_dir, tool_name)
     log_dir = os.path.join(task.log_dir, tool_name)
+    os.system('mkdir -p %s' % log_dir)
     log_path = os.path.join(log_dir, 'log2.txt')
     if os.path.exists(log_path):
         return
