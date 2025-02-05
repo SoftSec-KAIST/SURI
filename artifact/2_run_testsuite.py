@@ -49,7 +49,7 @@ def run_in_docker(image, data_dir, log_dir, cmd):
 ################################
 
 def get_docker_image(dataset):
-    if args.dataset in ['setA', 'setC']:
+    if dataset in ['setA', 'setC']:
         return 'suri_artifact:v1.0'
     else:
         return 'suri_artifact_ubuntu18.04:v1.0'
