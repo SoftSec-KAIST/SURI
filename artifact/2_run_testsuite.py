@@ -30,8 +30,7 @@ def prepare_tasks(args, package):
             for lopt in LINKERS:
                 data_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
                 log_dir = os.path.join('log', args.dataset, package, comp, '%s_%s' % (opt, lopt))
-                bin_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
-                if os.path.exists(bin_dir):
+                if os.path.exists(data_dir):
                     tasks.append(ExpTask(args.dataset, comp, data_dir, log_dir))
 
     return tasks
@@ -41,7 +40,7 @@ def run_in_docker(image, data_dir, log_dir, cmd):
         data_dir = os.path.join('.', data_dir)
     if log_dir[0] != '/':
         log_dir = os.path.join('.', log_dir)
-    docker_cmd = 'docker run --rm -v %s:/dataset -v %s:/logs %s sh -c "%s"' % (data_dir, log_dir, image, cmd)
+    docker_cmd = 'docker run --rm -v %s:/dataset -v %s:/log %s sh -c "%s"' % (data_dir, log_dir, image, cmd)
     print(docker_cmd)
     sys.stdout.flush()
     os.system(docker_cmd)
@@ -63,8 +62,8 @@ def run_test_suite(task, package, image, tool_name):
         return
 
     cmd1 = 'cd %s' % package
-    cmd2 = '/bin/bash copy.sh > /logs/log1.txt 2>&1'
-    cmd3 = 'make check -j 8 > /logs/log2.txt 2>&1'
+    cmd2 = '/bin/bash copy.sh > /log/log1.txt 2>&1'
+    cmd3 = 'make check -j 8 > /log/log2.txt 2>&1'
     cmd = ';'.join([cmd1, cmd2, cmd3])
 
     run_in_docker(image, data_dir, log_dir, cmd)
@@ -93,6 +92,7 @@ def read_test_data(package, filepath):
             value = set([line for line in lines if '# FAIL:' in line])
         else:
             value = set([line for line in lines if '# of expected passes' in line])
+    return len(value)
 
 def get_data_original(task, package):
     filepath = os.path.join(task.log_dir, 'original', 'log2.txt')
@@ -127,9 +127,9 @@ def summary(args, tasks, package):
                 target_succ += 1
             data[task.compiler] = num_tests, suri_succ, target_succ
         elif task.dataset == 'setB':
-            target_test = get_data_egalito(task, package)
+            t_target = get_data_egalito(task, package)
             if task.compiler not in data:
-                data[task.compiler] = 0, 0
+                data[task.compiler] = 0, 0, 0
             num_tests, suri_succ, target_succ = data[task.compiler]
             num_tests += 1
             if t_orig == t_suri:
@@ -139,7 +139,7 @@ def summary(args, tasks, package):
             data[task.compiler] = num_tests, suri_succ, target_succ
         else:
             if task.compiler not in data:
-                data[task.compiler] = 0
+                data[task.compiler] = 0, 0
             num_tests, suri_succ = data[task.compiler]
             num_tests += 1
             if t_orig == t_suri:
