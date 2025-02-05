@@ -115,7 +115,11 @@ LICENSE      README.txt  config     install_archives         shrc.bat
 LICENSE.txt  Revisions   cshrc      redistributable_sources  tools
 
 $ cd $SURI_AE_HOME/build_script
-$ python3 build_spec2006.py /path/to/spec_cpu2006
+$ python3 build_spec2006.py setA --spec /path/to/spec_cpu2006
+[+] ...
+$ python3 build_spec2006.py setB --spec /path/to/spec_cpu2006
+[+] ...
+$ python3 build_spec2006.py setC --spec /path/to/spec_cpu2006
 [+] ...
 ```
 The `build_spec2006.py` script compiles the SPEC benchmark binaries with
@@ -130,7 +134,11 @@ LICENSE.txt  README.txt  cshrc        install_archives         shrc.bat  version
 MANIFEST     Revisions   install.bat  redistributable_sources  tools
 
 $ cd $SURI_AE_HOME/build_script
-$ python3 build_spec2017.py /path/to/spec_cpu2017
+$ python3 build_spec2017.py setA --spec /path/to/spec_cpu2017
+[+] ...
+$ python3 build_spec2017.py setB --spec /path/to/spec_cpu2017
+[+] ...
+$ python3 build_spec2017.py setC --spec /path/to/spec_cpu2017
 [+] ...
 ```
 This process takes approximately 30–50 minutes per set of benchmark binaries.
