@@ -4,7 +4,7 @@ import os
 import multiprocessing
 import argparse
 
-BuildConf = namedtuple('BuildConf', ['cmd', 'log_file', 'bExist'])
+ExpTask = namedtuple('ExpTask', ['cmd', 'log_file', 'bExist'])
 
 COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
 OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
@@ -155,7 +155,7 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
                 cmd_dict[filename] = []
 
             if os.path.exists(log_file):
-                cmd_dict[filename].append(BuildConf([], log_file, True))
+                cmd_dict[filename].append(ExpTask([], log_file, True))
                 continue
 
 
@@ -186,7 +186,7 @@ def make_sub_script(dataset, image, package, basename, cur, linker, comp, opt):
                 cmd = get_docker_cmd(cur, folder, script_folder, log_folder, run_script, image, cpu_id)
 
 
-                cmd_dict[filename].append(BuildConf(cmd, log_folder, False))
+                cmd_dict[filename].append(ExpTask(cmd, log_folder, False))
 
         cpu_id += 4
 
@@ -277,6 +277,16 @@ def report(dataset, old_stat, comp):
 
 
 
+def print_header(dataset):
+    if dataset == 'setA':
+        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'ddiasm'))
+    if dataset == 'setB':
+        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'egalito'))
+    if dataset == 'setC':
+        print('%-15s %7s :   %21s'%('', '', 'suri (no ehframe)'))
+
+def print_line():
+    print('-----------------------------------------------------------------------------------')
 
 if __name__ == '__main__':
     args = parse_arguments()
@@ -288,14 +298,7 @@ if __name__ == '__main__':
         for package in ['spec_cpu2006', 'spec_cpu2017']:
             config_list[package] = run(args.dataset, package, args.core)
 
-    if args.dataset == 'setA':
-        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'ddiasm'))
-    if args.dataset == 'setB':
-        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'egalito'))
-    if args.dataset == 'setC':
-        print('%-15s %7s :   %21s'%('', '', 'suri (no ehframe)'))
-    print('-----------------------------------------------------------------------------')
+    print_header(args.dataset)
+    print_line()
     for package in ['spec_cpu2006', 'spec_cpu2017']:
         summary(args.dataset, config_list[package])
-
-

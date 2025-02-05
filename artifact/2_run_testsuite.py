@@ -173,6 +173,9 @@ def print_header(dataset):
     elif dataset == 'setC':
         print('%-15s %7s  %21s'%('', '', 'suri(no_ehframe)'))
 
+def print_line():
+    print('-----------------------------------------------------------------------------------')
+
 if __name__ == '__main__':
     args = parse_arguments()
 
@@ -181,6 +184,7 @@ if __name__ == '__main__':
         run(args, tasks, package)
 
     print_header(args.dataset)
+    print_line()
     for package in PACKAGES:
         tasks = prepare_tasks(args, package)
         summary(args, tasks, package)
