@@ -133,7 +133,7 @@ def prepare_tasks(args, package):
 
     return tasks
 
-def run_in_docker(image, data_dir, script_dir, log_dir, cmd):
+def print_cmd_in_docker(image, data_dir, script_dir, log_dir, cmd):
     if data_dir[0] != '/':
         data_dir = os.path.join('.', data_dir)
     if script_dir[0] != '/':
