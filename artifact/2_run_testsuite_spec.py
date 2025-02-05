@@ -65,7 +65,7 @@ BIN_NAME_MAP = {
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--package', type=str, help='Select package (spec_cpu2017, spec_cpu2006)')
     parser.add_argument('--core', type=int, help='how many thread do you run', default=1)
 
@@ -159,11 +159,11 @@ def run_test_suite(task, package, image, script_name, tool_name):
     prepare_script(task, package, script_dir, script_name)
     log_dir = os.path.join(task.log_dir, tool_name)
     os.system('mkdir -p %s' % log_dir)
-    log_path = os.path.join(log_dir, 'log2.txt')
+    log_path = os.path.join(log_dir, 'log.txt')
     if os.path.exists(log_path):
         return
 
-    cmd '/bin/bash /script/%s > /log/log.txt 2>&1' % script_name
+    cmd = '/bin/bash /script/%s > /log/log.txt 2>&1' % script_name
 
     run_in_docker(image, data_dir, script_dir, log_dir, cmd)
 
