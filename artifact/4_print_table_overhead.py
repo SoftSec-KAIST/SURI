@@ -61,7 +61,6 @@ def collect_data(args):
 # paper.
 def report(data)
     print(FMT_TABLE_HEADER)
-
     print(FMT_LINE)
 
     total_num_bins = 0
@@ -73,16 +72,14 @@ def report(data)
         num_bins, overhead = data[package]
         total_num_bins += num_bins
         total_overhead += overhead
-
         if num_bins > 0:
             avg_overhead = overhead / num_bins * 100
-            print(FMT_OVERHEAD % (package, num_bins, avg_overhead))
-
-    print(FMT_LINE)
+            print(FMT_OVERHEAD % (package, num_bins, avg_overhead)) # Report individual data per package
 
     if total_num_bins > 0:
+        print(FMT_LINE)
         total_avg_overhead = total_overhead / total_num_bins * 100
-        print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_avg_overhead))
+        print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_avg_overhead)) # Report overall data
 
 if __name__ == '__main__':
     args = parse_arguments()
