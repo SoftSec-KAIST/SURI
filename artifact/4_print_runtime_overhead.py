@@ -1,6 +1,4 @@
-import glob
-import os
-import argparse
+import argparse, glob, os
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'bin_name'])
@@ -34,22 +32,22 @@ def prepare_tasks(args, package):
 
 ################################
 
+def is_valid_data(line):
+    if 'seconds' not in line:
+        return False
+    # FIXME: maybe it should be 'total'?
+    if line.split(';')[1].split()[1] not in ['total', 'seconds']:
+        return False
+    return True
+
 def read_time_data(filepath):
     with open(filepath) as f:
         line = f.read().split('\n')[-2]
-
-        if 'seconds' not in line:
-            print(line)
+        if not is_valid_data(line):
             return None
 
         time = line.split(';')[1].split()[0]
-        assert line.split(';')[1].split()[1] in ['total', 'seconds']
-
         return int(time)
-
-def get_data_original(task, package):
-    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', 'original', task.bin_name, '%s.txt' % task.bin_name)
-    return read_time_data(log_path)
 
 def get_data_suri(task, package, is_setC):
     if task.dataset == 'setC' and not is_setC:
@@ -59,55 +57,92 @@ def get_data_suri(task, package, is_setC):
     log_path = os.path.join('stat', 'runtime', dataset, package, 'gcc-11', 'o3_bfd', 'suri', task.bin_name, '%s.txt' % task.bin_name)
     return read_time_data(log_path)
 
-def get_data_ddisasm(task, package):
-    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', 'ddisasm', task.bin_name, '%s.txt' % task.bin_name)
+def get_data(task, package, tool_name):
+    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', tool_name, task.bin_name, '%s.txt' % task.bin_name)
     return read_time_data(log_path)
 
-def get_data_egalito(task, package):
-    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', 'egalito', task.bin_name, '%s.txt' % task.bin_name)
-    return read_time_data(log_path)
+def collect_setA(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        tasks = prepare_tasks(args, package)
 
-def collect_data(args, package):
-    tasks = prepare_tasks(args, tasks)
+        num_bins = 0
+        overhead = 0.0
+        for task in tasks:
+            if task.bin_name not in RUNTIME_TARGET_LIST:
+                continue
 
-    num_bins = 0
-    suri_overhead = 0.0
-    target_overhead = 0.0
-    for task in tasks:
-        if args.dataset in ['setA', 'setB']:
-            if task.bin_name in RUNTIME_TARGET_LIST:
-                d_original = get_data_original(task, package)
-                d_suri = get_data_suri(task, package, False)
-                if args.dataset == 'setA':
-                    d_target = get_data_ddisasm(task, package)
-                else:
-                    d_target = get_data_egalito(task, package)
-
-                # TODO: check None
-                num_bins += 1
-                suri_overhead += d_suri / d_original
-                target_overhead += d_target / d_original
-        else:
-            d_original = get_data_original(task, package)
-            d_suri = get_data_suri(task, package, True)
-            d_target = get_data_suri(task, package, False)
+            d_original = get_data(task, package, 'original')
+            d_suri = get_data_suri(task, package, False)
+            d_target = get_data(task, package, 'ddisasm') # Comparison target is Ddisasm
+            if d_original is None or d_suri is None or d_target is None:
+                continue
 
             num_bins += 1
-            suri_overhead += d_suri / d_original
-            target_overhead += d_target / d_original
+            suri_overhead += (d_suri - d_original) / d_original
+            target_overhead += (d_target - d_original) / d_original
 
-    return num_bins, suri_overhead, target_overhead
+        data[package] = num_bins, suri_overhead, target_overhead
+
+    return data
+
+def collect_setB(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        tasks = prepare_tasks(args, package)
+
+        num_bins = 0
+        overhead = 0.0
+        for task in tasks:
+            if task.bin_name not in RUNTIME_TARGET_LIST:
+                continue
+
+            d_original = get_data(task, package, 'original')
+            d_suri = get_data_suri(task, package, False)
+            d_target = get_data(task, package, 'egalito') # Comparison target is Egalito
+            if d_original is None or d_suri is None or d_target is None:
+                continue
+
+            num_bins += 1
+            suri_overhead += (d_suri - d_original) / d_original
+            target_overhead += (d_target - d_original) / d_original
+
+        data[package] = num_bins, suri_overhead, target_overhead
+
+    return data
+
+def collect_setC(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        tasks = prepare_tasks(args, package)
+
+        num_bins = 0
+        overhead = 0.0
+        for task in tasks:
+            d_original = get_data(task, package, 'original')
+            d_suri = get_data_suri(task, package, False) # SURI on setA
+            d_target = get_data_suri(task, package, True) # Comparison target is SURI on setC
+            if d_original is None or d_suri is None or d_target is None:
+                continue
+
+            num_bins += 1
+            suri_overhead += (d_suri - d_original) / d_original
+            target_overhead += (d_target - d_original) / d_original
+
+        data[package] = num_bins, suri_overhead, target_overhead
+
+    return data
+
+# Collect data generated by 4_get_runtime_overhead.py.
+def collect(args):
+    if args.dataset == 'setA':
+        return collect_setA(args)
+    elif args.dataset == 'setB':
+        return collect_setB(args)
+    else:
+        return collect_setC(args)
 
 ################################
-
-def print_data(package, data):
-    num_bins, suri_overhead, target_overhead = data
-    if num_bins == 0:
-        return
-
-    print(FMT_RUANTIME_INDIVIDUAL % (package, num_bins,
-                                    suri_overhead / len(s_dict['original'])*100-100 ,
-                                    target_overhead / len(s_dict['original'])*100-100 ))
 
 def print_header(dataset):
     if dataset == 'setA':
@@ -117,21 +152,34 @@ def print_header(dataset):
     else:
         print(FMT_RUNTIME_HEADER_C % ('', 'suri', 'suri(no_ehframe)'))
 
-if __name__ == '__main__':
-    args = parse_arguments()
-
+# Report the percentage of average runtime overheads for Table 4 of our paper.
+def report(args, data):
     print_header(args.dataset)
+    print(FMT_LINE)
 
     total_num_bins = 0
     total_suri_overhead = 0.0
     total_target_overhead = 0.0
     for package in PACKAGES_SPEC:
-        data = collect_data(args, package)
-        print_data(package, data)
+        if package not in data:
+            continue
 
-        num_bins, suri_overhead, target_overhead = data
+        num_bins, suri_overhead, target_overhead = data[package]
         total_num_bins += num_bins
         total_suri_overhead += suri_overhead
         total_target_overhead += target_overhead
+        if num_bins > 0:
+            avg_suri_overhead = suri_overhead / num_bins * 100
+            avg_target_overhead = target_overhead / num_bins * 100
+            print(FMT_RUANTIME_INDIVIDUAL % (package, num_bins, avg_suri_overhead, avg_target_overhead))
 
-    print(FMT_RUNTIME_TOTAL % ('Total', total_num_bins, (total_suri_overhead / total_num_bins)*100-100, (total_target_overhead / total_num_bins)*100-100))
+    if total_num_bins > 0:
+        print(FMT_LINE)
+        total_avg_suri_overhead = total_suri_overhead / total_num_bins * 100
+        total_avg_target_overhead = total_target_overhead / total_num_bins * 100
+        print(FMT_RUNTIME_TOTAL % ('Total', total_num_bins, total_avg_suri_overhead, total_avg_target_overhead))
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    data = collect(args)
+    report(args, data)
