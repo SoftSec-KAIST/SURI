@@ -5,54 +5,6 @@ from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'script_dir', 'log_dir', 'bin_name'])
 
-TARGET_LIST = [
-    '400.perlbench',
-    '401.bzip2',
-    '403.gcc',
-    '410.bwaves',
-    '429.mcf',
-    '433.milc',
-    '434.zeusmp',
-    '435.gromacs',
-    '436.cactusADM',
-    '437.leslie3d',
-    '444.namd',
-    '445.gobmk',
-    '447.dealII',
-    '454.calculix',
-    '456.hmmer',
-    '458.sjeng',
-    '459.GemsFDTD',
-    '462.libquantum',
-    '464.h264ref',
-    '465.tonto',
-    '470.lbm',
-    '473.astar',
-    '481.wrf',
-    '482.sphinx3',
-    '503.bwaves_r',
-    '505.mcf_r',
-    '507.cactuBSSN_r',  #
-    '508.namd_r',       #
-    '519.lbm_r',
-    '531.deepsjeng_r',
-    '538.imagick_r',    #
-    '544.nab_r',
-    '548.exchange2_r',
-    '549.fotonik3d_r',
-    '557.xz_r',
-    '603.bwaves_s',
-    '605.mcf_s',
-    '607.cactuBSSN_s',  #
-    '619.lbm_s',
-    '628.pop2_s',
-    '631.deepsjeng_s',
-    '638.imagick_s',    #
-    '644.nab_s',
-    '648.exchange2_s',
-    '657.xz_s'
-]
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setC)')
@@ -146,7 +98,7 @@ def run_task(task):
     script_name = get_script_name(package)
 
     if task.dataset == 'setA':
-        if task.bin_name in TARGET_LIST:
+        if task.bin_name in RUNTIME_TARGET_LIST:
             run_test_suite(task, package, image, script_name, 'original')
             run_test_suite(task, package, image, script_name, 'suri')
             run_test_suite(task, package, image, script_name, 'ddisasm')
@@ -154,7 +106,7 @@ def run_task(task):
             run_test_suite(task, package, image, script_name, 'original')
             run_test_suite(task, package, image, script_name, 'suri')
     elif task.dataset == 'setB':
-        if task.bin_name in TARGET_LIST:
+        if task.bin_name in RUNTIME_TARGET_LIST:
             run_test_suite(task, package, image, script_name, 'original')
             run_test_suite(task, package, image, script_name, 'suri')
             run_test_suite(task, package, image, script_name, 'egalito')

@@ -75,3 +75,57 @@ BIN_NAME_MAP = {
     '998.specrand_is': 'specrand_is',
     '999.specrand_ir': 'specrand_ir'
 }
+
+################################
+
+# The below is a list of SPEC benchmark binaries that are used to measure
+# runtime overheads in Section 4.3.2. We used this list because all three
+# reassemblers can successfully reassemble these binaries.
+
+RUNTIME_TARGET_LIST = [
+    '400.perlbench',
+    '401.bzip2',
+    '403.gcc',
+    '410.bwaves',
+    '429.mcf',
+    '433.milc',
+    '434.zeusmp',
+    '435.gromacs',
+    '436.cactusADM',
+    '437.leslie3d',
+    '444.namd',
+    '445.gobmk',
+    '447.dealII',
+    '454.calculix',
+    '456.hmmer',
+    '458.sjeng',
+    '459.GemsFDTD',
+    '462.libquantum',
+    '464.h264ref',
+    '465.tonto',
+    '470.lbm',
+    '473.astar',
+    '481.wrf',
+    '482.sphinx3',
+    '503.bwaves_r',
+    '505.mcf_r',
+    '507.cactuBSSN_r',  #
+    '508.namd_r',       #
+    '519.lbm_r',
+    '531.deepsjeng_r',
+    '538.imagick_r',    #
+    '544.nab_r',
+    '548.exchange2_r',
+    '549.fotonik3d_r',
+    '557.xz_r',
+    '603.bwaves_s',
+    '605.mcf_s',
+    '607.cactuBSSN_s',  #
+    '619.lbm_s',
+    '628.pop2_s',
+    '631.deepsjeng_s',
+    '638.imagick_s',    #
+    '644.nab_s',
+    '648.exchange2_s',
+    '657.xz_s'
+]
