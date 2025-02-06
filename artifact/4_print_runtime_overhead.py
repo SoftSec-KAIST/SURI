@@ -8,12 +8,14 @@ ExpTask = namedtuple('ExpTask', ['dataset', 'bin_name'])
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
-
     args = parser.parse_args()
 
+    # Sanitizing arguments
     assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
+
+################################
 
 def prepare_tasks(args, package):
     comp = 'gcc-11'

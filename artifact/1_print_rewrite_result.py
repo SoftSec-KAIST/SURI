@@ -13,12 +13,14 @@ def parse_arguments():
     parser.add_argument('--input_dir', type=str, default='benchmark')
     parser.add_argument('--output_dir', type=str, default='output')
     parser.add_argument('--verbose', action='store_true')
-
     args = parser.parse_args()
 
+    # Sanitizing arguments
     assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
+
+################################
 
 def prepare_tasks(args, package):
     tasks = []

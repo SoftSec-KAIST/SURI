@@ -12,12 +12,14 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
-
     args = parser.parse_args()
 
+    # Sanitizing arguments
     assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
+
+################################
 
 def prepare_tasks(args, package):
     tasks = []

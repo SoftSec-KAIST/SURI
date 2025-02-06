@@ -12,14 +12,16 @@ def parse_arguments():
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--package', type=str, help='Select package (spec_cpu2017, spec_cpu2006)')
     parser.add_argument('--core', type=int, help='how many thread do you run', default=1)
-
     args = parser.parse_args()
 
+    # Sanitizing arguments
     assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset'
     if args.package:
         assert args.package in PACKAGES_SPEC, 'Invalid package: "%s"'%(args.package)
 
     return args
+
+################################
 
 def prepare_tasks(args, package):
     tasks = []

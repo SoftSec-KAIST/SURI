@@ -17,14 +17,16 @@ def parse_arguments():
     parser.add_argument('--target', type=str)
     parser.add_argument('--blacklist', nargs='+')
     parser.add_argument('--whitelist', nargs='+')
-
     args = parser.parse_args()
 
+    # Sanitizing arguments
     assert args.dataset in ['setA', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
     if args.package:
         assert args.package in PACKAGES, 'Invalid package: "%s"'%(args.package)
 
     return args
+
+################################
 
 def prepare_tasks(args, package):
     tasks = []

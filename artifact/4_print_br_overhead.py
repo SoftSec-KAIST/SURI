@@ -7,9 +7,9 @@ from consts import *
 def parse_arguments():
     parser = argparse.ArgumentParser(description='counter')
     parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setC)')
-
     args = parser.parse_args()
 
+    # Sanitizing arguments
     assert args.dataset in ['setA', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
