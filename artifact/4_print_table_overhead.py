@@ -2,80 +2,80 @@ import glob
 import re
 import argparse
 
+PACKAGES = ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='counter')
-    #parser.add_argument('base_folder', type=str)
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setC)')
 
     args = parser.parse_args()
-    assert args.dataset in ['setA', 'setC'], '"%s" is invalid. Please choose one from setA or setC.'%(args.dataset)
+
+    assert args.dataset in ['setA', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
     return args
 
-def run(base_folder):
-    res = dict()
-    res2 = dict()
+def read_table_data(filepath):
+    with open(filepath) as f:
+        data = fd.read()
+        lines = data.split('\n')
+        if len(lines) < 7:
+            print(filepath)
+            return None
+
+        if 'Size Overhead:' not in lines[-7]:
+            assert False, 'Invalid file format %s'%(filepath)
+
+        gt_ent = int(lines[-5].split()[-1])
+        suri_ent = int(lines[-4].split()[-1])
+
+        if gt_ent > 0:
+            entry_overhead = (suri_ent - gt_ent) / gt_ent
+        else:
+            entry_overhead = 0
+
+        return entry_overhead
+
+def collect_data(args):
+    base_folder = './stat/table/%s'%(args.dataset)
+
+    data = {}
     for filepath in glob.glob('%s/*'%(base_folder)):
-        with open(filepath) as fd:
-            data = fd.read()
-            lines = data.split('\n')
-            if len(lines) < 7:
-                print(filepath)
-                continue
-            if 'Size Overhead:' not in lines[-7]:
-                assert False, 'Invalid file format %s'%(filepath)
+        entry_overhead = read_table_data(filepath)
 
-            gt_ent = lines[-5].split()[-1]
-            suri_ent = lines[-4].split()[-1]
-            gt_inst = lines[-3].split()[-1]
-            suri_inst = lines[-2].split()[-1]
+        package, compiler = filepath.split('/')[-1].split('_')[:2]
+        if package in ['spec']:
+            pack1, pack2, compiler = filepath.split('/')[-1].split('_')[:3]
+            package = pack1 + '_' + pack2
 
-            if int(gt_ent) > 0:
-                overhead = (int(suri_ent) - int(gt_ent)) / int(gt_ent)
-            overhead2 = int(suri_inst) / int(gt_inst)
+        if package not in data:
+            data[package] = 0, 0
 
-            package, compiler = filepath.split('/')[-1].split('_')[:2]
+        num_bins, overhead = data[package]
+        num_bins += 1
+        overhead += entry_overhead
+        data[package] = num_bins, overhead
+    return data
 
-            if package in ['spec']:
-                pack1, pack2, compiler = filepath.split('/')[-1].split('_')[:3]
-                package = pack1 + '_' + pack2
-
-            if package not in res:
-                res[package] = dict()
-                res2[package] = dict()
-
-            if compiler not in res[package]:
-                res[package][compiler] = []
-                res2[package][compiler] = []
-            if overhead < 0 :
-            #if overhead == overhead2:
-                print(overhead)
-                print(filepath)
-            if int(gt_ent) > 0:
-                res[package][compiler].append(overhead)
-            res2[package][compiler].append(overhead2)
-
-    tot_tot_cnt = 0
-    tot_tot_sum = 0
+def print_data(data)
+    total_num_bins = 0
+    total_overhead = 0.0
     print('Table-------------')
-    for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
+    for package in PACKAGES:
         tot_cnt = 0
         tot_sum = 0
-        if package not in res:
+        if package not in data:
             continue
-        for compiler in sorted(res[package].keys()):
-            cnt = len(res[package][compiler])
-            avg = sum(res[package][compiler]) / cnt
-            #print('%10s %10s %10d %10f'%(package, compiler, cnt, avg))
-            tot_cnt += cnt
-            tot_sum += sum(res[package][compiler])
-        tot_tot_cnt += tot_cnt
-        tot_tot_sum += tot_sum
-        print('%15s %10d %10f'%(package, tot_cnt, tot_sum/tot_cnt))
-    print('%15s %10d %10f'%('[+]All', tot_tot_cnt, tot_tot_sum/tot_tot_cnt))
+
+        num_bins, overhead = data[package]
+        print('%15s %10d %10f' % (package, num_bins, overhead / num_bins))
+
+        total_num_bins += num_bins
+        total_overhead += overhead
+
+    print('%15s %10d %10f' % ('[+]All', total_num_bins, total_overhead / total_num_bins))
 
 if __name__ == '__main__':
     args = parse_arguments()
 
-    base_folder = './stat/table/%s'%(args.dataset)
-    run(base_folder)
+    data = collect_data(args)
+    print_data(data)
