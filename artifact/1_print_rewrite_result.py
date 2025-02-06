@@ -110,11 +110,10 @@ def get_data_egalito(target, verbose):
 def collect_setA(args):
     data = {}
     for package in PACKAGES_SPEC:
-        if package not in data:
-            data[package] = {}
-
         tasks = prepare_tasks(args, package)
         for task in tasks:
+            if package not in data:
+                data[package] = {}
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
@@ -213,8 +212,8 @@ def print_header(dataset):
     elif dataset == 'setC':
         print(FMT_REWRITE_HEADER % ('', 'suri', 'suri(no_ehframe)'))
 
-# Report the partial results of the percentage of average success rates of
-# reassembly for Table 2 and Table 3 of our paper.
+# Report the percentage of average success rates of reassembly for Table 2 and
+# Table 3 of our paper.
 def report(args, data):
     print_header(args.dataset)
     print(FMT_LINE)

@@ -1,9 +1,6 @@
+import argparse, multiprocessing, os, sys
 from collections import namedtuple
-import glob, os, sys
-import multiprocessing
-import enum
 from ctypes import *
-import argparse
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'log_dir'])
@@ -33,6 +30,14 @@ def prepare_tasks(args, package):
 
     return tasks
 
+################################
+
+def get_docker_image(dataset):
+    if dataset in ['setA', 'setC']:
+        return 'suri_artifact:v1.0'
+    else:
+        return 'suri_artifact_ubuntu18.04:v1.0'
+
 def run_in_docker(image, data_dir, log_dir, cmd):
     if data_dir[0] != '/':
         data_dir = os.path.join('.', data_dir)
@@ -42,14 +47,6 @@ def run_in_docker(image, data_dir, log_dir, cmd):
     print(docker_cmd)
     sys.stdout.flush()
     os.system(docker_cmd)
-
-################################
-
-def get_docker_image(dataset):
-    if dataset in ['setA', 'setC']:
-        return 'suri_artifact:v1.0'
-    else:
-        return 'suri_artifact_ubuntu18.04:v1.0'
 
 def run_test_suite(task, package, image, tool_name):
     data_dir = os.path.join(task.data_dir, tool_name)
@@ -77,9 +74,14 @@ def run_task(task):
     elif task.dataset == 'setB':
         run_test_suite(task, package, image, 'egalito')
 
-def run(args, tasks, package):
+def run_package(args, package):
+    tasks = prepare_tasks(args, package)
     p = multiprocessing.Pool(args.core)
     p.map(run_task, tasks)
+
+def run(args):
+    for package in PACKAGES_UTILS:
+        run_package(args, package)
 
 ################################
 
@@ -92,77 +94,85 @@ def read_test_data(package, filepath):
             value = set([line for line in lines if '# of expected passes' in line])
     return len(value)
 
-def get_data_original(task, package):
-    filepath = os.path.join(task.log_dir, 'original', 'log2.txt')
+def get_data(task, package, tool_name):
+    filepath = os.path.join(task.log_dir, tool_name, 'log2.txt')
     return read_test_data(package, filepath)
 
-def get_data_suri(task, package):
-    filepath = os.path.join(task.log_dir, 'suri', 'log2.txt')
-    return read_test_data(package, filepath)
-
-def get_data_ddisasm(task, package):
-    filepath = os.path.join(task.log_dir, 'ddisasm', 'log2.txt')
-    return read_test_data(package, filepath)
-
-def get_data_egalito(task, package):
-    filepath = os.path.join(task.log_dir, 'egalito', 'log2.txt')
-    return read_test_data(package, filepath)
-
-def summary(args, tasks, package):
+def collect_setA(args):
     data = {}
-    for task in tasks:
-        t_orig = get_data_original(task, package)
-        t_suri = get_data_suri(task, package)
-        if task.dataset == 'setA':
-            t_target = get_data_ddisasm(task, package)
-            if task.compiler not in data:
-                data[task.compiler] = 0, 0, 0
-            num_tests, suri_succ, target_succ = data[task.compiler]
-            num_tests += 1
-            if t_orig == t_suri:
-                suri_succ += 1
-            if t_orig == t_target:
-                target_succ += 1
-            data[task.compiler] = num_tests, suri_succ, target_succ
-        elif task.dataset == 'setB':
-            t_target = get_data_egalito(task, package)
-            if task.compiler not in data:
-                data[task.compiler] = 0, 0, 0
-            num_tests, suri_succ, target_succ = data[task.compiler]
-            num_tests += 1
-            if t_orig == t_suri:
-                suri_succ += 1
-            if t_orig == t_target:
-                target_succ += 1
-            data[task.compiler] = num_tests, suri_succ, target_succ
-        else:
-            if task.compiler not in data:
-                data[task.compiler] = 0, 0
-            num_tests, suri_succ = data[task.compiler]
-            num_tests += 1
-            if t_orig == t_suri:
-                suri_succ += 1
-            data[task.compiler] = num_tests, suri_succ
+    for package in PACKAGES_UTILS:
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if package not in data:
+                data[package] = {}
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0
 
-    for compiler in data:
-        if args.dataset in ['setA', 'setB']:
-            num_tests, suri_succ, target_succ = data[compiler]
-            if num_tests == suri_succ:
-                suri_res = 'Succ'
-            else:
-                suri_res = 'Fail'
-            if num_tests == target_succ:
-                target_res = 'Succ'
-            else:
-                target_res = 'Fail'
-            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_AB % (package, compiler, suri_res, suri_succ, num_tests, target_res, target_succ, num_tests))
-        else:
-            num_tests, suri_succ = data[compiler]
-            if num_tests == suri_succ:
-                suri_res = 'Succ'
-            else:
-                suri_res = 'Fail'
-            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_C % (package, compiler, suri_res, suri_succ, num_tests))
+            tests_orig = get_data(task, package, 'original')
+            tests_suri = get_data(task, package, 'suri')
+            tests_target = get_data(task, package, 'ddisasm') # Comparison target is Ddisasm
+            num_tests, suri_succ, target_succ = 0, 0, 0
+            num_tests += 1
+            if t_orig == t_suri:
+                suri_succ += 1
+            if t_orig == t_target:
+                target_succ += 1
+            data[package][task.compiler] = num_tests, suri_succ, target_succ
+
+    return data
+
+def collect_setB(args):
+    data = {}
+    for package in PACKAGES_UTILS:
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if package not in data:
+                data[package] = {}
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0
+
+            tests_orig = get_data(task, package, 'original')
+            tests_suri = get_data(task, package, 'suri')
+            tests_target = get_data(task, package, 'egalito') # Comparison target is Egalito
+            num_tests, suri_succ, target_succ = 0, 0, 0
+            num_tests += 1
+            if t_orig == t_suri:
+                suri_succ += 1
+            if t_orig == t_target:
+                target_succ += 1
+            data[package][task.compiler] = num_tests, suri_succ, target_succ
+
+    return data
+
+def collect_setC(args):
+    data = {}
+    for package in PACKAGES_UTILS:
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if package not in data:
+                data[package] = {}
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0
+
+            tests_orig = get_data(task, package, 'original')
+            tests_suri = get_data(task, package, 'suri') # No comparison targets in this case.
+            num_tests, suri_succ = 0, 0
+            num_tests += 1
+            if t_orig == t_suri:
+                suri_succ += 1
+            data[package][task.compiler] = num_tests, suri_succ
+
+    return data
+
+def collect(args):
+    if args.dataset == 'setA':
+        return collect_setA(args)
+    elif args.dataset == 'setB':
+        return collect_setB(args)
+    else:
+        return collect_setC(args)
+
+################################
 
 def print_header(dataset):
     if dataset == 'setA':
@@ -172,15 +182,58 @@ def print_header(dataset):
     elif dataset == 'setC':
         print(FMT_TESTSUITE_UTILS_HEADER_C % ('', '', 'suri(no_ehframe)'))
 
-if __name__ == '__main__':
-    args = parse_arguments()
-
+def report_setAB(data):
     for package in PACKAGES_UTILS:
-        tasks = prepare_tasks(args, package)
-        run(args, tasks, package)
+        if package not in data:
+            continue
 
+        for compiler in COMPILERS:
+            if compiler not in data[package]:
+                continue
+
+            num_tests, suri_succ, target_succ = data[package][compiler]
+            if num_tests == suri_succ:
+                suri_res = 'Succ'
+            else:
+                suri_res = 'Fail'
+            if num_tests == target_succ:
+                target_res = 'Succ'
+            else:
+                target_res = 'Fail'
+            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_AB % (package, compiler,
+                                                       suri_res, suri_succ, num_tests,
+                                                       target_res, target_succ, num_tests))
+
+def report_setC(data):
+    for package in PACKAGES_UTILS:
+        if package not in data:
+            continue
+
+        for compiler in COMPILERS:
+            if compiler not in data[package]:
+                continue
+
+            num_tests, suri_succ = data[package][compiler]
+            if num_tests == suri_succ:
+                suri_res = 'Succ'
+            else:
+                suri_res = 'Fail'
+            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_C % (package, compiler,
+                                                      suri_res, suri_succ, num_tests))
+
+# Report the percentage of average success rates of test suites for Table 2 and
+# Table 3 of our paper.
+def report(args, data):
     print_header(args.dataset)
     print(FMT_LINE)
-    for package in PACKAGES_UTILS:
-        tasks = prepare_tasks(args, package)
-        summary(args, tasks, package)
+
+    if args.dataset == 'setA' or args.dataset == 'setB':
+        report_setAB(data)
+    else:
+        report_setC(data)
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    run(args)
+    data = collect(args)
+    report(args, data)
