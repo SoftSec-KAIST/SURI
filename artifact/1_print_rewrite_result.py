@@ -44,14 +44,17 @@ def prepare_tasks(args, package):
 
 ################################
 
+def is_valid_data(t):
+    if 'Command' in t:
+        return False
+    return True
+
 def read_time_data(filename):
     with open(filename) as f:
         data = f.read()
-        if not data:
-            return 0
         t = data.split()[0]
-        if 'Command' in t:
-            return 0
+        if not is_valid_data(t):
+            return None
 
         if len(t.split(':'))  == 3:
             hour = int(t.split(':')[0])
@@ -104,42 +107,101 @@ def get_data_egalito(target, verbose):
             print(' [-] Egalito fails to reassemble %s'% res_path)
         return None
 
-# Returns the data for SURI and the comparison target
-def get_data(task, verbose):
-    d_suri = get_data_suri(task, False, verbose)
-    if task.dataset == 'setA':
-        d_target = get_data_ddisasm(task, verbose)
-    elif task.dataset == 'setB':
-        d_target = get_data_egalito(task, verbose)
-    elif task.dataset == 'setC':
-        d_target = get_data_suri(task, True, verbose)
-
-    return d_suri, d_target
-
-def collect_data(args, package):
-    tasks = prepare_tasks(args, package)
-
+def collect_setA(args):
     data = {}
-    for task in tasks:
-        d_suri, d_target = get_data(task, args.verbose)
+    for package in PACKAGES_SPEC:
+        if package not in data:
+            data[package] = {}
 
-        if task.compiler not in data:
-            data[task.compiler] = 0, 0, 0, 0, 0.0, 0.0
-        num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[task.compiler]
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
+        suri_time = get_data_suri(task, False, args.verbose)
+        target_time = get_data_ddisasm(task, args.verbose) # Comparison target is Ddisasm
+
+        num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
         num_bins += 1
-        if d_suri is not None:
+        if suri_time is not None:
             suri_succ += 1
-        if d_target is not None:
+        if target_time is not None:
             target_succ += 1
-        if d_suri is not None and d_target is not None: # Time is counted when both tools succeed for a fair comparison
-            suri_time += d_suri
-            target_time += d_target
+        if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
             both_succ += 1
+            sum_suri_time += suri_time
+            sum_target_time += target_time
 
-        data[task.compiler] = num_bins, suri_succ, target_succ, both_succ, suri_time, target_time
+        data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
     return data
+
+def collect_setB(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        if package not in data:
+            data[package] = {}
+
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
+
+        suri_time = get_data_suri(task, False, args.verbose)
+        target_time = get_data_egalito(task, args.verbose) # Comparison target is Egalito
+
+        num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+        num_bins += 1
+        if suri_time is not None:
+            suri_succ += 1
+        if target_time is not None:
+            target_succ += 1
+        if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+            both_succ += 1
+            sum_suri_time += suri_time
+            sum_target_time += target_time
+
+        data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
+
+    return data
+
+def collect_setC(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        if package not in data:
+            data[package] = {}
+
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
+
+        suri_time = get_data_suri(task, False, args.verbose) # SURI on setA
+        target_time = get_data_suri(task, True, args.verbose) # Comparison target is SURI on setC
+
+        num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+        num_bins += 1
+        if suri_time is not None:
+            suri_succ += 1
+        if target_time is not None:
+            target_succ += 1
+        if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+            both_succ += 1
+            sum_suri_time += suri_time
+            sum_target_time += target_time
+
+        data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
+
+    return data
+
+# Collect data generated by 1_get_reassembled_code.py.
+def collect(args):
+    if args.dataset == 'setA':
+        return collect_setA(args)
+    elif args.dataset == 'setB':
+        return collect_setB(args)
+    else:
+        return collect_setC(args)
 
 ################################
 
@@ -151,49 +213,54 @@ def print_header(dataset):
     elif dataset == 'setC':
         print(FMT_REWRITE_HEADER % ('', 'suri', 'suri(no_ehframe)'))
 
-def print_data(package, data):
-    total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
-    for compiler in data:
-        num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[compiler]
-
-        comp_base = compiler.split('-')[0]
-        print(FMT_REWRITE_INDIVIDUAL % (package, comp_base, num_bins,
-            suri_succ / num_bins * 100, suri_time/both_succ,
-            target_succ / num_bins * 100, target_time/both_succ ))
-
-        total_num_bins += num_bins
-        total_suri_succ += suri_succ
-        total_target_succ += target_succ
-        total_both_succ += both_succ
-        total_suri_time += suri_time
-        total_target_time += target_time
-
-    return total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time
-
-def run(args):
-    data = {}
-    for package in PACKAGES:
-        data[package] = collect_data(args, package)
-
+# Report the partial results of the percentage of average success rates of
+# reassembly for Table 2 and Table 3 of our paper.
+def report(args, data):
     print_header(args.dataset)
     print(FMT_LINE)
 
-    total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
+    total_num_bins = 0
+    total_suri_succ = 0
+    total_target_succ = 0
+    total_both_succ = 0
+    total_suri_time = 0.0
+    total_target_time = 0.0, 0.0
     for package in PACKAGES:
-        num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = print_data(package, data[package])
-        total_num_bins += num_bins
-        total_suri_succ += suri_succ
-        total_target_succ += target_succ
-        total_both_succ += both_succ
-        total_suri_time += suri_time
-        total_target_time += target_time
+        if package not in data:
+            continue
 
-    if total_num_bins:
+        for compiler in COMPILERS:
+            if compiler not in data[package]:
+                continue
+
+            num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[package][compiler]
+            total_num_bins += num_bins
+            total_suri_succ += suri_succ
+            total_target_succ += target_succ
+            total_both_succ += both_succ
+            total_suri_time += suri_time
+            total_target_time += target_time
+            if num_bins > 0:
+                comp_name = compiler.split('-')[0]
+                avg_suri_succ = suri_succ / num_bins * 100
+                avg_target_succ = target_succ / num_bins * 100
+                avg_suri_time = suri_time / both_succ
+                avg_target_time = target_time / both_succ
+                print(FMT_REWRITE_INDIVIDUAL % (package, comp_name, num_bins,
+                                                avg_suri_succ, avg_suri_time,
+                                                avg_target_succ, avg_target_time))
+
+    if total_num_bins > 0:
         print(FMT_LINE)
+        total_avg_suri_succ = total_suri_succ / total_num_bins * 100
+        total_avg_target_succ = total_target_succ / total_num_bins * 100
+        total_avg_suri_time = total_suri_time / total_both_succ
+        total_avg_target_time = total_target_time / total_both_succ
         print(FMT_REWRITE_TOTAL % ('all', total_num_bins,
-            total_suri_succ / total_num_bins * 100, total_suri_time / total_both_succ ,
-            total_target_succ / total_num_bins * 100, total_target_time / total_both_succ ))
+                                   total_avg_suri_succ, total_avg_suri_time,
+                                   total_avg_target_succ, total_avg_target_time))
 
 if __name__ == '__main__':
     args = parse_arguments()
-    run(args)
+    data = collect(args)
+    report(args, data)
