@@ -211,16 +211,13 @@ def print_header(dataset):
     if dataset == 'setC':
         print(FMT_TESTSUITE_SPEC_HEADER_C % ('', '', 'suri (no ehframe)'))
 
-def print_line():
-    print(FMT_LINE)
-
 if __name__ == '__main__':
     args = parse_arguments()
 
     run(args)
 
     print_header(args.dataset)
-    print_line()
+    print(FMT_LINE)
     for package in PACKAGES_SPEC:
         tasks = prepare_tasks(args, package)
         summary(args, tasks, package)

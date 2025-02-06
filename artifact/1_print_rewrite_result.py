@@ -149,9 +149,6 @@ def print_header(dataset):
     elif dataset == 'setC':
         print(FMT_REWRITE_HEADER % ('', 'suri', 'suri(no_ehframe)'))
 
-def print_line():
-    print(FMT_LINE)
-
 def print_data(package, data):
     total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
     for compiler in data:
@@ -177,7 +174,7 @@ def run(args):
         data[package] = collect_data(args, package)
 
     print_header(args.dataset)
-    print_line()
+    print(FMT_LINE)
 
     total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
     for package in PACKAGES:
@@ -190,7 +187,7 @@ def run(args):
         total_target_time += target_time
 
     if total_num_bins:
-        print_line()
+        print(FMT_LINE)
         print(FMT_REWRITE_TOTAL % ('all', total_num_bins,
             total_suri_succ / total_num_bins * 100, total_suri_time / total_both_succ ,
             total_target_succ / total_num_bins * 100, total_target_time / total_both_succ ))

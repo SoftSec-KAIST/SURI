@@ -54,9 +54,6 @@ def collect_data(dataset):
 
 ################################
 
-def print_line():
-    print(FMT_LINE)
-
 def run(args):
     data = collect_data(args.dataset)
 
@@ -78,7 +75,7 @@ def run(args):
         total_num_bins += pkg_num_bins
         total_overhead += pkg_overhead
 
-    print_line()
+    print(FMT_LINE)
     print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_overhead/total_num_bins*100))
 
 if __name__ == '__main__':

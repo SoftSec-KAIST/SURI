@@ -53,13 +53,10 @@ def collect_data(dataset):
 
 ################################
 
-def print_header():
-    print(FMT_BRANCH_HEADER)
-
 def run(args):
     data = collect_data(args.dataset)
 
-    print_header()
+    print(FMT_BRANCH_HEADER)
 
     total_num_bins = 0
     total_overhead = 0

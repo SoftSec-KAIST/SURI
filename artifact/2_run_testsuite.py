@@ -170,9 +170,6 @@ def print_header(dataset):
     elif dataset == 'setC':
         print(FMT_TESTSUITE_UTILS_HEADER_C % ('', '', 'suri(no_ehframe)'))
 
-def print_line():
-    print(FMT_LINE)
-
 if __name__ == '__main__':
     args = parse_arguments()
 
@@ -181,7 +178,7 @@ if __name__ == '__main__':
         run(args, tasks, package)
 
     print_header(args.dataset)
-    print_line()
+    print(FMT_LINE)
     for package in PACKAGES_UTILS:
         tasks = prepare_tasks(args, package)
         summary(args, tasks, package)

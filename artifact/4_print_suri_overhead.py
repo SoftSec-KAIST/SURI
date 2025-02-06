@@ -70,9 +70,6 @@ def collect_data(args, package):
 
 ################################
 
-def print_header():
-    print(FMT_SURI_HEADER % ('', 'suri'))
-
 def print_data(package, data):
     num_bins, overhead = data
     if num_bins == 0:
@@ -84,7 +81,7 @@ def print_data(package, data):
 if __name__ == '__main__':
     args = parse_arguments()
 
-    print_header()
+    print(FMT_SURI_HEADER % ('', 'suri'))
 
     total_num_bins = 0
     total_overhead = 0.0
