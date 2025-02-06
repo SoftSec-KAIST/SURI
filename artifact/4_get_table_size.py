@@ -3,13 +3,9 @@ import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
 import argparse
+from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'output_dir', 'gt_dir', 'prefix', 'bin_name'])
-
-PACKAGES = ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']
-COMPILERS = ['clang-13', 'gcc-11']
-OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
-LINKERS = ['bfd', 'gold']
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')

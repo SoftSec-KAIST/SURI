@@ -1,10 +1,9 @@
 import glob
 import os
 import argparse
+from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'script_dir', 'log_dir', 'bin_name'])
-
-PACKAGES = ['spec_cpu2006', 'spec_cpu2017']
 
 BIN_NAME_MAP = {
     '482.sphinx3': 'sphinx_livepretend',
@@ -221,7 +220,7 @@ def run_package(args, package):
         run_task(task)
 
 def run(args):
-    for package in PACKAGES:
+    for package in PACKAGES_SPEC:
         run_package(args, package)
 
 if __name__ == '__main__':

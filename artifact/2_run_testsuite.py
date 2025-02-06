@@ -4,13 +4,9 @@ import multiprocessing
 import enum
 from ctypes import *
 import argparse
+from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'log_dir'])
-
-PACKAGES = ['coreutils-9.1', 'binutils-2.40']
-COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
-OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
-LINKERS = ['bfd', 'gold']
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
@@ -180,12 +176,12 @@ def print_line():
 if __name__ == '__main__':
     args = parse_arguments()
 
-    for package in PACKAGES:
+    for package in PACKAGES_UTILS:
         tasks = prepare_tasks(args, package)
         run(args, tasks, package)
 
     print_header(args.dataset)
     print_line()
-    for package in PACKAGES:
+    for package in PACKAGES_UTILS:
         tasks = prepare_tasks(args, package)
         summary(args, tasks, package)

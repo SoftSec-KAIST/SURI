@@ -1,10 +1,9 @@
 import glob
 import os
 import argparse
+from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'bin_name'])
-
-PACKAGES = ['spec_cpu2017', 'spec_cpu2006']
 
 TARGET_LIST = [
     '400.perlbench',
@@ -172,7 +171,7 @@ if __name__ == '__main__':
     total_num_bins = 0
     total_suri_overhead = 0.0
     total_target_overhead = 0.0
-    for package in PACKAGES:
+    for package in PACKAGES_SPEC:
         data = collect_data(args, package)
         print_data(package, data)
 

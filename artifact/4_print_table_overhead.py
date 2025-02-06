@@ -1,8 +1,7 @@
 import glob
 import re
 import argparse
-
-PACKAGES = ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']
+from consts import *
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='counter')

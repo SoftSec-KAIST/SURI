@@ -3,13 +3,9 @@ import glob
 import os
 import multiprocessing
 import argparse
+from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'script_dir', 'log_dir', 'bin_name'])
-
-PACKAGES = ['spec_cpu2006', 'spec_cpu2017']
-COMPILERS = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
-OPTIMIZATIONS = ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']
-LINKERS = ['bfd', 'gold']
 
 BIN_NAME_MAP = {
     '482.sphinx3': 'sphinx_livepretend',
@@ -73,7 +69,7 @@ def parse_arguments():
 
     assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset'
     if args.package:
-        assert args.package in PACKAGES, 'Invalid package: "%s"'%(args.package)
+        assert args.package in PACKAGES_SPEC, 'Invalid package: "%s"'%(args.package)
 
     return args
 
@@ -187,7 +183,7 @@ def run(args):
     if args.package:
         run_package(args, args.package)
     else:
-        for package in PACKAGES:
+        for package in PACKAGES_SPEC:
             run_package(args, package)
 
 ################################
@@ -277,6 +273,6 @@ if __name__ == '__main__':
 
     print_header(args.dataset)
     print_line()
-    for package in PACKAGES:
+    for package in PACKAGES_SPEC:
         tasks = prepare_tasks(args, package)
         summary(args, tasks, package)
