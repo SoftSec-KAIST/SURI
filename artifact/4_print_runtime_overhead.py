@@ -103,17 +103,17 @@ def print_data(package, data):
     if num_bins == 0:
         return
 
-    print('%-15s %4d | %8f%% %8f%%' % (package, num_bins,
+    print(FMT_RUANTIME_INDIVIDUAL % (package, num_bins,
                                     suri_overhead / len(s_dict['original'])*100-100 ,
                                     target_overhead / len(s_dict['original'])*100-100 ))
 
 def print_header(dataset):
     if dataset == 'setA':
-        print('%20s |  %8s  %8s'%('', 'suri', 'ddisasm'))
+        print(FMT_RUNTIME_HEADER_AB % ('', 'suri', 'ddisasm'))
     elif dataset == 'setB':
-        print('%20s |  %8s  %8s'%('', 'suri', 'egalito'))
+        print(FMT_RUNTIME_HEADER_AB % ('', 'suri', 'egalito'))
     else:
-        print('%20s |  %8s  %15s'%('', 'suri', 'suri(no_ehframe)'))
+        print(FMT_RUNTIME_HEADER_C % ('', 'suri', 'suri(no_ehframe)'))
 
 if __name__ == '__main__':
     args = parse_arguments()
@@ -132,4 +132,4 @@ if __name__ == '__main__':
         total_suri_overhead += suri_overhead
         total_target_overhead += target_overhead
 
-    print('%-15s %4d | %8f%%  %15f%%' % ('Total', total_num_bins, (total_suri_overhead / total_num_bins)*100-100, (total_target_overhead / total_num_bins)*100-100))
+    print(FMT_RUNTIME_TOTAL % ('Total', total_num_bins, (total_suri_overhead / total_num_bins)*100-100, (total_target_overhead / total_num_bins)*100-100))

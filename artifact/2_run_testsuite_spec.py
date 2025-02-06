@@ -198,21 +198,21 @@ def summary(args, tasks, package):
     for compiler in data:
         if args.dataset in ['setA', 'setB']:
             num_tests, suri_succ, target_succ = data[compiler]
-            print('%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)' % (package, comp, suri_succ / num_test * 100, suri_succ, num_tests, target_succ / num_test * 100, target_succ, num_test))
+            print(FMT_TESTSUITE_SPEC_INDIVIDUAL_AB % (package, comp, suri_succ / num_test * 100, suri_succ, num_tests, target_succ / num_test * 100, target_succ, num_test))
         else:
             num_tests, suri_succ = data[compiler]
-            print('%-15s (%-5s) : %10f%% (%4d/%4d)' % (package, comp, suri_succ / num_tests * 100, suri_succ, num_tests))
+            print(FMT_TESTSUITE_SPEC_INDIVIDUAL_C % (package, comp, suri_succ / num_tests * 100, suri_succ, num_tests))
 
 def print_header(dataset):
     if dataset == 'setA':
-        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'ddiasm'))
+        print(FMT_TESTSUITE_SPEC_HEADER_AB % ('', '', 'suri', 'ddiasm'))
     if dataset == 'setB':
-        print('%-15s %7s :   %21s :  %21s'%('', '', 'suri', 'egalito'))
+        print(FMT_TESTSUITE_SPEC_HEADER_AB % ('', '', 'suri', 'egalito'))
     if dataset == 'setC':
-        print('%-15s %7s :   %21s'%('', '', 'suri (no ehframe)'))
+        print(FMT_TESTSUITE_SPEC_HEADER_C % ('', '', 'suri (no ehframe)'))
 
 def print_line():
-    print('-----------------------------------------------------------------------------------')
+    print(FMT_LINE)
 
 if __name__ == '__main__':
     args = parse_arguments()

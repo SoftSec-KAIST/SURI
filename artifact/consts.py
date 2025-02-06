@@ -129,3 +129,34 @@ RUNTIME_TARGET_LIST = [
     '648.exchange2_s',
     '657.xz_s'
 ]
+
+################################
+
+# These are format strings to print our experimental results.
+FMT_LINE               = '-----------------------------------------------------------------------------------'
+
+FMT_REWRITE_HEADER     = '%32s    %22s   %22s'
+FMT_REWRITE_INDIVIDUAL = '%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'
+FMT_REWRITE_TOTAL      = '%26s (%4d) : %10f%% %10f : %10f%% %10f'
+
+FMT_TESTSUITE_UTILS_HEADER_AB     = '%-15s %7s  %21s %21s'
+FMT_TESTSUITE_UTILS_HEADER_C      = '%-15s %7s  %21s'
+FMT_TESTSUITE_UTILS_INDIVIDUAL_AB = '%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)'
+FMT_TESTSUITE_UTILS_INDIVIDUAL_C  = '%-15s (%-5s): %10s(%4d/%4d)'
+
+FMT_TESTSUITE_SPEC_HEADER_AB     = '%-15s %7s :   %21s :  %21s'
+FMT_TESTSUITE_SPEC_HEADER_C      = '%-15s %7s :   %21s'
+FMT_TESTSUITE_SPEC_INDIVIDUAL_AB = '%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)'
+FMT_TESTSUITE_SPEC_INDIVIDUAL_C  = '%-15s (%-5s) : %10f%% (%4d/%4d)'
+
+FMT_BRANCH_HEADER = 'Multi Br-------------'
+FMT_TABLE_HEADER  = 'Table-------------'
+FMT_OVERHEAD      = '%15s %10d %10f'
+
+FMT_RUNTIME_HEADER_AB  = '%20s |  %8s  %8s'
+FMT_RUNTIME_HEADER_C   = '%20s |  %8s  %15s'
+FMT_RUNTIME_INDIVIDUAL = '%-15s %4d | %8f%% %8f%%'
+FMT_RUNTIME_TOTAL      = '%-15s %4d | %8f%%  %15f%%'
+
+FMT_SURI_HEADER = '%20s |  %8s  '
+FMT_SURI        = '%-15s %4d | %8f%%'

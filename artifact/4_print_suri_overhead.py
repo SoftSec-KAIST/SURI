@@ -71,14 +71,14 @@ def collect_data(args, package):
 ################################
 
 def print_header():
-    print('%20s |  %8s  '%('', 'suri'))
+    print(FMT_SURI_HEADER % ('', 'suri'))
 
 def print_data(package, data):
     num_bins, overhead = data
     if num_bins == 0:
         return
 
-    print('%-15s %4d | %8f%%' % (package, num_bins,
+    print(FMT_SURI % (package, num_bins,
                                     overhead / len(s_dict['original'])*100-100))
 
 if __name__ == '__main__':
@@ -97,4 +97,4 @@ if __name__ == '__main__':
         total_overhead += overhead
 
     if total_num_bins != 0:
-        print('%-15s %4d | %8f%%'%('Total', total_num_bins, (total_overhead/total_num_bins)*100-100))
+        print(FMT_SURI % ('Total', total_num_bins, (total_overhead/total_num_bins)*100-100))

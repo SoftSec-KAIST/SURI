@@ -58,7 +58,7 @@ def collect_data(args):
 def print_data(data)
     total_num_bins = 0
     total_overhead = 0.0
-    print('Table-------------')
+    print(FMT_TABLE_HEADER)
     for package in PACKAGES:
         tot_cnt = 0
         tot_sum = 0
@@ -66,12 +66,12 @@ def print_data(data)
             continue
 
         num_bins, overhead = data[package]
-        print('%15s %10d %10f' % (package, num_bins, overhead / num_bins))
+        print(FMT_OVERHEAD % (package, num_bins, overhead / num_bins))
 
         total_num_bins += num_bins
         total_overhead += overhead
 
-    print('%15s %10d %10f' % ('[+]All', total_num_bins, total_overhead / total_num_bins))
+    print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_overhead / total_num_bins))
 
 if __name__ == '__main__':
     args = parse_arguments()

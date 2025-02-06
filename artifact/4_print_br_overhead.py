@@ -54,7 +54,7 @@ def collect_data(dataset):
 ################################
 
 def print_header():
-    print('Multi Br-------------')
+    print(FMT_BRANCH_HEADER)
 
 def run(args):
     data = collect_data(args.dataset)
@@ -74,13 +74,13 @@ def run(args):
             pkg_num_bins += num_bins
             pkg_overhead += overhead
 
-        print('%15s %10d %10f' % (package, pkg_num_bins, pkg_overhead/pkg_num_bins*100))
+        print(FMT_OVERHEAD % (package, pkg_num_bins, pkg_overhead/pkg_num_bins*100))
 
         total_num_bins += pkg_num_bins
         total_overhead += pkg_overhead
 
     if total_num_bins > 0:
-        print('%15s %10d %10f' % ('[+]All', total_num_bins, total_overhead/total_num_bins*100))
+        print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_overhead/total_num_bins*100))
 
 if __name__ == '__main__':
     args = parse_arguments()

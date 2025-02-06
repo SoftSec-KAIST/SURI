@@ -153,25 +153,25 @@ def summary(args, tasks, package):
                 target_res = 'Succ'
             else:
                 target_res = 'Fail'
-            print('%-15s (%-5s): %10s(%4d/%4d) %10s(%4d/%4d)' % (package, compiler, suri_res, suri_succ, num_tests, target_res, target_succ, num_tests))
+            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_AB % (package, compiler, suri_res, suri_succ, num_tests, target_res, target_succ, num_tests))
         else:
             num_tests, suri_succ = data[compiler]
             if num_tests == suri_succ:
                 suri_res = 'Succ'
             else:
                 suri_res = 'Fail'
-            print('%-15s (%-5s): %10s(%4d/%4d)' % (package, compiler, suri_res, suri_succ, num_tests))
+            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_C % (package, compiler, suri_res, suri_succ, num_tests))
 
 def print_header(dataset):
     if dataset == 'setA':
-        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Ddiasm'))
+        print(FMT_TESTSUITE_UTILS_HEADER_AB % ('', '', 'suri', 'Ddiasm'))
     elif dataset == 'setB':
-        print('%-15s %7s  %21s %21s'%('', '', 'suri', 'Egalito'))
+        print(FMT_TESTSUITE_UTILS_HEADER_AB % ('', '', 'suri', 'Egalito'))
     elif dataset == 'setC':
-        print('%-15s %7s  %21s'%('', '', 'suri(no_ehframe)'))
+        print(FMT_TESTSUITE_UTILS_HEADER_C % ('', '', 'suri(no_ehframe)'))
 
 def print_line():
-    print('-----------------------------------------------------------------------------------')
+    print(FMT_LINE)
 
 if __name__ == '__main__':
     args = parse_arguments()

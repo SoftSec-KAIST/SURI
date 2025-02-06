@@ -55,7 +55,7 @@ def collect_data(dataset):
 ################################
 
 def print_line():
-    print('-----------------------------------------------')
+    print(FMT_LINE)
 
 def run(args):
     data = collect_data(args.dataset)
@@ -73,13 +73,13 @@ def run(args):
             pkg_num_bins += num_bins
             pkg_overhead += overhead
 
-        print('%15s %10d %10f' % (package, pkg_num_bins, pkg_overhead/pkg_num_bins*100))
+        print(FMT_OVERHEAD % (package, pkg_num_bins, pkg_overhead/pkg_num_bins*100))
 
         total_num_bins += pkg_num_bins
         total_overhead += pkg_overhead
 
     print_line()
-    print('%15s %10s %10f' % ('[+]All', total_num_bins, total_overhead/total_num_bins*100))
+    print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_overhead/total_num_bins*100))
 
 if __name__ == '__main__':
     args = parse_arguments()

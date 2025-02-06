@@ -143,14 +143,14 @@ def collect_data(args, package):
 
 def print_header(dataset):
     if dataset == 'setA':
-        print('%32s    %22s   %22s'%('', 'suri', 'ddisasm'))
+        print(FMT_REWRITE_HEADER % ('', 'suri', 'ddisasm'))
     elif dataset == 'setB':
-        print('%32s    %22s   %22s'%('', 'suri', 'egalito'))
+        print(FMT_REWRITE_HEADER % ('', 'suri', 'egalito'))
     elif dataset == 'setC':
-        print('%32s    %22s   %22s'%('', 'suri', 'suri(no_ehframe)'))
+        print(FMT_REWRITE_HEADER % ('', 'suri', 'suri(no_ehframe)'))
 
 def print_line():
-    print('-----------------------------------------------------------------------------------')
+    print(FMT_LINE)
 
 def print_data(package, data):
     total_num_bins, total_suri_succ, total_target_succ, total_both_succ, total_suri_time, total_target_time = 0, 0, 0, 0, 0.0, 0.0
@@ -158,7 +158,7 @@ def print_data(package, data):
         num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[compiler]
 
         comp_base = compiler.split('-')[0]
-        print('%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'%(package, comp_base, num_bins,
+        print(FMT_REWRITE_INDIVIDUAL % (package, comp_base, num_bins,
             suri_succ / num_bins * 100, suri_time/both_succ,
             target_succ / num_bins * 100, target_time/both_succ ))
 
@@ -191,7 +191,7 @@ def run(args):
 
     if total_num_bins:
         print_line()
-        print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', total_num_bins,
+        print(FMT_REWRITE_TOTAL % ('all', total_num_bins,
             total_suri_succ / total_num_bins * 100, total_suri_time / total_both_succ ,
             total_target_succ / total_num_bins * 100, total_target_time / total_both_succ ))
 
