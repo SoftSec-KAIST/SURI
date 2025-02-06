@@ -150,8 +150,9 @@ FMT_TESTSUITE_SPEC_INDIVIDUAL_AB = '%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4
 FMT_TESTSUITE_SPEC_INDIVIDUAL_C  = '%-15s (%-5s) : %10f%% (%4d/%4d)'
 
 FMT_BRANCH_HEADER = 'Multi Br-------------'
+FMT_CODE_HEADER   = 'Code Size-------------'
 FMT_TABLE_HEADER  = 'Table-------------'
-FMT_OVERHEAD      = '%15s %10d %10f'
+FMT_OVERHEAD      = '%15s %10d %10f%%'
 
 FMT_RUNTIME_HEADER_AB  = '%20s |  %8s  %8s'
 FMT_RUNTIME_HEADER_C   = '%20s |  %8s  %15s'

@@ -34,51 +34,51 @@ def collect_data(dataset):
     for filepath in glob.glob('%s/*'%(base_folder)):
         br = read_branch_data(filepath)
 
-        package, compiler = filepath.split('/')[-1].split('_')[:2]
+        package = filepath.split('/')[-1].split('_')[0]
         if package in ['spec']:
-            pack1, pack2, compiler = filepath.split('/')[-1].split('_')[:3]
+            pack1, pack2 = filepath.split('/')[-1].split('_')[:2]
             package = pack1 + '_' + pack2
 
         if package not in data:
-            data[package] = {}
-        if compiler not in data[package]:
-            data[package][compiler] = 0, 0
+            data[package] = 0, 0
         if br is not None:
-            num_bins, overhead = data[package][compiler]
+            num_bins, overhead = data[package]
             num_bins += 1
             overhead += br
-            data[package][compiler] = num_bins, overhead
+            data[package] = num_bins, overhead
 
     return data
 
 ################################
 
-def run(args):
-    data = collect_data(args.dataset)
-
+# Report the percentage of average branch count overheads for Section 4.3.1 of our
+# paper.
+def report(data):
     print(FMT_BRANCH_HEADER)
 
+    print(FMT_LINE)
+
     total_num_bins = 0
-    total_overhead = 0
+    total_overhead = 0.0
     for package in PACKAGES:
         if package not in data:
             continue
 
-        pkg_num_bins = 0
-        pkg_overhead = 0
-        for compiler in data[package]:
-            num_bins, overhead = data[package][compiler]
-            pkg_num_bins += num_bins
-            pkg_overhead += overhead
+        num_bins, overhead = data[package]
+        total_num_bins += num_bins
+        total_overhead += overhead
 
-        print(FMT_OVERHEAD % (package, pkg_num_bins, pkg_overhead/pkg_num_bins*100))
+        if num_bins > 0:
+            avg_overhead = overhead / num_bins * 100
+            print(FMT_OVERHEAD % (package, num_bins, avg_overhead))
 
-        total_num_bins += pkg_num_bins
-        total_overhead += pkg_overhead
+    print(FMT_LINE)
 
     if total_num_bins > 0:
-        print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_overhead/total_num_bins*100))
+        total_avg_overhead = total_overhead / total_num_bins * 100
+        print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_avg_overhead))
 
 if __name__ == '__main__':
     args = parse_arguments()
-    run(args)
+    data = collect_data(args.dataset)
+    report(data)

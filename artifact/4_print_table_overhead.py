@@ -57,26 +57,35 @@ def collect_data(args):
         data[package] = num_bins, overhead
     return data
 
-def print_data(data)
+# Report the percentage of average table size overheads for Section 4.3.1 of our
+# paper.
+def report(data)
+    print(FMT_TABLE_HEADER)
+
+    print(FMT_LINE)
+
     total_num_bins = 0
     total_overhead = 0.0
-    print(FMT_TABLE_HEADER)
     for package in PACKAGES:
-        tot_cnt = 0
-        tot_sum = 0
         if package not in data:
             continue
 
         num_bins, overhead = data[package]
-        print(FMT_OVERHEAD % (package, num_bins, overhead / num_bins))
-
         total_num_bins += num_bins
         total_overhead += overhead
 
-    print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_overhead / total_num_bins))
+        if num_bins > 0:
+            avg_overhead = overhead / num_bins * 100
+            print(FMT_OVERHEAD % (package, num_bins, avg_overhead))
+
+    print(FMT_LINE)
+
+    if total_num_bins > 0:
+        total_avg_overhead = total_overhead / total_num_bins * 100
+        print(FMT_OVERHEAD % ('[+]All', total_num_bins, total_avg_overhead))
 
 if __name__ == '__main__':
     args = parse_arguments()
 
     data = collect_data(args)
-    print_data(data)
+    report(data)
