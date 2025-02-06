@@ -1,8 +1,6 @@
+import argparse, glob, multiprocessing, os, sys
 from collections import namedtuple
-import glob, os, sys
-import multiprocessing
 from filter_utils import check_exclude_files
-import argparse
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'output_dir', 'gt_dir', 'prefix', 'bin_name'])

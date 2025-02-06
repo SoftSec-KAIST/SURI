@@ -1,6 +1,4 @@
-import glob
-import os
-import argparse
+import argparse, os, glob
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'script_dir', 'log_dir', 'bin_name'])
@@ -33,16 +31,6 @@ def prepare_tasks(args, package):
             tasks.append(ExpTask(args.dataset, comp, data_dir, script_dir, log_dir, filename))
 
     return tasks
-
-def print_cmd_in_docker(image, data_dir, script_dir, log_dir, cmd):
-    if data_dir[0] != '/':
-        data_dir = os.path.join('.', data_dir)
-    if script_dir[0] != '/':
-        script_dir = os.path.join('.', script_dir)
-    if log_dir[0] != '/':
-        log_dir = os.path.join('.', log_dir)
-    docker_cmd = 'docker run --memory 16g --cpus 1 --cpuset-cpus=0 --rm -v %s:/dataset -v %s:/script -v %s:/log %s sh -c "%s"' % (data_dir, script_dir, log_dir, image, cmd)
-    print(docker_cmd)
 
 ################################
 
@@ -79,6 +67,16 @@ def prepare_script(task, package, script_dir, script_name):
         elif package == 'spec_cpu2017':
             f.write('cp /dataset/%s /spec_cpu2017/benchspec/CPU/%s/exe/%s_base.case1_bfd.cfg-m64\n' % (task.bin_name, task.bin_name, bin_name))
             f.write('runcpu --action run --config case1_bfd.cfg --nobuild --iterations 3 --threads 1 %s > /log/%s.txt 2>&1\n' % (task.bin_name, task.bin_name))
+
+def print_cmd_in_docker(image, data_dir, script_dir, log_dir, cmd):
+    if data_dir[0] != '/':
+        data_dir = os.path.join('.', data_dir)
+    if script_dir[0] != '/':
+        script_dir = os.path.join('.', script_dir)
+    if log_dir[0] != '/':
+        log_dir = os.path.join('.', log_dir)
+    docker_cmd = 'docker run --memory 16g --cpus 1 --cpuset-cpus=0 --rm -v %s:/dataset -v %s:/script -v %s:/log %s sh -c "%s"' % (data_dir, script_dir, log_dir, image, cmd)
+    print(docker_cmd)
 
 def run_test_suite(task, package, image, script_name, tool_name):
     data_dir = os.path.join(task.data_dir, tool_name)

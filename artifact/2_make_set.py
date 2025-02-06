@@ -1,11 +1,7 @@
-from collections import namedtuple
-import glob, os, sys
-import multiprocessing
-import enum
+import argparse, glob, os
 from collections import namedtuple
 from ctypes import *
 from filter_utils import check_exclude_files
-import argparse
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'input_dir', 'output_dir', 'set_dir', 'bin_name'])
@@ -92,12 +88,10 @@ def build_set(task):
 
 def run(args, package):
     tasks = prepare_tasks(args, package)
-
     for task in tasks:
         build_set(task)
 
 if __name__ == '__main__':
     args = parse_arguments()
-
     for package in PACKAGES:
         run(args, package)

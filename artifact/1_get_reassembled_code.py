@@ -1,9 +1,6 @@
+import argparse, glob, multiprocessing, os, subprocess, sys
 from collections import namedtuple
-import glob, os, sys
-import multiprocessing
 from filter_utils import check_exclude_files
-import argparse
-import subprocess
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'input_dir', 'output_dir', 'bin_name'])
@@ -53,6 +50,8 @@ def prepare_tasks(args, package):
                     tasks.append(ExpTask(args.dataset, bin_dir, out_dir, filename))
 
     return tasks
+
+################################
 
 def run_in_docker(image, in_dir, out_dir, log_name, cmd):
     if in_dir[0] != '/':

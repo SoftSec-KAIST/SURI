@@ -1,10 +1,8 @@
+import argparse, glob, multiprocessing, os, sys
 from collections import namedtuple
-import glob, os, sys
-sys.path.append("../superSymbolizer")
-import multiprocessing
 from filter_utils import check_exclude_files
+sys.path.append("../superSymbolizer")
 from SuperSymbolizer import SuperSymbolizer
-import argparse
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'input_dir', 'output_dir', 'prefix', 'bin_name'])
