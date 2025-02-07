@@ -216,7 +216,7 @@ def print_header(dataset):
 # Table 3 of our paper.
 def report(args, data):
     print_header(args.dataset)
-    print(FMT_LINE)
+    print(FMT_REWRITE_LINE)
 
     total_num_bins = 0
     total_suri_succ = 0
@@ -250,7 +250,7 @@ def report(args, data):
                                                 avg_target_succ, avg_target_time))
 
     if total_num_bins > 0:
-        print(FMT_LINE)
+        print(FMT_REWRITE_LINE)
         total_avg_suri_succ = total_suri_succ / total_num_bins * 100
         total_avg_target_succ = total_target_succ / total_num_bins * 100
         total_avg_suri_time = total_suri_time / total_both_succ

@@ -225,48 +225,65 @@ def collect(args):
 ################################
 
 def print_header(dataset):
-    if dataset == 'setA':
+    if dataset == 'setA' or dataset == 'setB':
         print(FMT_TESTSUITE_SPEC_HEADER_AB % ('', '', 'suri', 'ddiasm'))
-    if dataset == 'setB':
-        print(FMT_TESTSUITE_SPEC_HEADER_AB % ('', '', 'suri', 'egalito'))
-    if dataset == 'setC':
+        print(FMT_TESTSUITE_SPEC_LINE_AB)
+    else:
         print(FMT_TESTSUITE_SPEC_HEADER_C % ('', '', 'suri (no ehframe)'))
+        print(FMT_TESTSUITE_SPEC_LINE_C)
 
 def report_setAB(data):
     for package in PACKAGES_SPEC:
         if package not in data:
             continue
 
+        total_num_tests = 0
+        total_suri_succ = 0
         for compiler in COMPILERS:
             if compiler not in data[package]:
                 continue
 
+            comp_name = compiler.split('-')[0]
             num_tests, suri_succ, target_succ = data[package][compiler]
             avg_suri_succ = suri_succ / num_tests * 100
             avg_target_succ = target_succ / num_tests * 100
-            print(FMT_TESTSUITE_SPEC_INDIVIDUAL_AB % (package, compiler,
+            print(FMT_TESTSUITE_SPEC_INDIVIDUAL_AB % (package, comp_name,
                                                       avg_suri_succ, suri_succ, num_tests,
                                                       avg_target_succ, target_succ, num_tests))
+
+            total_num_tests += num_tests
+            total_suri_succ += suri_succ
+
+        if total_num_tests == total_suri_succ:
+            print('\t\t\t[+] SURI passes all test suites (%d/%d)' % (total_suri_succ, total_num_tests))
 
 def report_setC(data):
     for package in PACKAGES_SPEC:
         if package not in data:
             continue
 
+        total_num_tests = 0
+        total_suri_succ = 0
         for compiler in COMPILERS:
             if compiler not in data[package]:
                 continue
 
+            comp_name = compiler.split('-')[0]
             num_tests, suri_succ = data[package][compiler]
             avg_suri_succ = suri_succ / num_tests * 100
-            print(FMT_TESTSUITE_SPEC_INDIVIDUAL_C % (package, compiler,
+            print(FMT_TESTSUITE_SPEC_INDIVIDUAL_C % (package, comp_name,
                                                      avg_suri_succ, suri_succ, num_tests))
+
+            total_num_tests += num_tests
+            total_suri_succ += suri_succ
+
+        if total_num_tests == total_suri_succ:
+            print('\t\t\t[+] SURI passes all test suites (%d/%d)' % (total_suri_succ, total_num_tests))
 
 # Report the percentage of average success rates of test suites for Table 2 and
 # Table 3 of our paper.
 def report(args, data):
     print_header(args.dataset)
-    print(FMT_LINE)
 
     if args.dataset == 'setA' or args.dataset == 'setB':
         report_setAB(data)

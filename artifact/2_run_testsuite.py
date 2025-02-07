@@ -191,6 +191,7 @@ def report_setAB(data):
             if compiler not in data[package]:
                 continue
 
+            comp_name = compiler.split('-')[0]
             num_tests, suri_succ, target_succ = data[package][compiler]
             if num_tests == suri_succ:
                 suri_res = 'Succ'
@@ -200,7 +201,7 @@ def report_setAB(data):
                 target_res = 'Succ'
             else:
                 target_res = 'Fail'
-            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_AB % (package, compiler,
+            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_AB % (package, comp_name,
                                                        suri_res, suri_succ, num_tests,
                                                        target_res, target_succ, num_tests))
 
@@ -213,19 +214,19 @@ def report_setC(data):
             if compiler not in data[package]:
                 continue
 
+            comp_name = compiler.split('-')[0]
             num_tests, suri_succ = data[package][compiler]
             if num_tests == suri_succ:
                 suri_res = 'Succ'
             else:
                 suri_res = 'Fail'
-            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_C % (package, compiler,
+            print(FMT_TESTSUITE_UTILS_INDIVIDUAL_C % (package, comp_name,
                                                       suri_res, suri_succ, num_tests))
 
 # Report the percentage of average success rates of test suites for Table 2 and
 # Table 3 of our paper.
 def report(args, data):
     print_header(args.dataset)
-    print(FMT_LINE)
 
     if args.dataset == 'setA' or args.dataset == 'setB':
         report_setAB(data)

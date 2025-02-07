@@ -133,11 +133,11 @@ RUNTIME_TARGET_LIST = [
 ################################
 
 # These are format strings to print our experimental results.
-FMT_LINE               = '-----------------------------------------------------------------------------------'
 
 FMT_REWRITE_HEADER     = '%32s    %22s   %22s'
 FMT_REWRITE_INDIVIDUAL = '%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'
 FMT_REWRITE_TOTAL      = '%26s (%4d) : %10f%% %10f : %10f%% %10f'
+FMT_REWRITE_LINE       = '-----------------------------------------------------------------------------------'
 
 FMT_TESTSUITE_UTILS_HEADER_AB     = '%-15s %7s  %21s %21s'
 FMT_TESTSUITE_UTILS_HEADER_C      = '%-15s %7s  %21s'
@@ -148,6 +148,8 @@ FMT_TESTSUITE_SPEC_HEADER_AB     = '%-15s %7s :   %21s :  %21s'
 FMT_TESTSUITE_SPEC_HEADER_C      = '%-15s %7s :   %21s'
 FMT_TESTSUITE_SPEC_INDIVIDUAL_AB = '%-15s (%-5s) : %10f%% (%4d/%4d) : %10f%% (%4d/%4d)'
 FMT_TESTSUITE_SPEC_INDIVIDUAL_C  = '%-15s (%-5s) : %10f%% (%4d/%4d)'
+FMT_TESTSUITE_SPEC_LINE_AB       = '--------------------------------------------------------------------------'
+FMT_TESTSUITE_SPEC_LINE_C        = '-------------------------------------------------------'
 
 FMT_BRANCH_HEADER = 'Multi Br-------------'
 FMT_CODE_HEADER   = 'Code Size-------------'
