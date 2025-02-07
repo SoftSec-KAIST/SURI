@@ -1,4 +1,5 @@
 import argparse, glob, os
+from collections import namedtuple
 from consts import *
 
 ExpTask = namedtuple('ExpTask', ['dataset', 'bin_name'])
@@ -23,7 +24,7 @@ def prepare_tasks(args, package):
     tasks = []
     data_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
     if os.path.exists(data_dir):
-        orig_dir = os.path.join(data_dir, 'original')
+        orig_dir = os.path.join(data_dir, 'original', '*')
         for target in glob.glob(orig_dir):
             filename = os.path.basename(target)
             tasks.append(ExpTask(args.dataset, filename))
@@ -54,11 +55,11 @@ def get_data_suri(task, package, is_setC):
         dataset = 'setA'
     else:
         dataset = task.dataset
-    log_path = os.path.join('stat', 'runtime', dataset, package, 'gcc-11', 'o3_bfd', 'suri', task.bin_name, '%s.txt' % task.bin_name)
+    log_path = os.path.join('stat', 'runtime', dataset, package, 'gcc-11', 'o3_bfd', 'suri', '%s.txt' % task.bin_name)
     return read_time_data(log_path)
 
 def get_data(task, package, tool_name):
-    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', tool_name, task.bin_name, '%s.txt' % task.bin_name)
+    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', tool_name, '%s.txt' % task.bin_name)
     return read_time_data(log_path)
 
 def collect_setA(args):
@@ -67,7 +68,8 @@ def collect_setA(args):
         tasks = prepare_tasks(args, package)
 
         num_bins = 0
-        overhead = 0.0
+        suri_overhead = 0.0
+        target_overhead = 0.0
         for task in tasks:
             if task.bin_name not in RUNTIME_TARGET_LIST:
                 continue
@@ -92,7 +94,8 @@ def collect_setB(args):
         tasks = prepare_tasks(args, package)
 
         num_bins = 0
-        overhead = 0.0
+        suri_overhead = 0.0
+        target_overhead = 0.0
         for task in tasks:
             if task.bin_name not in RUNTIME_TARGET_LIST:
                 continue
@@ -117,7 +120,8 @@ def collect_setC(args):
         tasks = prepare_tasks(args, package)
 
         num_bins = 0
-        overhead = 0.0
+        suri_overhead = 0.0
+        target_overhead = 0.0
         for task in tasks:
             d_original = get_data(task, package, 'original')
             d_suri = get_data_suri(task, package, False) # SURI on setA
@@ -171,7 +175,7 @@ def report(args, data):
         if num_bins > 0:
             avg_suri_overhead = suri_overhead / num_bins * 100
             avg_target_overhead = target_overhead / num_bins * 100
-            print(FMT_RUANTIME_INDIVIDUAL % (package, num_bins, avg_suri_overhead, avg_target_overhead))
+            print(FMT_RUNTIME_INDIVIDUAL % (package, num_bins, avg_suri_overhead, avg_target_overhead))
 
     if total_num_bins > 0:
         print(FMT_LINE)
