@@ -69,7 +69,7 @@ def prepare_script(task, script_dir, script_name):
             f.write('cp /dataset/%s /spec_cpu2017/benchspec/CPU/%s/exe/%s_base.case1_bfd.cfg-m64\n' % (task.bin_name, task.bin_name, bin_name))
             f.write('runcpu --action run --config case1_bfd.cfg --nobuild --iterations 3 --threads 1 %s > /log/%s.txt 2>&1\n' % (task.bin_name, task.bin_name))
 
-def print_cmd_in_docker(image, data_dir, script_dir, log_dir, cmd):
+def run_in_docker(image, data_dir, script_dir, log_dir, cmd):
     if data_dir[0] != '/':
         data_dir = os.path.join('.', data_dir)
     if script_dir[0] != '/':
@@ -78,6 +78,8 @@ def print_cmd_in_docker(image, data_dir, script_dir, log_dir, cmd):
         log_dir = os.path.join('.', log_dir)
     docker_cmd = 'docker run --memory 16g --cpus 1 --cpuset-cpus=0 --rm -v %s:/dataset -v %s:/script -v %s:/log %s sh -c "%s"' % (data_dir, script_dir, log_dir, image, cmd)
     print(docker_cmd)
+    sys.stdout.flush()
+    os.system(docker_cmd)
 
 def run_test_suite(task, image, script_name, tool_name):
     data_dir = os.path.join(task.data_dir, tool_name)
@@ -92,7 +94,7 @@ def run_test_suite(task, image, script_name, tool_name):
 
     cmd = '/bin/bash /script/%s > /log/log.txt 2>&1' % script_name
 
-    print_cmd_in_docker(image, data_dir, script_dir, log_dir, cmd)
+    run_in_docker(image, data_dir, script_dir, log_dir, cmd)
 
 def run_task(task):
     image = get_docker_image(task.dataset)
