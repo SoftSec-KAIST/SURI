@@ -1,4 +1,5 @@
 import argparse, glob, os, multiprocessing
+from collections import namedtuple
 from filter_utils import check_exclude_files
 from consts import *
 
