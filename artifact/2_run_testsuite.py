@@ -3,7 +3,7 @@ from collections import namedtuple
 from ctypes import *
 from consts import *
 
-ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'data_dir', 'log_dir'])
+ExpTask = namedtuple('ExpTask', ['dataset', 'package', 'compiler', 'data_dir', 'log_dir'])
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
@@ -26,7 +26,7 @@ def prepare_tasks(args, package):
                 data_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
                 log_dir = os.path.join('log', args.dataset, package, comp, '%s_%s' % (opt, lopt))
                 if os.path.exists(data_dir):
-                    tasks.append(ExpTask(args.dataset, comp, data_dir, log_dir))
+                    tasks.append(ExpTask(args.dataset, package, comp, data_dir, log_dir))
 
     return tasks
 
@@ -48,7 +48,7 @@ def run_in_docker(image, data_dir, log_dir, cmd):
     sys.stdout.flush()
     os.system(docker_cmd)
 
-def run_test_suite(task, package, image, tool_name):
+def run_test_suite(task, image, tool_name):
     data_dir = os.path.join(task.data_dir, tool_name)
     log_dir = os.path.join(task.log_dir, tool_name)
     os.system('mkdir -p %s' % log_dir)
@@ -56,7 +56,7 @@ def run_test_suite(task, package, image, tool_name):
     if os.path.exists(log_path):
         return
 
-    cmd1 = 'cd %s' % package
+    cmd1 = 'cd %s' % task.package
     cmd2 = '/bin/bash copy.sh > /log/log1.txt 2>&1'
     cmd3 = 'make check -j 8 > /log/log2.txt 2>&1'
     cmd = ';'.join([cmd1, cmd2, cmd3])
@@ -66,13 +66,13 @@ def run_test_suite(task, package, image, tool_name):
 def run_task(task):
     image = get_docker_image(task.dataset)
 
-    run_test_suite(task, package, image, 'original')
-    run_test_suite(task, package, image, 'suri')
+    run_test_suite(task, image, 'original')
+    run_test_suite(task, image, 'suri')
 
     if task.dataset == 'setA':
-        run_test_suite(task, package, image, 'ddisasm')
+        run_test_suite(task, image, 'ddisasm')
     elif task.dataset == 'setB':
-        run_test_suite(task, package, image, 'egalito')
+        run_test_suite(task, image, 'egalito')
 
 def run_package(args, package):
     tasks = prepare_tasks(args, package)
@@ -94,9 +94,9 @@ def read_test_data(package, filepath):
             value = set([line for line in lines if '# of expected passes' in line])
     return len(value)
 
-def get_data(task, package, tool_name):
+def get_data(task, tool_name):
     filepath = os.path.join(task.log_dir, tool_name, 'log2.txt')
-    return read_test_data(package, filepath)
+    return read_test_data(task.package, filepath)
 
 def collect_setA(args):
     data = {}
@@ -108,14 +108,14 @@ def collect_setA(args):
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0, 0
 
-            tests_orig = get_data(task, package, 'original')
-            tests_suri = get_data(task, package, 'suri')
-            tests_target = get_data(task, package, 'ddisasm') # Comparison target is Ddisasm
+            tests_orig = get_data(task, 'original')
+            tests_suri = get_data(task, 'suri')
+            tests_target = get_data(task, 'ddisasm') # Comparison target is Ddisasm
             num_tests, suri_succ, target_succ = 0, 0, 0
             num_tests += 1
-            if t_orig == t_suri:
+            if tests_orig == tests_suri:
                 suri_succ += 1
-            if t_orig == t_target:
+            if tests_orig == tests_target:
                 target_succ += 1
             data[package][task.compiler] = num_tests, suri_succ, target_succ
 
@@ -131,14 +131,14 @@ def collect_setB(args):
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0, 0
 
-            tests_orig = get_data(task, package, 'original')
-            tests_suri = get_data(task, package, 'suri')
-            tests_target = get_data(task, package, 'egalito') # Comparison target is Egalito
+            tests_orig = get_data(task, 'original')
+            tests_suri = get_data(task, 'suri')
+            tests_target = get_data(task, 'egalito') # Comparison target is Egalito
             num_tests, suri_succ, target_succ = 0, 0, 0
             num_tests += 1
-            if t_orig == t_suri:
+            if tests_orig == tests_suri:
                 suri_succ += 1
-            if t_orig == t_target:
+            if tests_orig == tests_target:
                 target_succ += 1
             data[package][task.compiler] = num_tests, suri_succ, target_succ
 
@@ -154,11 +154,11 @@ def collect_setC(args):
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0
 
-            tests_orig = get_data(task, package, 'original')
-            tests_suri = get_data(task, package, 'suri') # No comparison targets in this case.
+            tests_orig = get_data(task, 'original')
+            tests_suri = get_data(task, 'suri') # No comparison targets in this case.
             num_tests, suri_succ = 0, 0
             num_tests += 1
-            if t_orig == t_suri:
+            if tests_orig == tests_suri:
                 suri_succ += 1
             data[package][task.compiler] = num_tests, suri_succ
 
