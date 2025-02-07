@@ -109,7 +109,7 @@ def get_data_egalito(target, verbose):
 
 def collect_setA(args):
     data = {}
-    for package in PACKAGES_SPEC:
+    for package in PACKAGES:
         tasks = prepare_tasks(args, package)
         for task in tasks:
             if package not in data:
@@ -117,27 +117,27 @@ def collect_setA(args):
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
-        suri_time = get_data_suri(task, False, args.verbose)
-        target_time = get_data_ddisasm(task, args.verbose) # Comparison target is Ddisasm
+            suri_time = get_data_suri(task, False, args.verbose)
+            target_time = get_data_ddisasm(task, args.verbose) # Comparison target is Ddisasm
 
-        num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
-        num_bins += 1
-        if suri_time is not None:
-            suri_succ += 1
-        if target_time is not None:
-            target_succ += 1
-        if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
-            both_succ += 1
-            sum_suri_time += suri_time
-            sum_target_time += target_time
+            num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+            num_bins += 1
+            if suri_time is not None:
+                suri_succ += 1
+            if target_time is not None:
+                target_succ += 1
+            if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+                both_succ += 1
+                sum_suri_time += suri_time
+                sum_target_time += target_time
 
-        data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
+            data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
     return data
 
 def collect_setB(args):
     data = {}
-    for package in PACKAGES_SPEC:
+    for package in PACKAGES:
         if package not in data:
             data[package] = {}
 
@@ -146,27 +146,27 @@ def collect_setB(args):
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
-        suri_time = get_data_suri(task, False, args.verbose)
-        target_time = get_data_egalito(task, args.verbose) # Comparison target is Egalito
+            suri_time = get_data_suri(task, False, args.verbose)
+            target_time = get_data_egalito(task, args.verbose) # Comparison target is Egalito
 
-        num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
-        num_bins += 1
-        if suri_time is not None:
-            suri_succ += 1
-        if target_time is not None:
-            target_succ += 1
-        if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
-            both_succ += 1
-            sum_suri_time += suri_time
-            sum_target_time += target_time
+            num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+            num_bins += 1
+            if suri_time is not None:
+                suri_succ += 1
+            if target_time is not None:
+                target_succ += 1
+            if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+                both_succ += 1
+                sum_suri_time += suri_time
+                sum_target_time += target_time
 
-        data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
+            data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
     return data
 
 def collect_setC(args):
     data = {}
-    for package in PACKAGES_SPEC:
+    for package in PACKAGES:
         if package not in data:
             data[package] = {}
 
@@ -175,21 +175,21 @@ def collect_setC(args):
             if task.compiler not in data[package]:
                 data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
-        suri_time = get_data_suri(task, False, args.verbose) # SURI on setA
-        target_time = get_data_suri(task, True, args.verbose) # Comparison target is SURI on setC
+            suri_time = get_data_suri(task, False, args.verbose) # SURI on setA
+            target_time = get_data_suri(task, True, args.verbose) # Comparison target is SURI on setC
 
-        num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
-        num_bins += 1
-        if suri_time is not None:
-            suri_succ += 1
-        if target_time is not None:
-            target_succ += 1
-        if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
-            both_succ += 1
-            sum_suri_time += suri_time
-            sum_target_time += target_time
+            num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+            num_bins += 1
+            if suri_time is not None:
+                suri_succ += 1
+            if target_time is not None:
+                target_succ += 1
+            if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+                both_succ += 1
+                sum_suri_time += suri_time
+                sum_target_time += target_time
 
-        data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
+            data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
     return data
 
@@ -223,7 +223,7 @@ def report(args, data):
     total_target_succ = 0
     total_both_succ = 0
     total_suri_time = 0.0
-    total_target_time = 0.0, 0.0
+    total_target_time = 0.0
     for package in PACKAGES:
         if package not in data:
             continue
