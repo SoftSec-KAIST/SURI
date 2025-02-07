@@ -24,7 +24,7 @@ def read_branch_data(filepath):
         (br1, br2) = re.findall('Indirect Branch Sites (.*) \((.*)\)', data.split('\n')[1])[0]
         br1 = int(br1)
         br2 = int(br2)
-        if not is_valid_data(data):
+        if not is_valid_data(br1):
             return None
 
         return br2 / br1

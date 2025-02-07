@@ -22,7 +22,7 @@ def is_valid_data(lines):
 
 def read_table_data(filepath):
     with open(filepath) as f:
-        data = fd.read()
+        data = f.read()
         lines = data.split('\n')
         if not is_valid_data(lines):
             return None
@@ -58,7 +58,7 @@ def collect(args):
 
 # Report the percentage of average table size overheads for Section 4.3.1 of our
 # paper.
-def report(data)
+def report(data):
     print(FMT_TABLE_HEADER)
     print(FMT_LINE)
 
