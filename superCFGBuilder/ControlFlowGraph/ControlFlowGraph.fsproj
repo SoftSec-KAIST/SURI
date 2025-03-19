@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="CFGEdgeKind.fs" />
+    <Compile Include="VisualBlock.fs" />
+    <Compile Include="BasicBlock.fs" />
+    <Compile Include="ControlFlowGraph.fs" />
+    <Compile Include="InlinedAssembly.fs" />
+    <Compile Include="InstructionInfo.fs" />
+    <Compile Include="FakeBlockInfo.fs" />
+    <Compile Include="SyscallTailInfo.fs" />
+    <Compile Include="IRBasicBlock.fs" />
+    <Compile Include="IRCFG.fs" />
+    <Compile Include="DisasmBasicBlock.fs" />
+    <Compile Include="DisasmCFG.fs" />
+    <Compile Include="SSABasicBlock.fs" />
+    <Compile Include="SSATypes.fs" />
+    <Compile Include="SSAEdges.fs" />
+    <Compile Include="SSAUtils.fs" />
+    <Compile Include="SSACFG.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\B2R2\src\BinIR\B2R2.BinIR.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\Core\B2R2.Core.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\FrontEnd\BinLifter\Core\B2R2.FrontEnd.BinLifter.Core.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\FrontEnd\Core\B2R2.FrontEnd.Core.fsproj" />
+    <ProjectReference Include="..\BinGraph\BinGraph.fsproj" />
+    <ProjectReference Include="..\SSA\SSA.fsproj" />
+  </ItemGroup>
+
+</Project>

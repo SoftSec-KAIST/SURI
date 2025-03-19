@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="CFGHelper.fs" />
+    <Compile Include="CoverageMaintainer.fs" />
+    <Compile Include="HistoryManager.fs" />
+    <Compile Include="SSAPromotion.fs" />
+    <Compile Include="Function.fs" />
+    <Compile Include="FunctionMaintainer.fs" />
+    <Compile Include="ExceptionTable.fs" />
+    <Compile Include="BBLInfo.fs" />
+    <Compile Include="CFGEvents.fs" />
+    <Compile Include="BBLManager.fs" />
+    <Compile Include="JumpTableMaintainer.fs" />
+    <Compile Include="CFGError.fs" />
+    <Compile Include="DataManager.fs" />
+    <Compile Include="CodeManager.fs" />
+    <Compile Include="ICFGBuildable.fs" />
+    <Compile Include="EvalHelper.fs" />
+    <Compile Include="PerFunctionAnalysis.fs" />
+    <Compile Include="IRHelper.fs" />
+    <Compile Include="IndirectCallResolution.fs" />
+    <Compile Include="LowUIRHelper.fs" />
+    <Compile Include="IndirectJumpResolution.fs" />
+    <Compile Include="RegularJmpResolution.fs" />
+    <Compile Include="FortranRegularJmpResolution.fs" />
+    <Compile Include="TblResolution.fs" />
+    <Compile Include="NoReturnFunctionIdentification.fs" />
+    <Compile Include="CFGBuilder.fs" />
+    <Compile Include="IPluggableAnalysis.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\B2R2\src\Core\B2R2.Core.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\FrontEnd\BinLifter\Intel\B2R2.FrontEnd.BinLifter.Intel.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\FrontEnd\Core\B2R2.FrontEnd.Core.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\MiddleEnd\ConcEval\B2R2.MiddleEnd.ConcEval.fsproj" />
+    <ProjectReference Include="..\ControlFlowGraph\ControlFlowGraph.fsproj" />
+    <ProjectReference Include="..\DataFlow\DataFlow.fsproj" />
+  </ItemGroup>
+
+</Project>
