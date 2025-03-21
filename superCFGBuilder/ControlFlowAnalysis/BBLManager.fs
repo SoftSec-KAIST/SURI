@@ -376,7 +376,7 @@ module BBLManager =
       if isLast then leader, tmp
       else leader, addInterEdge leader fTarget InterCJmpFalseEdge tmp
     | InterCJmp (_, _, { E = Num fBv }) ->
-      let fTarget = (addr + BitVector.ToUInt64 fBv) |> maskingAddr isa
+      let fTarget = BitVector.ToUInt64 fBv
       if isLast then leader, tmp
       else leader, addInterEdge leader fTarget InterCJmpFalseEdge tmp
     | InterJmp (_, InterJmpKind.IsRet) -> leader, tmp
