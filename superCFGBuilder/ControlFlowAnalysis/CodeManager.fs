@@ -68,7 +68,7 @@ type FunCodeManager (hdl, lu: LiftingUnit) =
 
   let brInfoDict = Dictionary<Addr, BranchInfo list>()
   let newInstructionInfo (lu: LiftingUnit) (ins: Instruction) bblAddr =
-    let stmts = lu.LiftInstruction ins
+    let stmts = lu.LiftInstruction (ins, true)
     { Instruction = ins
       Stmts = stmts
       BBLAddr = bblAddr }

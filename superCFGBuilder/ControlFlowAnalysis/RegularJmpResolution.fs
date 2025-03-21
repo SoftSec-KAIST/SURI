@@ -171,7 +171,7 @@ module private RegularJmpResolution =
     if ins.IsNop () then true
     else
       try
-        match lu.LiftInstruction ins with
+        match lu.LiftInstruction (ins, true) with
         | [| { LowUIR.S = LowUIR.ISMark (_) }
              { LowUIR.S = LowUIR.IEMark (_) } |] -> true
         | _ -> false
