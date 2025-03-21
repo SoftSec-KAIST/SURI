@@ -924,7 +924,7 @@ type CFGBuilder (hdl, isa, codeMgr: CodeManager, dataMgr: DataManager) as this =
   member __.AddNewFunctions entries =
 #if CFGDEBUG
     dbglog (nameof CFGBuilder) "Start by adding %d function(s) for %s"
-      (List.length entries) (hdl.BinFile.FilePath)
+      (List.length entries) (hdl.File.Path)
 #endif
     entries |> Seq.iter(fun (addr, _) -> codeMgr.RegisterInitEntries addr)
     (* List.foldBack is used here to preserve the order of input entries *)
