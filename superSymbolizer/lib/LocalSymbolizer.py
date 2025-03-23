@@ -873,6 +873,16 @@ class LocalSymbolizer:
             reassem_code.append(self.emit_comment(addr, comment.comment))
         return reassem_code
 
+    def build_byte_instr(self, inst):
+        instr = '.byte '
+        byte_str = inst['ByteString']
+        for i in range(len(byte_str) // 2):
+            if i == 0:
+                instr += '0x%s' % byte_str[2*i:2*i+2]
+            else:
+                instr += ', 0x%s' % byte_str[2*i:2*i+2]
+        return instr
+
     def fix_b2r2_disassembly_bugs(self, reassem, inst):
 
         opcode = reassem.split()[0]
@@ -910,18 +920,25 @@ class LocalSymbolizer:
             elif 'repz outsd' == reassem: reassem = 'repz outsl'
 
         else:
+            if 'movsxd' in opcode:
+                args = reassem.split()[1:]
+                if args[0].startswith('E') and (args[1].startswith('dword') or args[1].startswith('E')):
+                    reassem = self.build_byte_instr(inst)
+            elif 'int1' in opcode:
+                reassem = self.build_byte_instr(inst)
+
             # GAS does not allow tbyte ptr
-            if opcode in ['sgdt', 'sidt']:
-                reassem = reassem.replace('tbyte ptr ', '')
-            if opcode in ['vfmsub231ss']:
-                reassem = reassem.replace('qword ptr', 'dword ptr')
-            if opcode in ['call']:
-                reassem = reassem.replace('qword far ptr', 'far ptr')
-            if opcode in ['vcvtsi2ss', 'vdivsd']:
-                reassem = reassem.replace('ymm', 'xmm')
-                reassem = reassem.replace('YMM', 'XMM')
-            if opcode in ['jmp']:
-                reassem = reassem.replace('qword far ptr', 'far ptr')
+            #if opcode in ['sgdt', 'sidt']:
+            #    reassem = reassem.replace('tbyte ptr ', '')
+            #if opcode in ['vfmsub231ss']:
+            #    reassem = reassem.replace('qword ptr', 'dword ptr')
+            #if opcode in ['call']:
+            #    reassem = reassem.replace('qword far ptr', 'far ptr')
+            #if opcode in ['vcvtsi2ss', 'vdivsd']:
+            #    reassem = reassem.replace('ymm', 'xmm')
+            #    reassem = reassem.replace('YMM', 'XMM')
+            #if opcode in ['jmp']:
+            #    reassem = reassem.replace('qword far ptr', 'far ptr')
 
         # GAS bug
 
