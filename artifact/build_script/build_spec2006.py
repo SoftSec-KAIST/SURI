@@ -2,32 +2,66 @@ import argparse
 import os
 import shutil
 
-def run(spec_path):
-    src = os.path.abspath(spec_path)
-    output = os.path.abspath("../benchmark")
+OPTIMIZATIONS = ['-O0', '-O1', '-O2', '-O3', '-Os', '-Ofast']
+LINKERS = ['bfd', 'gold']
 
-    if os.path.exists('%s/install.sh'%(src)):
-
-        cmd = 'docker run --rm -v "%s:/spec2006_image" -v "$(pwd)/src:/data" suri_artifact:v1.0 sh -c "/spec2006_image/install.sh -d /data/spec_cpu2006 -f"'%(src)
-        print(cmd)
-        os.system(cmd)
-        shutil.copyfile('script/base2006.cfg', './src/spec_cpu2006/config/base2006.cfg')
-        print('[+] Successfully finish setup SPEC CPU2006')
-
-        for opt in ['-O0', '-O1', '-O2', '-O3', '-Os', '-Ofast']:
-            for lopt in ['bfd', 'gold']: 
-                cmd = 'docker run --rm -v "$(pwd)/src:/data" -v "$(pwd)/script:/script" -v %s:/output suri_artifact:v1.0 sh -c "/script/build-spec2006.sh %s %s" '%(output, opt, lopt)
-                print(cmd)
-                os.system(cmd)
-    else:
-        print('[-] Install script does not exist')
-
-if __name__ == '__main__':
+def parse_arguments():
     parser = argparse.ArgumentParser('setup spec_cpu2006')
-    parser.add_argument('spec2006')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
+    parser.add_argument('--spec', type=str, default='spec2006_image')
 
     args = parser.parse_args()
 
-    run(args.spec2006)
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
+    assert os.path.exists(os.path.join(args.spec, 'install.sh')), 'Invalid SPEC path: "%s"' % args.spec
 
+    return args
 
+def get_docker_image(dataset):
+    if dataset in ['setA', 'setC']:
+        return 'suri_artifact:v1.0'
+    else:
+        return 'suri_artifact_ubuntu18.04:v1.0'
+
+################################
+
+def setup(dataset, spec_path):
+    image = get_docker_image(dataset)
+
+    cmd = 'docker run --rm -v %s:/spec2006_image -v $(pwd)/src:/data %s sh -c "chmod -R +x /spec2006_image && /spec2006_image/install.sh -d /data/spec_cpu2006 -f"' % (spec_path, image)
+    print(cmd)
+    os.system(cmd)
+
+    shutil.copyfile('script/base2006.cfg', './src/spec_cpu2006/config/base2006.cfg')
+    print('[+] Successfully finish setup SPEC CPU2006')
+
+################################
+
+def get_script_name(dataset):
+    if dataset in ['setA', 'setB']:
+        return 'build-spec2006.sh'
+    else:
+        return 'build-spec2006_no_ehframe.sh'
+
+def build(dataset, out_dir, opt, lopt):
+    image = get_docker_image(dataset)
+    script = get_script_name(dataset)
+
+    cmd = 'docker run --rm -v $(pwd)/src:/data -v $(pwd)/script:/script -v %s:/output %s sh -c "/script/%s %s %s"' % (out_dir, image, script, opt, lopt)
+    print(cmd)
+    os.system(cmd)
+
+################################
+
+def run(args):
+    spec_path = os.path.abspath(args.spec)
+    out_dir = os.path.join(os.path.abspath("../benchmark"), args.dataset)
+
+    setup(args.dataset, spec_path)
+    for opt in OPTIMIZATIONS:
+        for lopt in LINKERS:
+            build(args.dataset, out_dir, opt, lopt)
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    run(args)

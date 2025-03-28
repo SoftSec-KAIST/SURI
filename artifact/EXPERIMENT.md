@@ -329,14 +329,9 @@ To measure runtime overhead, execute the following commands:
 
 ```
 cd $SURI_AE_HOME
-$ python3 4_get_runtime_overhead.py setA | tee 4_runtime_overheadA.sh
-$ /bin/bash 4_runtime_overheadA.sh
-
-$ python3 4_get_runtime_overhead.py setB | tee 4_runtime_overheadB.sh
-$ /bin/bash 4_runtime_overheadB.sh
-
-$ python3 4_get_runtime_overhead.py setC | tee 4_runtime_overheadC.sh
-$ /bin/bash 4_runtime_overheadC.sh
+$ python3 4_get_runtime_overhead.py setA
+$ python3 4_get_runtime_overhead.py setB
+$ python3 4_get_runtime_overhead.py setC
 ```
 
 After running the above commands, you can analyze the results using

@@ -1,105 +1,97 @@
-from collections import namedtuple
-import glob, os, sys
-import multiprocessing
-import enum
+import argparse, glob, os
 from collections import namedtuple
 from ctypes import *
 from filter_utils import check_exclude_files
+from consts import *
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'reassem_path', 'comp', 'pie', 'package', 'bin'])
+ExpTask = namedtuple('ExpTask', ['dataset', 'input_dir', 'output_dir', 'set_dir', 'bin_name'])
 
-def gen_option(input_root, reassem_root, dataset, package, blacklist, whitelist):
-    ret = []
-    cnt = 0
-    comp_set =  ['clang-10', 'clang-13', 'gcc-11', 'gcc-13']
-
-    for arch in ['x64']:
-        for comp in comp_set:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        input_dir = '%s/%s'%(input_root, sub_dir)
-                        for target in glob.glob('%s/stripbin/*'%(input_dir)):
-
-                            filename = os.path.basename(target)
-                            binpath = '%s/stripbin/%s'%(input_dir, filename)
-
-                            reassem_dir = '%s/%s/%s'%(reassem_root, sub_dir, filename)
-
-                            if blacklist and filename in blacklist:
-                                continue
-                            if whitelist and filename not in whitelist:
-                                continue
-
-                            if check_exclude_files(dataset, package, comp, opt, filename):
-                                continue
-
-                            ret.append(BuildConf(target, input_root, sub_dir, reassem_dir, comp, popt, package, binpath))
-
-                            cnt += 1
-    return ret
-
-
-def copy(src, dst, filename):
-    if os.path.exists(src):
-        if not os.path.exists(dst):
-            os.system('mkdir -p %s'%(dst))
-
-        if not os.path.exists('%s/%s'%(dst, filename)):
-            print('cp %s %s/%s'%(src, dst, filename))
-            os.system('cp %s %s/%s'%(src, dst, filename))
-
-
-def create_set(dataset, conf, filename):
-
-    output = './%s'%(dataset)
-
-    org_bin = conf.bin
-    org_to = '%s/%s/original'%(output, conf.sub_dir)
-
-    super_bin = '%s/super/my_%s'%(conf.reassem_path, filename)
-    super_to = '%s/%s/suri'%(output, conf.sub_dir)
-
-    copy(org_bin, org_to, filename)
-    copy(super_bin, super_to, filename)
-
-    if args.dataset in ['setA']:
-        ddisasm_bin = '%s/ddisasm/%s'%(conf.reassem_path, filename)
-        ddisasm_to = '%s/%s/ddisasm'%(output, conf.sub_dir)
-        copy(ddisasm_bin, ddisasm_to, filename)
-
-    if args.dataset in ['setB']:
-        egalito_bin = '%s/egalito/%s'%(conf.reassem_path, filename)
-        egalito_to = '%s/%s/egalito'%(output, conf.sub_dir)
-        copy(egalito_bin, egalito_to, filename)
-
-def run(input_root, reassem_root, dataset, package, core=1, blacklist=None, whitelist=None):
-
-    config_list = gen_option(input_root, reassem_root, dataset, package, blacklist, whitelist)
-
-    for conf in config_list:
-        filename = os.path.basename(conf.bin)
-        create_set(dataset, conf, filename)
-
-
-import argparse
-if __name__ == '__main__':
+def parse_arguments():
     parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     parser.add_argument('--input_dir', type=str, default='benchmark')
     parser.add_argument('--output_dir', type=str, default='output')
     parser.add_argument('--package', type=str, help='Package')
     parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
     parser.add_argument('--blacklist', nargs='+')
     parser.add_argument('--whitelist', nargs='+')
-
     args = parser.parse_args()
 
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
+    # Sanitizing arguments
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
-    input_root = './%s/%s'%(args.input_dir, args.dataset)
-    output_root = './%s/%s'%(args.output_dir, args.dataset)
+    return args
 
-    for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
-        run(input_root, output_root, args.dataset, package, args.core, args.blacklist, args.whitelist)
+################################
+
+def prepare_tasks(args, package):
+    tasks = []
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
+                input_base = os.path.join(args.input_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                output_base = os.path.join(args.output_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                strip_dir = os.path.join(input_base, 'stripbin', '*')
+                set_dir = os.path.join('.', args.dataset, package, comp, '%s_%s' % (opt, lopt))
+
+                for target in glob.glob(strip_dir):
+                    filename = os.path.basename(target)
+
+                    # Filter binaries
+                    if args.blacklist and filename in args.blacklist:
+                        continue
+                    if args.whitelist and filename not in args.whitelist:
+                        continue
+                    if check_exclude_files(args.dataset, package, comp, opt, filename):
+                        continue
+
+                    bin_dir = os.path.join(input_base, 'stripbin')
+                    out_dir = os.path.join(output_base, filename)
+                    tasks.append(ExpTask(args.dataset, bin_dir, out_dir, set_dir, filename))
+
+    return tasks
+
+################################
+
+def copy(src, dst):
+    if os.path.exists(src) and not os.path.exists(dst):
+        print('cp %s %s' % (src, dst))
+        os.system('cp %s %s' % (src, dst))
+
+def build_set(task):
+    orig_src_path = os.path.join(task.input_dir, task.bin_name)
+    orig_dst_dir = os.path.join(task.set_dir, 'original')
+    os.system('mkdir -p %s' % orig_dst_dir)
+    orig_dst_path = os.path.join(orig_dst_dir, task.bin_name)
+    copy(orig_src_path, orig_dst_path)
+
+    suri_src_path = os.path.join(task.output_dir, 'super', 'my_%s' % task.bin_name)
+    suri_dst_dir = os.path.join(task.set_dir, 'suri')
+    os.system('mkdir -p %s' % suri_dst_dir)
+    suri_dst_path = os.path.join(suri_dst_dir, task.bin_name)
+    copy(suri_src_path, suri_dst_path)
+
+    if task.dataset == 'setA':
+        ddisasm_src_path = os.path.join(task.output_dir, 'ddisasm', task.bin_name)
+        ddisasm_dst_dir = os.path.join(task.set_dir, 'ddisasm')
+        os.system('mkdir -p %s' % ddisasm_dst_dir)
+        ddisasm_dst_path = os.path.join(ddisasm_dst_dir, task.bin_name)
+        copy(ddisasm_src_path, ddisasm_dst_path)
+    elif task.dataset == 'setB':
+        egalito_src_path = os.path.join(task.output_dir, 'egalito', task.bin_name)
+        egalito_dst_dir = os.path.join(task.set_dir, 'egalito')
+        os.system('mkdir -p %s' % egalito_dst_dir)
+        egalito_dst_path = os.path.join(egalito_dst_dir, task.bin_name)
+        copy(egalito_src_path, egalito_dst_path)
+
+################################
+
+def run(args, package):
+    tasks = prepare_tasks(args, package)
+    for task in tasks:
+        build_set(task)
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    for package in PACKAGES:
+        run(args, package)

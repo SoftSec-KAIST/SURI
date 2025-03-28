@@ -69,19 +69,24 @@ $ docker build --tag suri_artifact_ubuntu18.04:v1.0 .
 
 If you have your own SPEC CPU benchmark, then you need to build additional Docker images for running SPEC CPU test suites for Exp2.
 
-We assume that the SPEC CPU2006 image is unzipped under `$SURI_AE_HOME/build_script/test_suite_script/spec2006_image` and
-SPEC CPU 2017 image is unzipped under `$SURI_AE_HOMEbuild_script/test_suite_script/spec2017_image`.
-If the locations of SPEC benchmarks differ, then you need to manually update the paths
-in line 3 and line 15 of the Dockerfiles at `$SURI_AE_HOME/build_script/test_suite_script/Dockerfile` and
-`$SURI_AE_HOME/build_script/test_suite_script_ubuntu18.04/Dockerfile` accordingly.
+First, unzip the SPEC CPU2006 and SPEC CPU2017 using the following commands:
+```
+# For Ubuntu 20.04
+$ 7z x -o $SURI_AE_HOME/build_script/test_suite_script/spec2006_image /PATH/TO/YOUR/SPEC/CPU/2006/IMAGE.iso
+$ 7z x -o $SURI_AE_HOME/build_script/test_suite_script/spec2017_image /PATH/TO/YOUR/SPEC/CPU/2017/IMAGE.iso
 
-Then, build the suri_spec:v1.0 image using the following command at the top-level directory:
+# For Ubuntu 18.04
+$ 7z x -o $SURI_AE_HOME/build_script/test_suite_script_ubuntu18.04/spec2006_image /PATH/TO/YOUR/SPEC/CPU/2006/IMAGE.iso
+$ 7z x -o $SURI_AE_HOME/build_script/test_suite_script_ubuntu18.04/spec2017_image /PATH/TO/YOUR/SPEC/CPU/2017/IMAGE.iso
+```
+
+Then, build the suri_spec:v1.0 image:
 ```
 $ cd $SURI_AE_HOME/build_script/test_suite_script/
 $ docker build -tag suri_spec:v1.0 .
 ```
 
-To build the one for the ubuntu 18.04 image, run the following command at the top-level directory:
+To build the one for the ubuntu 18.04 image, run the following commands:
 ```
 $ cd $SURI_AE_HOME/build_script/test_suite_script_ubuntu18.04/
 $ docker build -tag suri_ubuntu18.04_spec:v1.0 .
@@ -110,7 +115,11 @@ LICENSE      README.txt  config     install_archives         shrc.bat
 LICENSE.txt  Revisions   cshrc      redistributable_sources  tools
 
 $ cd $SURI_AE_HOME/build_script
-$ python3 build_spec2006.py /path/to/spec_cpu2006
+$ python3 build_spec2006.py setA --spec /path/to/spec_cpu2006
+[+] ...
+$ python3 build_spec2006.py setB --spec /path/to/spec_cpu2006
+[+] ...
+$ python3 build_spec2006.py setC --spec /path/to/spec_cpu2006
 [+] ...
 ```
 The `build_spec2006.py` script compiles the SPEC benchmark binaries with
@@ -125,7 +134,11 @@ LICENSE.txt  README.txt  cshrc        install_archives         shrc.bat  version
 MANIFEST     Revisions   install.bat  redistributable_sources  tools
 
 $ cd $SURI_AE_HOME/build_script
-$ python3 build_spec2017.py /path/to/spec_cpu2017
+$ python3 build_spec2017.py setA --spec /path/to/spec_cpu2017
+[+] ...
+$ python3 build_spec2017.py setB --spec /path/to/spec_cpu2017
+[+] ...
+$ python3 build_spec2017.py setC --spec /path/to/spec_cpu2017
 [+] ...
 ```
 This process takes approximately 30–50 minutes per set of benchmark binaries.

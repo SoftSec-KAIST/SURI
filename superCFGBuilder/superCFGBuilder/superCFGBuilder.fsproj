@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,9 +17,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\B2R2\src\Core\B2R2.Core.fsproj" />
-    <ProjectReference Include="..\..\B2R2\src\FrontEnd\BinInterface\B2R2.FrontEnd.BinInterface.fsproj" />
-    <ProjectReference Include="..\..\B2R2\src\MiddleEnd\BinEssence\B2R2.MiddleEnd.BinEssence.fsproj" />
-    <ProjectReference Include="..\..\B2R2\src\MiddleEnd\BinGraph\B2R2.MiddleEnd.BinGraph.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\FrontEnd\BinLifter\Core\B2R2.FrontEnd.BinLifter.Core.fsproj" />
+    <ProjectReference Include="..\..\B2R2\src\FrontEnd\BinLifter\Intel\B2R2.FrontEnd.BinLifter.Intel.fsproj" />
+    <ProjectReference Include="..\BinEssence\BinEssence.fsproj" />
+    <ProjectReference Include="..\BinGraph\BinGraph.fsproj" />
+    <ProjectReference Include="..\ControlFlowAnalysis\ControlFlowAnalysis.fsproj" />
+    <ProjectReference Include="..\ControlFlowGraph\ControlFlowGraph.fsproj" />
   </ItemGroup>
 
 </Project>

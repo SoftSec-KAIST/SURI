@@ -1,14 +1,14 @@
-﻿module SupersetCFG.ASanGen
+module SupersetCFG.ASanGen
 
 open System.Collections
 open B2R2
-open B2R2.FrontEnd.BinInterface
-open B2R2.MiddleEnd.BinEssence
+open B2R2.FrontEnd
+open SuperCFG.BinEssence
 open B2R2.FrontEnd.BinLifter.Intel
-open B2R2.MiddleEnd.BinGraph
-open B2R2.MiddleEnd.ControlFlowAnalysis
-open B2R2.MiddleEnd.ControlFlowGraph
-open B2R2.MiddleEnd.ControlFlowAnalysis.LowUIRHelper
+open SuperCFG.BinGraph
+open SuperCFG.ControlFlowAnalysis
+open SuperCFG.ControlFlowGraph
+open SuperCFG.ControlFlowAnalysis.LowUIRHelper
 open SupersetCFG.MetaGen
 
 type MemInfo = {
@@ -46,10 +46,10 @@ let getMemAccessType instInfo memAcc =
     result
   else List.Empty
 
-let rec memAccCheckLoop (hdl: BinHandle) funCodeMgr (addr:Addr) (eAddr:Addr) acc =
+let rec memAccCheckLoop (hdl: BinHandle) (lu: LiftingUnit) funCodeMgr (addr:Addr) (eAddr:Addr) acc =
   if addr = eAddr then acc
   else
-      let ins = BinHandle.ParseInstr (hdl, addr)
+      let ins = lu.ParseInstruction (addr)
       let memAcc = getMemAccess (ins :?> IntelInstruction).Operands
 
       let insInfo = (funCodeMgr: FunCodeManager).InsMap[addr]
@@ -62,18 +62,18 @@ let rec memAccCheckLoop (hdl: BinHandle) funCodeMgr (addr:Addr) (eAddr:Addr) acc
       if aType <> "" then
         let addrStr = sprintf "0x%x" addr
         let code = {Addr=addrStr; MemAccType=aType; MemAccSize=memAcc}
-        memAccCheckLoop hdl funCodeMgr nextAddr eAddr (code::acc)
+        memAccCheckLoop hdl lu funCodeMgr nextAddr eAddr (code::acc)
       else
-        memAccCheckLoop hdl funCodeMgr nextAddr eAddr (acc)
+        memAccCheckLoop hdl lu funCodeMgr nextAddr eAddr (acc)
 
 
-let memAccCheck hdl funCodeMgr (vertex: Vertex<DisasmBasicBlock>) =
+let memAccCheck hdl lu funCodeMgr (vertex: Vertex<DisasmBasicBlock>) =
   let sAddr = vertex.VData.PPoint.Address
   if vertex.VData.IsFakeBlock() then
     None
   else if vertex.VData.PPoint.Position >= 0 then
     let eAddr = vertex.VData.Range.Count + sAddr
-    let code = memAccCheckLoop hdl funCodeMgr sAddr eAddr [] |> List.rev
+    let code = memAccCheckLoop hdl lu funCodeMgr sAddr eAddr [] |> List.rev
     Some code
   else
     None
@@ -96,7 +96,7 @@ let ASanMetaGen (ess: BinEssence) hdl =
         let instList
             = allVertices
               |> List.fold(fun acc (v, edges) ->
-                            match memAccCheck hdl funCodeMgr v with
+                            match memAccCheck hdl ess.LiftingUnit funCodeMgr v with
                             | Some code -> code@acc
                             | _ -> acc
                             ) List.Empty

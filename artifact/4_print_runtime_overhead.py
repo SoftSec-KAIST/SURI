@@ -1,174 +1,189 @@
-import glob
-import os
+import argparse, glob, os
+from collections import namedtuple
+from consts import *
 
-white_list=[
-'400.perlbench',
-'401.bzip2',
-'403.gcc',
-'410.bwaves',
-'429.mcf',
-'433.milc',
-'434.zeusmp',
-'435.gromacs',
-'436.cactusADM',
-'437.leslie3d',
-'444.namd',
-'445.gobmk',
-'447.dealII',
-'454.calculix',
-'456.hmmer',
-'458.sjeng',
-'459.GemsFDTD',
-'462.libquantum',
-'464.h264ref',
-'465.tonto',
-'470.lbm',
-'473.astar',
-'481.wrf',
-'482.sphinx3',
-'503.bwaves_r',
-'505.mcf_r',
-'507.cactuBSSN_r',  #
-'508.namd_r',       #
-'519.lbm_r',
-'531.deepsjeng_r',
-'538.imagick_r',    #
-'544.nab_r',
-'548.exchange2_r',
-'549.fotonik3d_r',
-'557.xz_r',
-'603.bwaves_s',
-'605.mcf_s',
-'607.cactuBSSN_s',  #
-'619.lbm_s',
-'628.pop2_s',
-'631.deepsjeng_s',
-'638.imagick_s',    #
-'644.nab_s',
-'648.exchange2_s',
-'657.xz_s'
-]
+ExpTask = namedtuple('ExpTask', ['dataset', 'bin_name'])
 
-def run(dataset, base_folder, package):
-
-    s_dict = dict()
-    s_dict['original'] = dict()
-    s_dict['suri'] = dict()
-    s_dict['ddisasm'] = dict()
-    s_dict['egalito'] = dict()
-
-    for folder in glob.glob('%s/%s/gcc-11/o3_bfd/*'%(base_folder, package)):
-        for logfile in glob.glob('%s/*'%(folder)):
-            if 'log.txt' in logfile:
-                continue
-            with open(logfile) as fd:
-                line = fd.read().split('\n')[-2]
-
-                if 'seconds' not in line:
-                    print(line)
-                    continue
-
-                tool = folder.split('/')[-1]
-                key = os.path.basename(logfile)
-
-                bin_name = key[:-4]
-                if dataset in ['setA', 'setB'] and bin_name not in white_list:
-                    continue
-
-                val = line.split(';')[1].split()[0]
-                assert line.split(';')[1].split()[1] in ['total', 'seconds']
-                s_dict[tool][key] = int(val)
-
-    tot = 0
-    tot2 = 0
-    for key in s_dict['original']:
-        tot += s_dict['suri'][key] / s_dict['original'][key]
-        if dataset == 'setA':
-            tot2 += s_dict['ddisasm'][key] / s_dict['original'][key]
-        elif dataset == 'setB':
-            tot2 += s_dict['egalito'][key] / s_dict['original'][key]
-
-
-    if (len(s_dict['original']) == 0):
-        return;
-
-    print('%-15s %4d | %8f%% %8f%%'%(package, len(s_dict['original']),
-                                    tot / len(s_dict['original'])*100-100 ,
-                                    tot2 / len(s_dict['original'])*100-100 ))
-
-
-def get_overhead(dataset, base_folder, package):
-
-    s_dict = dict()
-    s_dict['original'] = dict()
-    s_dict['suri'] = dict()
-
-    for folder in glob.glob('%s/%s/%s/gcc-11/o3_bfd/*'%(base_folder, dataset, package)):
-        for logfile in glob.glob('%s/*'%(folder)):
-            if 'log.txt' in logfile:
-                continue
-            with open(logfile) as fd:
-                line = fd.read().split('\n')[-2]
-
-                if 'seconds' not in line:
-                    print(line)
-                    continue
-
-                tool = folder.split('/')[-1]
-                key = os.path.basename(logfile)
-
-                if tool not in ['original', 'suri']:
-                    continue
-
-                bin_name = key[:-4]
-
-                val = line.split(';')[1].split()[0]
-                assert line.split(';')[1].split()[1] in ['total', 'seconds']
-                s_dict[tool][key] = int(val)
-
-    tot = 0
-    for key in s_dict['original']:
-        tot += s_dict['suri'][key] / s_dict['original'][key]
-    return tot, len(s_dict['original'])
-
-
-
-
-import argparse
-if __name__ == '__main__':
+def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB)')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
     args = parser.parse_args()
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
 
+    # Sanitizing arguments
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
-    if args.dataset in ['setC']:
-        base_folder = './stat/runtime'
-        print('%20s |  %8s  %15s'%('', 'suri', 'suri(no_ehframe)'))
-        ov1 = 0
-        nu1 = 0
-        ov2 = 0
-        nu2 = 0
-        for package in ['spec_cpu2006', 'spec_cpu2017']:
-            tot1, bins1 = get_overhead('setA', base_folder, package)
-            tot2, bins2 = get_overhead('setC', base_folder, package)
+    return args
 
-            if bins1 != bins2:
-                print('[-] The number of tested binaries in %s are different'%(package))
+################################
+
+def prepare_tasks(args, package):
+    comp = 'gcc-11'
+    opt = 'o3'
+    lopt = 'bfd'
+
+    tasks = []
+    data_dir = os.path.join(args.dataset, package, comp, '%s_%s' % (opt, lopt))
+    if os.path.exists(data_dir):
+        orig_dir = os.path.join(data_dir, 'original', '*')
+        for target in glob.glob(orig_dir):
+            filename = os.path.basename(target)
+            tasks.append(ExpTask(args.dataset, filename))
+
+    return tasks
+
+################################
+
+def is_valid_data(line):
+    if 'seconds' not in line:
+        return False
+    # FIXME: maybe it should be 'total'?
+    if line.split(';')[1].split()[1] not in ['total', 'seconds']:
+        return False
+    return True
+
+def read_time_data(filepath):
+    with open(filepath) as f:
+        line = f.read().split('\n')[-2]
+        if not is_valid_data(line):
+            return None
+
+        time = line.split(';')[1].split()[0]
+        return int(time)
+
+def get_data_suri(task, package, is_setC):
+    if task.dataset == 'setC' and not is_setC:
+        dataset = 'setA'
+    else:
+        dataset = task.dataset
+    log_path = os.path.join('stat', 'runtime', dataset, package, 'gcc-11', 'o3_bfd', 'suri', '%s.txt' % task.bin_name)
+    return read_time_data(log_path)
+
+def get_data(task, package, tool_name):
+    log_path = os.path.join('stat', 'runtime', task.dataset, package, 'gcc-11', 'o3_bfd', tool_name, '%s.txt' % task.bin_name)
+    return read_time_data(log_path)
+
+def collect_setA(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        tasks = prepare_tasks(args, package)
+
+        num_bins = 0
+        suri_overhead = 0.0
+        target_overhead = 0.0
+        for task in tasks:
+            if task.bin_name not in RUNTIME_TARGET_LIST:
                 continue
 
-            print('%-15s %4d | %8f%%  %15f%%'%(package, bins1, (tot1/bins1)*100-100, (tot2/bins2)*100-100))
-            ov1 += tot1
-            ov2 += tot2
-            nu1 += bins1
-            nu2 += bins2
-        print('%-15s %4d | %8f%%  %15f%%'%('Total', nu1, (ov1/nu1)*100-100, (ov2/nu2)*100-100))
+            d_original = get_data(task, package, 'original')
+            d_suri = get_data_suri(task, package, False)
+            d_target = get_data(task, package, 'ddisasm') # Comparison target is Ddisasm
+            if d_original is None or d_suri is None or d_target is None:
+                continue
 
+            num_bins += 1
+            suri_overhead += (d_suri - d_original) / d_original
+            target_overhead += (d_target - d_original) / d_original
+
+        data[package] = num_bins, suri_overhead, target_overhead
+
+    return data
+
+def collect_setB(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        tasks = prepare_tasks(args, package)
+
+        num_bins = 0
+        suri_overhead = 0.0
+        target_overhead = 0.0
+        for task in tasks:
+            if task.bin_name not in RUNTIME_TARGET_LIST:
+                continue
+
+            d_original = get_data(task, package, 'original')
+            d_suri = get_data_suri(task, package, False)
+            d_target = get_data(task, package, 'egalito') # Comparison target is Egalito
+            if d_original is None or d_suri is None or d_target is None:
+                continue
+
+            num_bins += 1
+            suri_overhead += (d_suri - d_original) / d_original
+            target_overhead += (d_target - d_original) / d_original
+
+        data[package] = num_bins, suri_overhead, target_overhead
+
+    return data
+
+def collect_setC(args):
+    data = {}
+    for package in PACKAGES_SPEC:
+        tasks = prepare_tasks(args, package)
+
+        num_bins = 0
+        suri_overhead = 0.0
+        target_overhead = 0.0
+        for task in tasks:
+            d_original = get_data(task, package, 'original')
+            d_suri = get_data_suri(task, package, False) # SURI on setA
+            d_target = get_data_suri(task, package, True) # Comparison target is SURI on setC
+            if d_original is None or d_suri is None or d_target is None:
+                continue
+
+            num_bins += 1
+            suri_overhead += (d_suri - d_original) / d_original
+            target_overhead += (d_target - d_original) / d_original
+
+        data[package] = num_bins, suri_overhead, target_overhead
+
+    return data
+
+# Collect data generated by 4_get_runtime_overhead.py.
+def collect(args):
+    if args.dataset == 'setA':
+        return collect_setA(args)
+    elif args.dataset == 'setB':
+        return collect_setB(args)
     else:
-        base_folder = './stat/runtime/%s'%(args.dataset)
-        if args.dataset in ['setA']:
-            print('%20s |  %8s  %8s'%('', 'suri', 'ddisasm'))
-        if args.dataset in ['setB']:
-            print('%20s |  %8s  %8s'%('', 'suri', 'egalito'))
-        for package in ['spec_cpu2006', 'spec_cpu2017']:
-            run(args.dataset, base_folder, package)
+        return collect_setC(args)
+
+################################
+
+def print_header(dataset):
+    if dataset == 'setA':
+        print(FMT_RUNTIME_HEADER_AB % ('', 'suri', 'ddisasm'))
+    elif dataset == 'setB':
+        print(FMT_RUNTIME_HEADER_AB % ('', 'suri', 'egalito'))
+    else:
+        print(FMT_RUNTIME_HEADER_C % ('', 'suri', 'suri(no_ehframe)'))
+
+# Report the percentage of average runtime overheads for Table 4 of our paper.
+def report(args, data):
+    print_header(args.dataset)
+    print(FMT_LINE)
+
+    total_num_bins = 0
+    total_suri_overhead = 0.0
+    total_target_overhead = 0.0
+    for package in PACKAGES_SPEC:
+        if package not in data:
+            continue
+
+        num_bins, suri_overhead, target_overhead = data[package]
+        total_num_bins += num_bins
+        total_suri_overhead += suri_overhead
+        total_target_overhead += target_overhead
+        if num_bins > 0:
+            avg_suri_overhead = suri_overhead / num_bins * 100
+            avg_target_overhead = target_overhead / num_bins * 100
+            print(FMT_RUNTIME_INDIVIDUAL % (package, num_bins, avg_suri_overhead, avg_target_overhead))
+
+    if total_num_bins > 0:
+        print(FMT_LINE)
+        total_avg_suri_overhead = total_suri_overhead / total_num_bins * 100
+        total_avg_target_overhead = total_target_overhead / total_num_bins * 100
+        print(FMT_RUNTIME_TOTAL % ('Total', total_num_bins, total_avg_suri_overhead, total_avg_target_overhead))
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    data = collect(args)
+    report(args, data)

@@ -1,11 +1,11 @@
-﻿module SupersetCFG.Main
+module SupersetCFG.Main
 
 open System.Collections.Generic
 open B2R2
-open B2R2.FrontEnd.BinInterface
+open B2R2.FrontEnd
 open B2R2.FrontEnd.BinLifter
 open B2R2.FrontEnd.BinLifter.Intel
-open B2R2.MiddleEnd.BinEssence
+open SuperCFG.BinEssence
 open System.IO
 #if DEBUG_META_FILE
 open System.Text.Json
@@ -106,9 +106,10 @@ let SaveJSON fileName data =
 let main args =
   let path =  args[0]
   if File.Exists(path) then
-    let hdl = BinHandle.Init(ISA.DefaultISA, fileName = args[0])
+    let isa = ISA.DefaultISA
+    let hdl = BinHandle (args[0], isa)
     let fileName = args[1]
-    let ess = BinEssence.init hdl [] [] []
+    let ess = BinEssence.init hdl isa [] [] []
     if args.Length = 2 then
       let fnList = ConstructCFG ess hdl
       let data = MakeB2R2Meta ess fnList

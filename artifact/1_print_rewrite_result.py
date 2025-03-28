@@ -2,43 +2,59 @@ from collections import namedtuple
 import glob, os, sys
 import multiprocessing
 from filter_utils import check_exclude_files
+import argparse
+from consts import *
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'pie', 'package', 'bin', 'dataset'])
+ExpTask = namedtuple('ExpTask', ['dataset', 'compiler', 'output_dir', 'bin_name'])
 
-def gen_option(input_root, output_root, package, dataset):
-    ret = []
-    cnt = 0
-    for arch in ['x64']:
-        for comp in ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']:
-            for popt in ['pie']:
-                for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-                    for lopt in ['bfd', 'gold']:
-                        sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                        input_dir = '%s/%s'%(input_root, sub_dir)
-                        for target in glob.glob('%s/stripbin/*'%(input_dir)):
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
+    parser.add_argument('--input_dir', type=str, default='benchmark')
+    parser.add_argument('--output_dir', type=str, default='output')
+    parser.add_argument('--verbose', action='store_true')
+    args = parser.parse_args()
 
-                            filename = os.path.basename(target)
-                            binpath = '%s/stripbin/%s'%(input_dir, filename)
+    # Sanitizing arguments
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
 
-                            out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
+    return args
 
-                            if check_exclude_files(dataset, package, comp, opt, filename):
-                                continue
+################################
 
-                            ret.append(BuildConf(target, input_root, sub_dir, out_dir, comp, popt, package, binpath, dataset))
+def prepare_tasks(args, package):
+    tasks = []
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
+                input_base = os.path.join(args.input_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                output_base = os.path.join(args.output_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                strip_dir = os.path.join(input_base, 'stripbin', '*')
 
-                            cnt += 1
-    return ret
+                for target in glob.glob(strip_dir):
+                    filename = os.path.basename(target)
 
+                    # Filter binaries
+                    if check_exclude_files(args.dataset, package, comp, opt, filename):
+                        continue
 
-def read_time(filename):
+                    out_dir = os.path.join(output_base, filename)
+                    tasks.append(ExpTask(args.dataset, comp, out_dir, filename))
+    return tasks
+
+################################
+
+def is_valid_data(t):
+    if 'Command' in t:
+        return False
+    return True
+
+def read_time_data(filename):
     with open(filename) as f:
         data = f.read()
-        if not data:
-            return 0
         t = data.split()[0]
-        if 'Command' in t:
-            return 0
+        if not is_valid_data(t):
+            return None
 
         if len(t.split(':'))  == 3:
             hour = int(t.split(':')[0])
@@ -50,171 +66,200 @@ def read_time(filename):
         sec = float(t.split(':')[1])
         return (minute*60+sec)
 
-def check_super(root, filename, verbose):
-    target = '%s/%s'%(root, filename)
+# Returns the time taken to reassemble a binary, or None if it failed.
+def get_data_suri(task, is_setC, verbose):
+    if task.dataset == 'setC' and not is_setC:
+        out_dir = os.path.join(task.output_dir.replace('setC', 'setA'), 'super')
+    else:
+        out_dir = os.path.join(task.output_dir, 'super')
+    res_path = os.path.join(out_dir, 'my_' + task.bin_name)
 
-    if os.path.exists(target):
-        t1 = read_time('%s/tlog1.txt'%(root))
-        if os.path.exists('%s/tlog2.txt'%(root)):
-            t1 += read_time('%s/tlog2.txt'%(root))
-        if os.path.exists('%s/tlog3.txt'%(root)):
-            t1 += read_time('%s/tlog3.txt'%(root))
-        return t1
-    if verbose:
-        print(' [-] SURI fails to reassemble %s'%(target))
-    return 0.0
+    if os.path.exists(res_path):
+        return read_time_data('%s/tlog1.txt'%(out_dir))
+    else:
+        if verbose:
+            print(' [-] SURI fails to reassemble %s'%(res_path))
+        return None
 
-def check_ddisasm(root, filename, verbose):
-    target = '%s/%s'%(root, filename)
+# Returns the time taken to reassemble a binary, or None if it failed.
+def get_data_ddisasm(task, verbose):
+    out_dir = os.path.join(task.output_dir, 'ddisasm')
+    res_path = os.path.join(out_dir, task.bin_name)
 
-    if os.path.exists(target):
-        t1 = read_time('%s/tlog.txt'%(root))
-        t2 = read_time('%s/tlog2.txt'%(root))
-        return t1 + t2
-    if verbose:
-        print(' [-] Ddisasm fails to reassemble %s'%(target))
-    return 0.0
+    if os.path.exists(res_path):
+        t_reasm = read_time_data('%s/tlog.txt'%(out_dir))
+        t_compile = read_time_data('%s/tlog2.txt'%(out_dir))
+        return t_reasm + t_compile
+    else:
+        if verbose:
+            print(' [-] Ddisasm fails to reassemble %s'%(res_path))
+        return None
 
-def check_egalito(root, filename, verbose):
-    target = '%s/%s'%(root, filename)
-    if os.path.exists(target):
-        t1 = read_time('%s/tlogx.txt'%(root))
-        return t1, True
-    if verbose:
-        print(' [-] Egalito fails to reassemble %s'%(target))
-    return 0.0, False
+# Returns the time taken to reassemble a binary, or None if it failed.
+def get_data_egalito(target, verbose):
+    out_dir = os.path.join(task.output_dir, 'egalito')
+    res_path = os.path.join(out_dir, task.bin_name)
 
-def job(conf, verbose):
-    filename = os.path.basename(conf.bin)
-    super_dir = '%s/super'%(conf.output_path)
-    ddisasm_dir = '%s/ddisasm'%(conf.output_path)
-    egalito_dir = '%s/egalito'%(conf.output_path)
+    if os.path.exists(res_path):
+        return read_time_data('%s/tlogx.txt'%(out_dir))
+    else:
+        if verbose:
+            print(' [-] Egalito fails to reassemble %s'% res_path)
+        return None
 
-    t1 = check_super(super_dir, 'my_'+filename, verbose)
-    if conf.dataset == 'setA':
-        t2 = check_ddisasm(ddisasm_dir, filename, verbose)
-        egalito_succ = False
-    elif conf.dataset == 'setB':
-        t2, egalito_succ = check_egalito(egalito_dir, filename, verbose)
-    elif conf.dataset == 'setC':
-        t2 = check_super(super_dir.replace('setC','setA'), 'my_'+filename, verbose)
-        egalito_succ = False
+def collect_setA(args):
+    data = {}
+    for package in PACKAGES:
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if package not in data:
+                data[package] = {}
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
-    return (filename, t1, t2, egalito_succ)
+            suri_time = get_data_suri(task, False, args.verbose)
+            target_time = get_data_ddisasm(task, args.verbose) # Comparison target is Ddisasm
 
+            num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+            num_bins += 1
+            if suri_time is not None:
+                suri_succ += 1
+            if target_time is not None:
+                target_succ += 1
+            if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+                both_succ += 1
+                sum_suri_time += suri_time
+                sum_target_time += target_time
 
+            data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
-def run(input_root, output_root, dataset, package, verbose):
+    return data
 
-    if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006' ]:
-        return False
+def collect_setB(args):
+    data = {}
+    for package in PACKAGES:
+        if package not in data:
+            data[package] = {}
 
-    config_list = gen_option(input_root, output_root, package, dataset)
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
-    time_dict = dict()
-    file_dict = dict()
-    suri_dict = dict()
-    other_dict = dict()
-    for conf in config_list:
-        if conf.comp not in time_dict:
-            time_dict[conf.comp] = dict()
-            file_dict[conf.comp] = 0
-            suri_dict[conf.comp] = 0
-            other_dict[conf.comp] = 0
+            suri_time = get_data_suri(task, False, args.verbose)
+            target_time = get_data_egalito(task, args.verbose) # Comparison target is Egalito
 
-        filename, t1, t2, egalito_succ = job(conf, verbose)
-        if t1 > 0 and t2 > 0:
-            if filename not in time_dict[conf.comp]:
-                time_dict[conf.comp][filename] = []
-            time_dict[conf.comp][filename].append((t1, t2))
+            num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+            num_bins += 1
+            if suri_time is not None:
+                suri_succ += 1
+            if target_time is not None:
+                target_succ += 1
+            if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+                both_succ += 1
+                sum_suri_time += suri_time
+                sum_target_time += target_time
 
-        if t1 > 0:
-            suri_dict[conf.comp] += 1
-        if t2 > 0:
-            other_dict[conf.comp] += 1
-        elif egalito_succ:
-            other_dict[conf.comp] += 1
-        file_dict[conf.comp] += 1
+            data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
+    return data
 
+def collect_setC(args):
+    data = {}
+    for package in PACKAGES:
+        if package not in data:
+            data[package] = {}
 
-    file_cnt, suri_cnt, other_cnt, suri_sum, other_sum = 0, 0, 0, 0, 0
+        tasks = prepare_tasks(args, package)
+        for task in tasks:
+            if task.compiler not in data[package]:
+                data[package][task.compiler] = 0, 0, 0, 0, 0.0, 0.0
 
-    for comp_base in ['clang', 'gcc']:
-        suri_sum_cnt = 0
-        other_sum_cnt = 0
-        file_sum_cnt = 0
+            suri_time = get_data_suri(task, False, args.verbose) # SURI on setA
+            target_time = get_data_suri(task, True, args.verbose) # Comparison target is SURI on setC
 
-        success = 0
+            num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time = data[package][task.compiler]
+            num_bins += 1
+            if suri_time is not None:
+                suri_succ += 1
+            if target_time is not None:
+                target_succ += 1
+            if suri_time is not None and target_time is not None: # Time is counted when both tools succeed for a fair comparison
+                both_succ += 1
+                sum_suri_time += suri_time
+                sum_target_time += target_time
 
-        tot1 = 0
-        tot2 = 0
-        for comp in sorted(time_dict):
-            if comp_base not in comp:
-                continue
+            data[package][task.compiler] = num_bins, suri_succ, target_succ, both_succ, sum_suri_time, sum_target_time
 
-            filedict = time_dict[comp]
-            for filename in filedict.keys():
-                for (t1, t2) in time_dict[comp][filename]:
-                    tot1 += t1
-                    tot2 += t2
-                    success += 1
-            suri_sum_cnt += suri_dict[comp]
-            other_sum_cnt += other_dict[comp]
-            file_sum_cnt += file_dict[comp]
+    return data
 
-        if success == 0:
+# Collect data generated by 1_get_reassembled_code.py.
+def collect(args):
+    if args.dataset == 'setA':
+        return collect_setA(args)
+    elif args.dataset == 'setB':
+        return collect_setB(args)
+    else:
+        return collect_setC(args)
+
+################################
+
+def print_header(dataset):
+    if dataset == 'setA':
+        print(FMT_REWRITE_HEADER % ('', 'suri', 'ddisasm'))
+    elif dataset == 'setB':
+        print(FMT_REWRITE_HEADER % ('', 'suri', 'egalito'))
+    elif dataset == 'setC':
+        print(FMT_REWRITE_HEADER % ('', 'suri', 'suri(no_ehframe)'))
+
+# Report the percentage of average success rates of reassembly for Table 2 and
+# Table 3 of our paper.
+def report(args, data):
+    print_header(args.dataset)
+    print(FMT_REWRITE_LINE)
+
+    total_num_bins = 0
+    total_suri_succ = 0
+    total_target_succ = 0
+    total_both_succ = 0
+    total_suri_time = 0.0
+    total_target_time = 0.0
+    for package in PACKAGES:
+        if package not in data:
             continue
 
-        print('%15s %10s (%4d) : %10f%% %10f : %10f%% %10f'%(package, comp_base, file_sum_cnt,
-            suri_sum_cnt / file_sum_cnt * 100, tot1/success,
-            other_sum_cnt / file_sum_cnt * 100, tot2/success ))
+        for compiler in COMPILERS:
+            if compiler not in data[package]:
+                continue
 
-        file_cnt += file_sum_cnt
-        suri_cnt += suri_sum_cnt
-        other_cnt += other_sum_cnt
-        suri_sum += tot1
-        other_sum += tot2
+            num_bins, suri_succ, target_succ, both_succ, suri_time, target_time = data[package][compiler]
+            total_num_bins += num_bins
+            total_suri_succ += suri_succ
+            total_target_succ += target_succ
+            total_both_succ += both_succ
+            total_suri_time += suri_time
+            total_target_time += target_time
+            if num_bins > 0:
+                comp_name = compiler.split('-')[0]
+                avg_suri_succ = suri_succ / num_bins * 100
+                avg_target_succ = target_succ / num_bins * 100
+                avg_suri_time = suri_time / both_succ
+                avg_target_time = target_time / both_succ
+                print(FMT_REWRITE_INDIVIDUAL % (package, comp_name, num_bins,
+                                                avg_suri_succ, avg_suri_time,
+                                                avg_target_succ, avg_target_time))
 
-    return file_cnt, suri_cnt, other_cnt, suri_sum, other_sum
+    if total_num_bins > 0:
+        print(FMT_REWRITE_LINE)
+        total_avg_suri_succ = total_suri_succ / total_num_bins * 100
+        total_avg_target_succ = total_target_succ / total_num_bins * 100
+        total_avg_suri_time = total_suri_time / total_both_succ
+        total_avg_target_time = total_target_time / total_both_succ
+        print(FMT_REWRITE_TOTAL % ('all', total_num_bins,
+                                   total_avg_suri_succ, total_avg_suri_time,
+                                   total_avg_target_succ, total_avg_target_time))
 
-
-import argparse
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, help='dataset')
-    parser.add_argument('--input_dir', type=str, default='benchmark')
-    parser.add_argument('--output_dir', type=str, default='output')
-    parser.add_argument('--verbose', action='store_true')
-
-    args = parser.parse_args()
-
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
-
-    dataset = args.dataset
-    input_root = './%s/%s'%(args.input_dir, args.dataset)
-    output_root = './%s/%s'%(args.output_dir, args.dataset)
-
-    if dataset == 'setA':
-        print('%32s    %22s   %22s'%('', 'suri', 'ddisasm'))
-    elif dataset == 'setB':
-        print('%32s    %22s   %22s'%('', 'suri', 'egalito'))
-    elif dataset == 'setC':
-        print('%32s    %22s   %22s'%('', 'suri(no_ehframe)', 'suri'))
-
-    print('-----------------------------------------------------------------------------------')
-
-    file_cnt, suri_cnt, other_cnt, suri_sum, other_sum = 0, 0, 0, 0, 0
-    for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2006', 'spec_cpu2017']:
-        cnt1, cnt2, cnt3, cnt4, cnt5 = run(input_root, output_root, dataset, package, args.verbose)
-        file_cnt += cnt1
-        suri_cnt += cnt2
-        other_cnt += cnt3
-        suri_sum += cnt4
-        other_sum += cnt5
-
-    if file_cnt:
-        print('----------------------------------------------------------------------------------')
-        print('%26s (%4d) : %10f%% %10f : %10f%% %10f'%('all', file_cnt,
-            suri_cnt / file_cnt * 100, suri_sum / file_cnt ,
-            other_cnt / file_cnt * 100, other_sum / file_cnt ))
+    args = parse_arguments()
+    data = collect(args)
+    report(args, data)

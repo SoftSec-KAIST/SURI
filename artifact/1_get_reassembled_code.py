@@ -1,70 +1,100 @@
+import argparse, glob, multiprocessing, os, subprocess, sys
 from collections import namedtuple
-import glob, os, sys
-import multiprocessing
 from filter_utils import check_exclude_files
+from consts import *
 
-BuildConf = namedtuple('BuildConf', ['target', 'input_root', 'sub_dir', 'output_path', 'comp', 'package', 'bin', 'dataset'])
+ExpTask = namedtuple('ExpTask', ['dataset', 'input_dir', 'output_dir', 'bin_name'])
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='manager')
+    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
+    parser.add_argument('--input_dir', type=str, default='benchmark')
+    parser.add_argument('--output_dir', type=str, default='output')
+    parser.add_argument('--package', type=str, help='Select package (coreutils-9.1, binutils-2.40, spec_cpu2017, spec_cpu2006)')
+    parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
+    parser.add_argument('--blacklist', nargs='+')
+    parser.add_argument('--whitelist', nargs='+')
+    args = parser.parse_args()
 
-def gen_option(input_root, output_root, package, blacklist, whitelist, dataset):
-    ret = []
-    cnt = 0
+    # Sanitizing arguments
+    assert args.dataset in ['setA', 'setB', 'setC'], 'Invalid dataset: "%s"'%(args.dataset)
+    if args.package:
+        assert args.package in PACKAGES, 'Invalid package: "%s"'%(args.package)
 
-    comp_set = ['clang-13', 'gcc-11', 'clang-10', 'gcc-13']
+    return args
 
-    for comp in comp_set:
-        for opt in ['o0', 'o1', 'o2', 'o3', 'os', 'ofast']:
-            for lopt in ['bfd', 'gold']:
-                sub_dir = '%s/%s/%s_%s'%(package, comp, opt, lopt)
-                input_dir = '%s/%s'%(input_root, sub_dir)
-                for target in glob.glob('%s/stripbin/*'%(input_dir)):
+################################
 
+def prepare_tasks(args, package):
+    tasks = []
+    for comp in COMPILERS:
+        for opt in OPTIMIZATIONS:
+            for lopt in LINKERS:
+                input_base = os.path.join(args.input_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                output_base = os.path.join(args.output_dir, args.dataset, package, comp, '%s_%s' % (opt, lopt))
+                strip_dir = os.path.join(input_base, 'stripbin', '*')
+
+                for target in glob.glob(strip_dir):
                     filename = os.path.basename(target)
-                    binpath = '%s/stripbin/%s'%(input_dir, filename)
 
-                    out_dir = '%s/%s/%s'%(output_root, sub_dir, filename)
-
-                    if blacklist and filename in blacklist:
+                    # Filter binaries
+                    if args.blacklist and filename in args.blacklist:
                         continue
-                    if whitelist and filename not in whitelist:
+                    if args.whitelist and filename not in args.whitelist:
                         continue
-
-                    if check_exclude_files(dataset, package, comp, opt, filename):
+                    if check_exclude_files(args.dataset, package, comp, opt, filename):
                         continue
 
-                    ret.append(BuildConf(target, input_root, sub_dir, out_dir, comp, package, binpath, dataset))
+                    bin_dir = os.path.join(input_base, 'stripbin')
+                    out_dir = os.path.join(output_base, filename)
+                    tasks.append(ExpTask(args.dataset, bin_dir, out_dir, filename))
 
-                    cnt += 1
-    return ret
+    return tasks
 
+################################
 
-def run_suri(conf, filename):
-    input_dir = os.path.dirname(conf.bin)
-    output_dir = '%s/super'%(conf.output_path)
-
-    if not os.path.exists(output_dir):
-        os.system('mkdir -p %s'%(output_dir))
-
-    if os.path.exists('%s/my_%s'%(output_dir, filename)):
-        return
-
-    sub = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/tlog1.txt python3 /project/SURI/suri.py /input/%s --ofolder /output/ --meta b2r2_meta >> /output/log.txt'%(filename)
-
-    if conf.dataset in ['setA', 'setC']:
-        cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s;"'%(input_dir, output_dir, sub)
-    elif conf.dataset in ['setB']:
-        cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact_ubuntu18.04:v1.0 sh -c " %s;"'%(input_dir, output_dir, sub)
-
-    print(cmd)
-
+def run_in_docker(image, in_dir, out_dir, log_name, cmd):
+    if in_dir[0] != '/':
+        in_dir = os.path.join('.', in_dir)
+    if out_dir[0] != '/':
+        out_dir = os.path.join('.', out_dir)
+    time_cmd = '/usr/bin/time -f\'%%E %%U %%S\' -o /output/%s %s' % (log_name, cmd)
+    docker_cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output %s sh -c "%s"' % (in_dir, out_dir, image, time_cmd)
+    print(docker_cmd)
     sys.stdout.flush()
-    os.system(cmd)
+    os.system(docker_cmd)
 
-    return
+################################
 
-def get_options(filepath):
-    import subprocess
-    result = subprocess.run(['ldd', filepath], stdout=subprocess.PIPE)
+def reassem_suri(task, in_dir, out_dir):
+    if task.dataset in ['setA', 'setC']:
+        image = 'suri_artifact:v1.0'
+    elif task.dataset in ['setB']:
+        image = 'suri_artifact_ubuntu18.04:v1.0'
+
+    cmd = 'python3 /project/SURI/suri.py /input/%s --ofolder /output/ --meta b2r2_meta >> /output/log.txt' % task.bin_name
+    run_in_docker(image, in_dir, out_dir, 'tlog1.txt', cmd)
+
+def has_result_suri(res_path):
+    return os.path.exists(res_path)
+
+def run_suri(task):
+    in_dir = task.input_dir
+    out_dir = os.path.join(task.output_dir, 'super')
+    os.system('mkdir -p %s' % out_dir)
+
+    res_path = os.path.join(out_dir, 'my_%s' % task.bin_name)
+    if not has_result_suri(res_path):
+        reassem_suri(task, in_dir, out_dir)
+
+################################
+
+def reassem_ddisasm(task, in_dir, out_dir):
+    cmd = 'ddisasm /input/%s --asm /output/ddisasm.s > /output/log.txt' % task.bin_name
+    run_in_docker('reassessor/ddisasm:1.7.0_time', in_dir, out_dir, 'tlog.txt', cmd)
+
+def get_options(bin_path):
+    result = subprocess.run(['ldd', bin_path], stdout=subprocess.PIPE)
     lines = result.stdout.decode('utf-8').split('\n')
     lopt_list = []
     for opt in lines:
@@ -75,13 +105,9 @@ def get_options(filepath):
         elif opt.split():
             lopt_list.append(opt.split()[0])
 
-
     compiler = '/usr/bin/gcc-11'
-
     lopt = ''
-
     for opt in lopt_list[:]:
-
         #if opt in ['-lstdc++']:
         if opt.startswith('libstdc++.so'):
             compiler = '/usr/bin/g++-11'
@@ -91,115 +117,81 @@ def get_options(filepath):
         #elif opt in ['-lc']:
         elif opt.startswith('libc.so'):
             continue
-
         lopt += opt + ' '
-
     lopt += ' -fcf-protection=full -pie -fPIE'
     lopt += ' -Wl,-z,lazy'
 
     return compiler, lopt
 
+def compile_ddisasm(task, in_dir, out_dir):
+    bin_path = os.path.join(in_dir, task.bin_name)
+    comp, lopt = get_options(bin_path)
 
-def reassem_ddisasm(conf, filename, input_dir, output_dir):
+    cmd = '%s /output/ddisasm.s %s -nostartfiles -o /output/%s' % (comp, lopt, task.bin_name)
+    run_in_docker('suri_artifact:v1.0', in_dir, out_dir, 'tlog2.txt', cmd)
 
-    current = multiprocessing.current_process()
+def has_reasm_result_ddisasm(asm_path):
+    return os.path.exists(asm_path) and os.stat(asm_path).st_size > 0
 
-    cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output reassessor/ddisasm:1.7.0_time sh -c "/usr/bin/time  -f\'%%E %%U %%S\' -o /output/tlog.txt ddisasm /input/%s --asm /output/ddisasm.s > /output/log.txt "'%(input_dir, output_dir, filename)
-    print(cmd)
-    sys.stdout.flush()
-    os.system(cmd)
+def has_result_ddisasm(res_path):
+    return os.path.exists(res_path)
 
-def compile_ddisasm(conf, filename, input_dir, output_dir):
+def run_ddisasm(task):
+    in_dir = task.input_dir
+    out_dir = os.path.join(task.output_dir, 'ddisasm')
+    os.system('mkdir -p %s' % out_dir)
 
-    comp, lopt = get_options(conf.bin)
-    sub = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlog2.txt %s /output/ddisasm.s %s -nostartfiles -o /output/%s'%(comp, lopt, filename)
-    cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c " %s;"'%( input_dir, output_dir, sub)
-    print(cmd)
-    os.system(cmd)
+    asm_path = os.path.join(out_dir, 'ddisasm.s')
+    if not has_reasm_result_ddisasm(asm_path):
+        reassem_ddisasm(task, in_dir, out_dir)
 
-def run_ddisasm(conf, filename):
+    res_path = os.path.join(out_dir, task.bin_name)
+    if not has_result_ddisasm(res_path):
+        compile_ddisasm(task, in_dir, out_dir)
 
-    input_dir = os.path.dirname(conf.bin)
-    output_dir = '%s/ddisasm'%(conf.output_path)
+################################
 
-    if not os.path.exists(output_dir):
-        os.system('mkdir -p %s'%(output_dir))
+def reassem_egalito(task, in_dir, out_dir):
+    cmd = '/project/egalito/app/etelf -m /input/%s /output/%s > /output/log.txt 2>&1' % (task.bin_name, task.bin_name)
+    run_in_docker('suri_artifact_ubuntu18.04:v1.0', in_dir, out_dir, 'tlogx.txt', cmd)
 
-    if not os.path.exists('%s/ddisasm.s'%(output_dir)) or os.stat('%s/ddisasm.s'%(output_dir)).st_size == 0:
-        reassem_ddisasm(conf, filename, input_dir, output_dir)
+def has_result_egalito(res_path):
+    return os.path.exists(res_path) and os.stat(res_path).st_size > 0
 
-    if not os.path.exists('%s/%s'%(output_dir, filename)):
-        compile_ddisasm(conf, filename, input_dir, output_dir)
+def run_egalito(task):
+    in_dir = task.input_dir
+    out_dir = os.path.join(task.output_dir, 'egalito')
+    os.system('mkdir -p %s' % out_dir)
 
+    res_path = os.path.join(out_dir, task.bin_name)
+    if not has_result_egalito(res_path):
+        reassem_egalito(task, in_dir, out_dir)
 
-def reassem_egalito(conf, filename, input_dir, output_dir):
+################################
 
-    current = multiprocessing.current_process()
+# setA: SURI vs. Ddisasm
+# setB: SURI vs. Egalito
+# setC: SURI
+def run_task(task):
+    run_suri(task)
 
-    sub_cmd = '/usr/bin/time  -f\'%%E %%U %%s\' -o /output/tlogx.txt /project/egalito/app/etelf -m /input/%s /output/%s > /output/log.txt 2>&1'%(filename, filename)
-    cmd = 'docker run --rm --memory 64g --cpus 1 -v %s:/input -v %s:/output suri_artifact_ubuntu18.04:v1.0 sh -c " %s"'%( input_dir, output_dir, sub_cmd)
-    print(cmd)
-    sys.stdout.flush()
-    os.system(cmd)
+    if task.dataset == 'setA':
+        run_ddisasm(task)
+    elif task.dataset == 'setB':
+        run_egalito(task)
 
+def run_package(args, package):
+    tasks = prepare_tasks(args, package)
+    p = multiprocessing.Pool(args.core)
+    p.map(run_task, tasks)
 
-def run_egalito(conf, filename):
-    input_dir = os.path.dirname(conf.bin)
-    output_dir = '%s/egalito'%(conf.output_path)
-
-    if not os.path.exists(output_dir):
-        os.system('mkdir -p %s'%(output_dir))
-
-    if not os.path.exists('%s/%s'%(output_dir, filename)) or os.stat('%s/%s'%(output_dir, filename)).st_size == 0:
-        reassem_egalito(conf, filename, input_dir, output_dir)
-
-
-
-
-def job(conf):
-    filename = os.path.basename(conf.bin)
-
-    run_suri(conf, filename)
-
-    if conf.dataset == 'setA':
-        run_ddisasm(conf, filename)
-    if conf.dataset == 'setB':
-        run_egalito(conf, filename)
-
-
-def run(input_root, output_root, package, core=1, blacklist=None, whitelist=None, dataset=''):
-    if package not in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
-        return False
-    config_list = gen_option(input_root, output_root, package, blacklist, whitelist, dataset)
-
-    if core and core > 1:
-        p = multiprocessing.Pool(core)
-        p.map(job, [(conf) for conf in config_list])
-    else:
-        for conf in config_list:
-            job(conf)
-
-
-import argparse
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='manager')
-    parser.add_argument('dataset', type=str, default='setA', help='Select dataset (setA, setB, setC)')
-    parser.add_argument('--input_dir', type=str, default='benchmark')
-    parser.add_argument('--output_dir', type=str, default='output')
-    parser.add_argument('--package', type=str, help='Package')
-    parser.add_argument('--core', type=int, default=1, help='Number of cores to use')
-    parser.add_argument('--blacklist', nargs='+')
-    parser.add_argument('--whitelist', nargs='+')
-
-    args = parser.parse_args()
-
-    assert args.dataset in ['setA', 'setB', 'setC'], '"%s" is invalid. Please choose one from setA, setB, or setC.'%(args.dataset)
-
-    input_dir = './%s/%s'%(args.input_dir, args.dataset)
-    output_dir = './%s/%s'%(args.output_dir, args.dataset)
-
+def run(args):
     if args.package:
-        run(input_dir, output_dir, args.dataset, args.package, args.core, args.blacklist, args.whitelist, args.dataset)
+        run_package(args, args.package)
     else:
-        for package in ['coreutils-9.1', 'binutils-2.40', 'spec_cpu2017', 'spec_cpu2006']:
-            run(input_dir, output_dir, package, args.core, args.blacklist, args.whitelist, args.dataset)
+        for package in PACKAGES:
+            run_package(args, package)
+
+if __name__ == '__main__':
+    args = parse_arguments()
+    run(args)

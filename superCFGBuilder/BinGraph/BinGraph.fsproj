@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageIcon>b2r2-240x240.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>B2R2 graph library.</Description>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Vertices.fs" />
+    <Compile Include="Edges.fs" />
+    <Compile Include="Graph.fs" />
+    <Compile Include="GraphCore.fs" />
+    <Compile Include="DiGraph.fs" />
+    <Compile Include="Imperative.fs" />
+    <Compile Include="Persistent.fs" />
+    <Compile Include="RangedDiGraph.fs" />
+    <Compile Include="DummyVertex.fs" />
+    <Compile Include="Traversal.fs" />
+    <Compile Include="Dominator.fs" />
+    <Compile Include="SCC.fs" />
+    <Compile Include="Loop.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\B2R2\src\Core\B2R2.Core.fsproj" />
+  </ItemGroup>
+
+</Project>

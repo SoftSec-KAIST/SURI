@@ -1,14 +1,14 @@
-﻿module SupersetCFG.MetaGen
+module SupersetCFG.MetaGen
 
 open System.Collections
 open System.Collections.Generic
 open B2R2
-open B2R2.FrontEnd.BinInterface
-open B2R2.MiddleEnd.BinEssence
+open B2R2.FrontEnd
+open SuperCFG.BinEssence
 open B2R2.FrontEnd.BinLifter.Intel
-open B2R2.MiddleEnd.ControlFlowAnalysis
-open B2R2.MiddleEnd.ControlFlowGraph
-open B2R2.MiddleEnd.BinGraph
+open SuperCFG.ControlFlowAnalysis
+open SuperCFG.ControlFlowGraph
+open SuperCFG.BinGraph
 
 type JmpTblInfo = {
   JmpSite: string
@@ -68,14 +68,14 @@ let getRIPAccess = function
     [(isRIPAccess opr1); (isRIPAccess opr2);
      (isRIPAccess opr3); (isRIPAccess opr4)]
 
-let rec disasmLoop (hdl: BinHandle) (addr:Addr) (eAddr:Addr) acc =
+let rec disasmLoop (hdl: BinHandle) (lu: LiftingUnit) (addr:Addr) (eAddr:Addr) acc =
   if addr = eAddr then acc
   else
-      let ins = BinHandle.ParseInstr (hdl, addr)
+      let ins = lu.ParseInstruction (addr)
       let addr = ins.Address
       let disasm = ins.Disasm ()
       let length = ins.Length
-      let byteString = BinHandle.ReadBytes (hdl, addr, int length)
+      let byteString = hdl.ReadBytes (addr, int length)
                         |> Array.map (fun b -> b.ToString ("X2"))
                         |> Array.reduce (+)
       let ripAccess = getRIPAccess (ins :?> IntelInstruction).Operands
@@ -83,15 +83,15 @@ let rec disasmLoop (hdl: BinHandle) (addr:Addr) (eAddr:Addr) acc =
       let code = {Addr=addrStr; Length=length; ByteString=byteString
                   Disassem=disasm; RIPAddressing = ripAccess
                   IsBranch=ins.IsBranch()}
-      disasmLoop hdl (addr + uint64 ins.Length) eAddr (code::acc)
+      disasmLoop hdl lu (addr + uint64 ins.Length) eAddr (code::acc)
 
-let disassem hdl (vertex: Vertex<DisasmBasicBlock>) =
+let disassem hdl lu (vertex: Vertex<DisasmBasicBlock>) =
   let sAddr = vertex.VData.PPoint.Address
   if vertex.VData.IsFakeBlock() then
     None
   else if vertex.VData.PPoint.Position >= 0 then
     let eAddr = vertex.VData.Range.Count + sAddr
-    let code = disasmLoop hdl sAddr eAddr [] |> List.rev
+    let code = disasmLoop hdl lu sAddr eAddr [] |> List.rev
     Some code
   else
     None
@@ -146,9 +146,9 @@ let CollectVertices cfg (v: DisasmVertex) =
   List.ofSeq ret
 
 
-let rec readTables hdl (bAddr: Addr) (idx: uint64) acc =
+let rec readTables (hdl: BinHandle) (bAddr: Addr) (idx: uint64) acc =
   let entryAddr = bAddr + uint64 4 * (idx - uint64 1)
-  let data = BinHandle.ReadInt (hdl, entryAddr, 4)
+  let data = hdl.ReadInt (entryAddr, 4)
   let entry = bAddr + uint64 data
   if idx = uint64 1 then entry::acc
   else readTables hdl bAddr (idx-(uint64 1)) (entry::acc)
@@ -171,7 +171,7 @@ let MetaGen (ess: BinEssence) hdl =
         let bblList
             = allVertices
               |> List.fold(fun acc (v, edges) ->
-                            match disassem hdl v with
+                            match disassem hdl ess.LiftingUnit v with
                             | Some code ->  let addr = v.VData.PPoint.Address
                                             { Addr = $"0x%x{addr}" ;
                                               Size = v.VData.Range.Count;
