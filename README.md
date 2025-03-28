@@ -152,5 +152,15 @@ This tree shows some important files and directories only.
 
 If you want to cite SURI:
 ```
-T.B.D.
+@inproceedings{10.1145/3676641.3716026,
+  author = {Kim, Hyungseok and Kim, Soomin and Cha, Sang Kil},
+  title = {Towards Sound Reassembly of Modern x86-64 Binaries},
+  year = {2025},
+  url = {https://doi.org/10.1145/3676641.3716026},
+  doi = {10.1145/3676641.3716026},
+  booktitle = {Proceedings of the 30th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2},
+  pages = {1317–1333},
+  numpages = {17},
+  series = {ASPLOS '25}
+}
 ```
