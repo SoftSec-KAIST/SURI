@@ -19,10 +19,6 @@ RUN cd /project && \
     pip install -r requirements.txt && \
     python3 setup.py install
 
-# Set up directories for Reassessor
-RUN mkdir -p /data3/3_supersetCFG/benchmark/ && \
-    mkdir -p /data3/3_supersetCFG/benchmark_no_ehframe/
-
 # Install RetroWrite
 RUN git clone https://github.com/witbring/retrowrite_ef4e541.git /project/retrowrite && \
     cd /project/retrowrite && \

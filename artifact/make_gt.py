@@ -21,7 +21,7 @@ def run(args):
     in_dir = os.path.abspath(in_dir)
     out_dir = os.path.abspath(out_dir)
 
-    cmd = 'docker run --rm -v %s:/data3/3_supersetCFG/benchmark -v %s:/output  suri_artifact:v1.0 sh -c "python3 /project/Reassessor/artifact/run_reassessor.py /data3/3_supersetCFG/benchmark /output"' % (in_dir, out_dir)
+    cmd = 'docker run --rm -v %s:/input -v %s:/output suri_artifact:v1.0 sh -c "python3 /project/Reassessor/artifact/run_reassessor.py /input /output"' % (in_dir, out_dir)
     print(cmd)
     os.system(cmd)
 
