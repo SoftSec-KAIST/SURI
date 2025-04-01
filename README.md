@@ -12,7 +12,7 @@ If you are interested in our artifact, visit [here](artifact/README.md)
 
 SURI requires the following software dependencies:
 
-- .NET 9.0
+- .NET 7.0
 - Python 3 (with pip)
 - gcc-11
 
