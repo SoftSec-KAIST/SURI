@@ -152,7 +152,7 @@ This tree shows some important files and directories only.
 
 If you want to cite SURI:
 ```
-@inproceedings{10.1145/3676641.3716026,
+@inproceedings{kim:asplos:2025,
   author = {Kim, Hyungseok and Kim, Soomin and Cha, Sang Kil},
   title = {Towards Sound Reassembly of Modern x86-64 Binaries},
   year = {2025},
